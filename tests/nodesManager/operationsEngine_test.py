@@ -22,9 +22,10 @@ except Exception, err:
 
 class OperationsEngineTestCase(unittest.TestCase):
     def test_01_call_without_nodes(self):
-        def onOperationResultRoutine(session_id, status, ret_params_map):
+        def onOperationResultRoutine(operation_name, session_id, status, ret_params_map):
             print '[DEBUG] callback: ', session_id, status, ret_params_map
             self.assertEqual(session_id>0, True)
+            self.assertEqual(operation_name, 'TEST_OPERATION')
             self.assertEqual(status, operationsEngine.ORS_TIMEOUTED)
             self.assertEqual(ret_params_map, {})
 
@@ -80,14 +81,6 @@ class OperationsEngineTestCase(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(len(message)>0, True)
 
-        #call on node
-        session_id, code, message = ENGINE.callOperationOnNode('fabregas',
-                            '127.0.0.1', 'TEST_OPERATION', {'param1':10}, onOperationResultRoutine)
-        sessions.append(session_id)
-        self.assertEqual(session_id>0, True)
-        self.assertEqual(code, 0)
-        self.assertEqual(len(message)>0, True)
-
         #waiting operations finishing
         for session_id in sessions:
             while True:
@@ -99,23 +92,25 @@ class OperationsEngineTestCase(unittest.TestCase):
 
 
     def test_03_node_emulation(self):
-        def onOperationResultRoutine(session_id, status, ret_params_map):
+        def onOperationResultRoutine(operation_name, session_id, status, ret_params_map):
             print '[DEBUG] callback: ', session_id, status, ret_params_map
             self.assertEqual(session_id>0, True)
+            self.assertEqual(operation_name, 'TEST_OPERATION')
             self.assertEqual(status, operationsEngine.ORS_COMPLETE)
             self.assertEqual(ret_params_map, {'127.0.0.1':{}})
 
-        def onOperationResultRoutine2(session_id, status, ret_params_map):
+        def onOperationResultRoutine2(operation_name, session_id, status, ret_params_map):
             print '[DEBUG] callback2: ', session_id, status, ret_params_map
             self.assertEqual(session_id>0, True)
+            self.assertEqual(operation_name, 'TEST_OPERATION')
             self.assertEqual(status, operationsEngine.ORS_COMPLETE)
             self.assertEqual(ret_params_map, {'127.0.0.1':{'param1':23}})
 
         sessions = []
 
         #call on node
-        session_id, code, message = ENGINE.callOperationOnNode('fabregas',
-                            '127.0.0.1', 'TEST_OPERATION', {}, onOperationResultRoutine)
+        session_id, code, message = ENGINE.callOperationOnNodes('fabregas',
+                            ['127.0.0.1'], 'TEST_OPERATION', {}, onOperationResultRoutine)
         sessions.append(session_id)
         self.assertEqual(session_id>0, True)
         self.assertEqual(code, 0)
@@ -125,8 +120,8 @@ class OperationsEngineTestCase(unittest.TestCase):
         err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'ret_code':0, 'ret_message':'ok'})
         self.assertEqual(err_code, 0)
 
-        session_id, code, message = ENGINE.callOperationOnNode('fabregas',
-                            '127.0.0.1', 'TEST_OPERATION', {}, onOperationResultRoutine2)
+        session_id, code, message = ENGINE.callOperationOnNodes('fabregas',
+                            ['127.0.0.1'], 'TEST_OPERATION', {}, onOperationResultRoutine2)
         sessions.append(session_id)
         self.assertEqual(session_id>0, True)
         self.assertEqual(code, 0)

@@ -28,7 +28,8 @@ ORS_COMPLETE    = 1
 ORS_TIMEOUTED   = 2
 
 class OperationResult:
-    def __init__(self, operation_timeout, callbackFunction):
+    def __init__(self, operation_name, operation_timeout, callbackFunction):
+        self.operation_name = operation_name
         self.ret_params_map = {} #FIXME: should be thread-safe
         self.max_end_datetime = datetime.now() + timedelta(0, operation_timeout)
         self.callbackFunction = callbackFunction
@@ -145,8 +146,10 @@ class OperationsEngine:
         @operation_name (string) name of operatiob (nm_operation.name)
         @parameters_map (dict {param_name, param_value}) operation input parameters
         @onOperationResultRoutine (func) callback routine for receiving operation results
-                            This routine should has following spec: (status, ret_params_map),
-                            where status (integer) - status of operation
+                            This routine should has following spec: (operation_name, session_id, status, ret_params_map),
+                            where operation_name (string) - name of operation
+                            session_id (integer) - identifier of session
+                            status (integer) - status of operation
                             ret_params_map (dict) - {<node_hostname>: { <param_name> : <param_value>, ...}, ...}
 
         @return (session_id, ret_code, ret_message)
@@ -168,7 +171,7 @@ class OperationsEngine:
 
             session_id = self.__insert_operation_into_db(operation_id, user_name, nodes)
 
-            self._active_operations.put(session_id, OperationResult(timeout, onOperationResultRoutine))
+            self._active_operations.put(session_id, OperationResult(operation_name, timeout, onOperationResultRoutine))
 
             self.__call_operation(session_id, nodes, operation_name, parameters_map)
 
@@ -189,10 +192,11 @@ class OperationsEngine:
         @nodes_list (list of strings) hostnames of nodes (nm_node.hostname)
         @operation_name (string) name of operatiob (nm_operation.name)
         @parameters_map (dict {param_name, param_value}) operation input parameters
-        @onOperationResultRoutine (func) callback routine for receiving operation results
-                            This routine should has following spec: (status, ret_params_map),
-                            where status (integer) - status of operation
-                            ret_params_map (dict) - {<node_name>: { <param_name> : <param_value>, ...}, ...}
+                            This routine should has following spec: (operation_name, session_id, status, ret_params_map),
+                            where operation_name (string) - name of operation
+                            session_id (integer) - identifier of session
+                            status (integer) - status of operation
+                            ret_params_map (dict) - {<node_hostname>: { <param_name> : <param_value>, ...}, ...}
 
         @return (session_id, ret_code, ret_message)
         '''
@@ -213,7 +217,7 @@ class OperationsEngine:
 
             session_id = self.__insert_operation_into_db(operation_id, user_name, nodes)
 
-            self._active_operations.put(session_id, OperationResult(timeout, onOperationResultRoutine))
+            self._active_operations.put(session_id, OperationResult(operation_name, timeout, onOperationResultRoutine))
 
             self.__call_operation(session_id, nodes, operation_name, parameters_map)
 
@@ -225,50 +229,6 @@ class OperationsEngine:
                 self.__delete_session(session_id)
             return (None, 1, str(err))
 
-
-    def callOperationOnNode(self, user_name, node_hostname, operation_name, parameters_map, onOperationResultRoutine):
-        '''
-        call operation on all nodes in cluster
-
-        @user_name (string) name of user who calling operation (nm_user.name)
-        @node_name (string) hostname of node (nm_node.hostname)
-        @operation_name (string) name of operatiob (nm_operation.name)
-        @parameters_map (dict {param_name, param_value}) operation input parameters
-        @onOperationResultRoutine (func) callback routine for receiving operation results
-                            This routine should has following spec: (status, ret_params_map),
-                            where status (integer) - status of operation
-                            ret_params_map (dict) - {<node_name>: { <param_name> : <param_value>, ...}, ...}
-
-        @return (session_id, ret_code, ret_message)
-        '''
-        try:
-            session_id = None
-            logger.info('CALL operation %s on node %s'%(operation_name, node_hostname))
-
-            operation_id, node_type_id, timeout = self.__get_operation_info(operation_name)
-
-            rows = self._dbconn.select("SELECT id, hostname, node_type FROM NM_NODE \
-                                        WHERE hostname=%s", (node_hostname,))
-            if not rows:
-                raise Exception('No nodes found with hostname %s in database' % node_hostname)
-
-            nodes = self.__form_nodes(rows, node_type_id)
-            if not nodes:
-                raise Exception('Not found node for operation %s.'%(operation_name,))
-
-            session_id = self.__insert_operation_into_db(operation_id, user_name, nodes)
-
-            self._active_operations.put(session_id, OperationResult(timeout, onOperationResultRoutine))
-
-            self.__call_operation(session_id, nodes, operation_name, parameters_map)
-
-            return (session_id, 0, 'Operation %s is called on nodes' % (operation_name,))
-        except Exception, err:
-            logger.error('calOperationOnNode error: %s' % err)
-            if session_id:
-                self._active_operations.delete(session_id)
-                self.__delete_session(session_id)
-            return (None, 1, str(err))
 
 
 class WrappedFriClient(FriClient):
@@ -306,7 +266,7 @@ class WrappedFriClient(FriClient):
 
             self._active_operations.delete(session_id)
 
-            operation.callbackFunction(session_id, ORS_COMPLETE, operation.ret_params_map)
+            operation.callbackFunction(operation.operation_name, session_id, ORS_COMPLETE, operation.ret_params_map)
         except Exception, err:
             logger.error('WrappedFriClient._finish_operation: %s'%err)
             raise err
@@ -360,7 +320,7 @@ class CheckOpTimeoutsThread(threading.Thread):
 
             self._active_operations.delete(session_id)
 
-            operation.callbackFunction(session_id, ORS_TIMEOUTED, operation.ret_params_map)
+            operation.callbackFunction(operation.operation_name, session_id, ORS_TIMEOUTED, operation.ret_params_map)
         except Exception, err:
             logger.error('CheckOpTimeoutsThread._finish_operation: %s'%err)
 
