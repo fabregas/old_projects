@@ -10,6 +10,7 @@ import sys
 from friClientLibrary_test import FRIClient
 from blik.nodesManager import operationsEngine
 from blik.nodesManager import friClientLibrary
+from blik.nodesManager import friBase
 from blik.utils.databaseConnection import DatabaseConnection
 
 
@@ -34,21 +35,21 @@ class OperationsEngineTestCase(unittest.TestCase):
         #invalid user name
         session_id, code, message = ENGINE.callOperationOnCluster('fake_user',
                             'TEST_CLUSTER', 'TEST_OPERATION', {'param1':10}, onOperationResultRoutine)
-        self.assertEqual(session_id, None)
+        self.assertEqual(session_id, 0)
         self.assertNotEqual(code, 0)
         self.assertEqual(len(message)>0, True)
 
         #invalid cluster
         session_id, code, message = ENGINE.callOperationOnCluster('fabregas',
                             'fake_cluster', 'TEST_OPERATION', {'param1':10}, onOperationResultRoutine)
-        self.assertEqual(session_id, None)
+        self.assertEqual(session_id, 0)
         self.assertNotEqual(code, 0)
         self.assertEqual(len(message)>0, True)
 
         #invalid operation
         session_id, code, message = ENGINE.callOperationOnCluster('fabregas',
                             'TEST_CLUSTER', 'fake_operation', {'param1':10}, onOperationResultRoutine)
-        self.assertEqual(session_id, None)
+        self.assertEqual(session_id, 0)
         self.assertNotEqual(code, 0)
         self.assertEqual(len(message)>0, True)
 
@@ -71,7 +72,7 @@ class OperationsEngineTestCase(unittest.TestCase):
         #call on nodes
         session_id, code, message = ENGINE.callOperationOnNodes('fabregas',
                             ['44.134.22.22', '192.168.86.66'], 'TEST_OPERATION', {'param1':10}, onOperationResultRoutine)
-        self.assertEqual(session_id, None)
+        self.assertEqual(session_id, 0)
         self.assertNotEqual(code, 0)
 
         session_id, code, message = ENGINE.callOperationOnNodes('fabregas',
@@ -116,7 +117,7 @@ class OperationsEngineTestCase(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(len(message)>0, True)
 
-        client = FRIClient('127.0.0.1', friClientLibrary.FRI_BIND_PORT)
+        client = FRIClient('127.0.0.1', friBase.FRI_BIND_PORT)
         err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'ret_code':0, 'ret_message':'ok'})
         self.assertEqual(err_code, 0)
 
@@ -127,7 +128,7 @@ class OperationsEngineTestCase(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(len(message)>0, True)
 
-        client = FRIClient('127.0.0.1', friClientLibrary.FRI_BIND_PORT)
+        client = FRIClient('127.0.0.1', friBase.FRI_BIND_PORT)
         err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'ret_code':0, 'ret_message':'ok', 'ret_parameters':{'param1':23}})
         self.assertEqual(err_code, 0)
 

@@ -12,7 +12,7 @@ from dbus.types import Dictionary
 import gobject
 import multiprocessing
 from friClientLibrary_test import FRIClient
-from blik.nodesManager import friClientLibrary
+from blik.nodesManager import friBase
 
 from blik.nodesManager import plugins
 from blik.nodesManager.operationsPluginManager import OperationPlugin
@@ -114,7 +114,7 @@ class DbusAgentTestCase(unittest.TestCase):
             self.assertEqual(session_id>0, True)
             sessions.append(session_id)
 
-            client = FRIClient('127.0.0.1', friClientLibrary.FRI_BIND_PORT)
+            client = FRIClient('127.0.0.1', friBase.FRI_BIND_PORT)
             err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'ret_code':0, 'ret_message':'ok'})
             self.assertEqual(err_code, 0)
 

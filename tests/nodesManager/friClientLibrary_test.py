@@ -7,6 +7,7 @@ import time
 import json
 import sys
 from blik.nodesManager import friClientLibrary
+from blik.nodesManager import friBase
 
 SESSION_ID = 'sfdw12ed2sd2324wedsfsfs'
 
@@ -14,7 +15,7 @@ class FRIServer:
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind(('0.0.0.0', friClientLibrary.FRI_PORT))
+        self.sock.bind(('0.0.0.0', friBase.FRI_PORT))
         self.sock.listen(2)
         self.stopped = True
 
@@ -69,7 +70,7 @@ class FRIServer:
         self.stopped = True
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(1.0)
-        s.connect(('127.0.0.1', friClientLibrary.FRI_PORT))
+        s.connect(('127.0.0.1', friBase.FRI_PORT))
         s.close()
 
         self.sock.close()
@@ -121,7 +122,7 @@ class FriClientLibraryTestCase(unittest.TestCase):
         time.sleep(4)
 
     def test_02_emulate_async_resp(self):
-        client = FRIClient('127.0.0.1', friClientLibrary.FRI_BIND_PORT)
+        client = FRIClient('127.0.0.1', friBase.FRI_BIND_PORT)
         err_code, err_message = client.call({'id':SESSION_ID, 'node':'test_node01', 'ret_code':0, 'ret_message':'ok'})
         self.assertEqual(err_code, 0)
 

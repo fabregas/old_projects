@@ -4,11 +4,13 @@ TEST_DB_GENERATOR=./tests/testDB.py
 
 /usr/bin/python $TEST_DB_GENERATOR
 
-#./tests/nodesManager/friClientLibrary_test.py
-#./tests/nodesManager/operationsEngine_test.py
-TEST_SET="
 
+
+TEST_SET="
+./tests/nodesManager/friClientLibrary_test.py
+./tests/nodesManager/operationsEngine_test.py
 ./tests/nodesManager/dbusAgent_test.py
+
 "
 
 

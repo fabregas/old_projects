@@ -18,28 +18,21 @@ This module contains the implementation for the FriClient class.
 
 """
 
-import json
 import threading
-import socket
 import time
 from Queue import Queue
 from blik.utils.logger import logger
+from blik.nodesManager.friBase import FriServer, FriCaller
 
-FRI_PORT = 1987
-FRI_BIND_PORT = 1989
+STOP_THREAD_EVENT = None
 
 #return codes
 RC_OK = 0
 RC_ERROR = 1
 
-STOP_THREAD_EVENT = None
-
-BUF_SIZE = 1024
-
 class FriClient:
     def __init__(self):
         self.__async_threads = []
-        self.__process_async_result_threads = []
         self.__listener_thread = None
 
         self.__async_packets = Queue()
@@ -57,20 +50,12 @@ class FriClient:
 
             thread.start()
 
-        result_sockets = Queue()
-        for i in xrange(async_result_threads):
-            thread = ProcessAsyncResultThread(result_sockets, self.onAsyncOperationResult)
-            thread.setName('ProcessAsyncResultThread#%i'%i)
-            self.__process_async_result_threads.append( thread )
-
-            thread.start()
-
-        self.__listener_thread = FriListenerThread(result_sockets)
+        self.__listener_thread = FriListenerThread(self.onAsyncOperationResult, workers_count=async_result_threads)
         self.__listener_thread.start()
-        while self.__listener_thread.status == 'pending':
+        while self.__listener_thread.get_state() == FriServer.PENDING_STATE:
             time.sleep(0.1)
 
-        if self.__listener_thread.stopped:
+        if self.__listener_thread.get_state() != FriServer.STARTED_STATE:
             raise Exception('FriListenerThread is not started!')
 
     def stop(self):
@@ -80,17 +65,12 @@ class FriClient:
         for thread in self.__async_threads:
             thread.stop()
 
-        for thread in self.__process_async_result_threads:
-            thread.stop()
-
         self.__listener_thread.stop()
 
         #waiting threads finishing... 
         #FIXME: may be dead-lock in this block
         self.__listener_thread.join()
         for thread in self.__async_threads:
-            thread.join()
-        for thread in self.__process_async_result_threads:
             thread.join()
 
     def __form_fri_packet(self, session_id, operation_name, parameters_map):
@@ -158,36 +138,13 @@ class AsyncOperationThread(threading.Thread):
         # Initialize the thread 
         threading.Thread.__init__(self)
 
-    def __fri_call(self, hostname, packet):
-        sock = None
-
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(self.timeout)
-            sock.connect((hostname, FRI_PORT))
-
-            data = json.dumps(packet)
-
-            sock.settimeout(None)
-
-            sock.send(data)
-
-            resp = sock.recv(BUF_SIZE)
-
-            json_object = json.loads(resp)
-
-            return json_object['ret_code'], json_object['ret_message']
-        except Exception, err:
-            return RC_ERROR, str(err)
-        finally:
-            if sock:
-                sock.close()
-
     def stop(self):
         self.queue.put(STOP_THREAD_EVENT)
 
     def run(self):
         """Thread class run method. Call asynchronous cluster operation"""
+
+        fri_client = FriCaller()
 
         logger.info('%s started!'%self.getName())
         while True:
@@ -200,7 +157,7 @@ class AsyncOperationThread(threading.Thread):
                 #unpack item
                 node, packet = item
 
-                err_code, err_message = self.__fri_call(node, packet)
+                err_code, err_message = fri_client.call(node, packet)
 
                 if err_code != RC_OK:
                     logger.error('%s: error while sending %s to node %s. Details: %s' % (self.getName(), packet, node, err_message))
@@ -211,136 +168,50 @@ class AsyncOperationThread(threading.Thread):
                 logger.error(err_message)
 
 
+class ResponsesListenerServer(FriServer):
+    def __init__(self, callback_routine, workers_count):
+        self.__onAsyncOperationResult = callback_routine
+
+        FriServer.__init__(self, workers_count=workers_count)
+
+    def onAsyncOperationResult( self, json_object ):
+            session_id = json_object.get('id', None)
+            if session_id is None:
+                raise Exception('id element is not found')
+
+            node = json_object.get('node', None)
+            if node is None:
+                raise Exception('node element is not found')
+
+            ret_code = json_object.get('ret_code',None)
+            if ret_code is None:
+                raise Exception('ret_code is not found')
+
+            ret_message = json_object.get('ret_message', '')
+            ret_params_map = json_object.get('ret_parameters', {})
+
+            if session_id and node:
+                self.__onAsyncOperationResult(session_id, node, ret_code, ret_message, ret_params_map)
+
 
 class FriListenerThread(threading.Thread):
-    def __init__(self, queue):
-        self.queue = queue
-        self.status = 'pending'
-        self.stopped = True
+    def __init__(self, callback_thread, workers_count):
+        self.server = ResponsesListenerServer(callback_thread, workers_count=workers_count)
 
         # Initialize the thread 
         threading.Thread.__init__(self, name='FriListenerThread')
 
-    def __bind_socket(self):
-        try:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            #self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-            self.sock.bind(('0.0.0.0', FRI_BIND_PORT))
-            self.sock.listen(1)
-            self.stopped = False
-        finally:
-            self.status = 'complete'
+    def get_state(self):
+        return self.server.state
 
     def run(self):
-        self.status = 'pending'
-        self.__bind_socket()
-
         logger.info('FriListenerThread started!')
 
-        while not self.stopped:
-            try:
-                (sock, addr) = self.sock.accept()
-
-                if self.stopped:
-                    sock.close()
-                    break
-
-                self.queue.put(sock)
-            except Exception, err:
-                err_message = 'FriListenerThread failed: %s'%err
-                logger.error(err_message)
+        self.server.start()
 
         logger.info('FriListenerThread stopped!')
 
     def stop(self):
-        self.stopped = True
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(1.0)
-            s.connect(('127.0.0.1', FRI_BIND_PORT))
-            s.close()
-        except socket.error:
-            if s:
-                s.close()
+        self.server.stop()
 
-        self.sock.close()
-
-
-class ProcessAsyncResultThread(threading.Thread):
-    def __init__(self, queue, event_routine):
-        self.queue = queue
-        self.__onAsyncOperationResult = event_routine
-
-        # Initialize the thread 
-        threading.Thread.__init__(self)
-
-    def stop(self):
-        self.queue.put(STOP_THREAD_EVENT)
-
-    def run(self):
-        logger.info('%s started!'%self.getName())
-        while True:
-            session_id = None
-            node = None
-            ret_params_map = {}
-
-            try:
-                sock = self.queue.get()
-
-                if sock == STOP_THREAD_EVENT:
-                    logger.info('%s stopped!'%self.getName())
-                    break
-
-                data = ''
-                while True:
-                    received = sock.recv(BUF_SIZE)
-                    if not received:
-                        break
-
-                    data += received
-
-                    if len(received) < BUF_SIZE:
-                        break
-
-                logger.debug('%s receive:\n%s'%(self.getName(),data))
-
-                if not data:
-                    raise Exception('empty data block')
-
-                json_object = json.loads(data)
-
-                session_id = json_object.get('id', None)
-                if session_id is None:
-                    raise Exception('id element is not found')
-
-                node = json_object.get('node', None)
-                if node is None:
-                    raise Exception('node element is not found')
-
-                ret_code = json_object.get('ret_code',None)
-                if ret_code is None:
-                    raise Exception('ret_code is not found')
-
-                ret_message = json_object.get('ret_message', '')
-                ret_params_map = json_object.get('ret_parameters', {})
-            except Exception, err:
-                ret_message = '%s error: %s' % (self.getName(), err)
-                ret_code = RC_ERROR
-                logger.error(ret_message)
-
-
-            try:
-                if session_id and node:
-                    self.__onAsyncOperationResult(session_id, node, ret_code, ret_message, ret_params_map)
-            except Exception, err:
-                logger.error('onAsyncOperationResult error: %s' % err)
-
-
-            try:
-                if sock:
-                    sock.send(json.dumps({'ret_code':ret_code, 'ret_message':ret_message}))
-                    sock.close()
-            except Exception, err:
-                log.error('%s sending result error: %s' % (self.getName(), err))
 
