@@ -56,6 +56,9 @@ class OperationsEngine:
         self._fri_client.start(Config.oper_callers_count, Config.oper_results_threads)
 
     def __del__(self):
+        self.stop()
+
+    def stop(self):
         if self.__check_op_timeouts_thread:
             self.__check_op_timeouts_thread.stop()
 
@@ -155,7 +158,7 @@ class OperationsEngine:
         @return (session_id, ret_code, ret_message)
         '''
         try:
-            session_id = None
+            session_id = 0
             logger.info('CALL operation %s on cluster %s'%(operation_name, cluster_name))
 
             operation_id, node_type_id, timeout = self.__get_operation_info(operation_name)
@@ -182,7 +185,7 @@ class OperationsEngine:
                 self._active_operations.delete(session_id)
                 self.__delete_session(session_id)
 
-            return (None, 1, str(err))
+            return (session_id, 1, str(err))
 
     def callOperationOnNodes(self, user_name, nodes_list, operation_name, parameters_map, onOperationResultRoutine):
         '''
@@ -201,7 +204,7 @@ class OperationsEngine:
         @return (session_id, ret_code, ret_message)
         '''
         try:
-            session_id = None
+            session_id = 0
             logger.info('CALL operation %s on nodes %s'%(operation_name, nodes_list))
 
             operation_id, node_type_id, timeout = self.__get_operation_info(operation_name)
@@ -227,7 +230,7 @@ class OperationsEngine:
             if session_id:
                 self._active_operations.delete(session_id)
                 self.__delete_session(session_id)
-            return (None, 1, str(err))
+            return (session_id, 1, str(err))
 
 
 

@@ -97,10 +97,6 @@ class FriClient:
         if not issubclass(parameters_map.__class__, dict):
             raise Exception('Formating FRI packet error. parameters_map should has dict type')
 
-        for key in parameters_map:
-            if not issubclass(key.__class__, str):
-                raise Exception('Formating FRI packet error. parameters_map key should has string type')
-
         packet = {'id': session_id,
                   'operation': operation_name,
                   'parameters': parameters_map}
@@ -193,12 +189,12 @@ class AsyncOperationThread(threading.Thread):
     def run(self):
         """Thread class run method. Call asynchronous cluster operation"""
 
-        logger.debug('%s started!'%self.getName())
+        logger.info('%s started!'%self.getName())
         while True:
             try:
                 item = self.queue.get()
                 if item == STOP_THREAD_EVENT:
-                    logger.debug('%s stopped!'%self.getName())
+                    logger.info('%s stopped!'%self.getName())
                     break
 
                 #unpack item
@@ -283,7 +279,7 @@ class ProcessAsyncResultThread(threading.Thread):
         self.queue.put(STOP_THREAD_EVENT)
 
     def run(self):
-        logger.debug('%s started!'%self.getName())
+        logger.info('%s started!'%self.getName())
         while True:
             session_id = None
             node = None
@@ -293,7 +289,7 @@ class ProcessAsyncResultThread(threading.Thread):
                 sock = self.queue.get()
 
                 if sock == STOP_THREAD_EVENT:
-                    logger.debug('%s stopped!'%self.getName())
+                    logger.info('%s stopped!'%self.getName())
                     break
 
                 data = ''
