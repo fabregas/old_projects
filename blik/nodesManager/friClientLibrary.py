@@ -113,11 +113,13 @@ class FriClient:
 
             return (RC_ERROR, err_message)
 
-    def onAsyncOperationResult(self, session_id, node, ret_code, ret_message, ret_params_map):
+    def onAsyncOperationResult(self, session_id, node, progress, ret_code, ret_message, ret_params_map):
         '''
         This method should be reimplemented for performing asynchronous operation results
 
         @session_id (string) identifier of session (operation instance id)
+        @node (string) node hostname
+        @progress (integer) operation progress in percents (100 for end of operation)
         @ret_code (integer) code of result
         @ret_message (string) result description
         @ret_params_map (dict {<param_name>:<param_value>}) return parameters
@@ -183,15 +185,33 @@ class ResponsesListenerServer(FriServer):
             if node is None:
                 raise Exception('node element is not found')
 
+            progress = json_object.get('progress', None)
+            if progress is None:
+                raise Exception('progress element is not found')
+
+            try:
+                progress = int(progress)
+            except:
+                raise Exception('Progress parameter must be integer! But: %s'%(progress))
+
+            if progress < 0 or progress > 100:
+                raise Exception('Operation progress must be in range 0..100. But: %i'%progress)
+
             ret_code = json_object.get('ret_code',None)
             if ret_code is None:
                 raise Exception('ret_code is not found')
+
+            try:
+                ret_code = int(ret_code)
+            except:
+                raise Exception('Return code parameter must be integer! But: %s'%(ret_code))
+
 
             ret_message = json_object.get('ret_message', '')
             ret_params_map = json_object.get('ret_parameters', {})
 
             if session_id and node:
-                self.__onAsyncOperationResult(session_id, node, ret_code, ret_message, ret_params_map)
+                self.__onAsyncOperationResult(session_id, node, progress, ret_code, ret_message, ret_params_map)
 
 
 class FriListenerThread(threading.Thread):

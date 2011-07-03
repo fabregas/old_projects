@@ -75,8 +75,8 @@ class OperationsEngine:
             session_id = rows[0][0]
 
             for node in nodes:
-                self._dbconn.modify("INSERT INTO NM_OPERATION_PROGRESS (node_id, instance_id, status)\
-                                    VALUES (%s, %s, %s)", (node.id, session_id, ORS_INPROGRESS))
+                self._dbconn.modify("INSERT INTO NM_OPERATION_PROGRESS (node_id, instance_id, progress)\
+                                    VALUES (%s, %s, %s)", (node.id, session_id, 0))
 
             return session_id
         finally:
@@ -241,19 +241,19 @@ class WrappedFriClient(FriClient):
 
         FriClient.__init__(self)
 
-    def _update_operation_progress(self, session_id, node, ret_code, ret_message):
+    def _update_operation_progress(self, session_id, node, progress, ret_code, ret_message):
         '''
         update operation progress in database (NM_OPERATION_PROGRESS table)
 
         @return True if operation is completed or False if operation in progress
         '''
         try:
-            self._dbconn.modify("UPDATE NM_OPERATION_PROGRESS SET status=%s, ret_code=%s, ret_message=%s \
+            self._dbconn.modify("UPDATE NM_OPERATION_PROGRESS SET progress=%s, ret_code=%s, ret_message=%s \
                                    WHERE instance_id=%s AND node_id=(SELECT id FROM NM_NODE WHERE hostname=%s)",
-                                   (ORS_COMPLETE, ret_code, ret_message, session_id, node))
+                                   (progress, ret_code, ret_message, session_id, node))
 
             uncompleted_count = self._dbconn.select("SELECT count(id) FROM NM_OPERATION_PROGRESS \
-                                    WHERE instance_id=%s AND status=%s", (session_id,ORS_INPROGRESS))
+                                    WHERE instance_id=%s AND progress<>100 AND (ret_code=0 OR ret_code=NULL)", (session_id,))
 
             if uncompleted_count[0][0] == 0:
                 return True
@@ -274,11 +274,13 @@ class WrappedFriClient(FriClient):
             logger.error('WrappedFriClient._finish_operation: %s'%err)
             raise err
 
-    def onAsyncOperationResult(self, session_id, node, ret_code, ret_message, ret_params_map):
+    def onAsyncOperationResult(self, session_id, node, progress, ret_code, ret_message, ret_params_map):
         '''
         Reimplemented FriClient class method for performing asynchronous operation results
 
         @session_id (string) identifier of session (operation instance id)
+        @node (string) node hostname
+        @progress (integer) operation progress in percents (100 for end of operation)
         @ret_code (integer) code of result
         @ret_message (string) result description
         @ret_params_map (dict {<param_name>:<param_value>}) return parameters
@@ -291,9 +293,12 @@ class WrappedFriClient(FriClient):
                             (node, ret_code, ret_message, ret_params_map))
                 return
 
-            operation.ret_params_map[node] = ret_params_map
+            if operation.ret_params_map.has_key(node):
+                operation.ret_params_map[node].update(ret_params_map)
+            else:
+                operation.ret_params_map[node] = ret_params_map
 
-            is_completed = self._update_operation_progress(session_id, node, ret_code, ret_message)
+            is_completed = self._update_operation_progress(session_id, node, progress, ret_code, ret_message)
 
             if is_completed:
                 self._finish_operation(session_id, operation)
@@ -317,9 +322,9 @@ class CheckOpTimeoutsThread(threading.Thread):
             self._dbconn.modify("UPDATE NM_OPERATION_INSTANCE SET status=%s, end_datetime=%s WHERE id=%s",
                                 (ORS_TIMEOUTED, datetime.now(), session_id))
 
-            self._dbconn.modify("UPDATE NM_OPERATION_PROGRESS SET status=%s, ret_code=%s, ret_message=%s \
-                                   WHERE instance_id=%s AND status=%s",
-                                   (ORS_TIMEOUTED, 12, 'Operation is timeouted!', session_id, ORS_INPROGRESS))
+            self._dbconn.modify("UPDATE NM_OPERATION_PROGRESS SET ret_code=%s, ret_message=%s \
+                                   WHERE instance_id=%s AND progress<>100 AND (ret_code=0 OR ret_code=NULL)",
+                                   (12, 'Operation is timeouted!', session_id))
 
             self._active_operations.delete(session_id)
 
@@ -337,8 +342,10 @@ class CheckOpTimeoutsThread(threading.Thread):
 
             dbconn.modify("UPDATE NM_OPERATION_INSTANCE SET status=%s, end_datetime=%s WHERE status=%s",
                             (ORS_TIMEOUTED, datetime.now(), ORS_INPROGRESS,))
-            dbconn.modify("UPDATE NM_OPERATION_PROGRESS SET status=%s, ret_code=%s, ret_message=%s \
-                            WHERE status=%s",(ORS_TIMEOUTED, 12, 'Operation is timeouted!', ORS_INPROGRESS))
+
+            dbconn.modify("UPDATE NM_OPERATION_PROGRESS SET ret_code=%s, ret_message=%s \
+                                   WHERE progress<>100 AND (ret_code=0 OR ret_code=NULL)",
+                                   (12, 'Operation is timeouted!'))
             del dbconn
         except Exception, err:
             logger.error('CheckOpTimeoutsThread._update_pending_operations: %s'%err)

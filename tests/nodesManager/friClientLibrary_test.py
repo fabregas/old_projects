@@ -123,12 +123,16 @@ class FriClientLibraryTestCase(unittest.TestCase):
 
     def test_02_emulate_async_resp(self):
         client = FRIClient('127.0.0.1', friBase.FRI_BIND_PORT)
-        err_code, err_message = client.call({'id':SESSION_ID, 'node':'test_node01', 'ret_code':0, 'ret_message':'ok'})
+        err_code, err_message = client.call({'id':SESSION_ID, 'node':'test_node01', 'ret_code':0, 'ret_message':'ok', 'progress': '0'})
+        self.assertEqual(err_code, 0)
+        err_code, err_message = client.call({'id':SESSION_ID, 'node':'test_node01', 'ret_code':0, 'ret_message':'ok', 'progress': '60'})
+        self.assertEqual(err_code, 0)
+        err_code, err_message = client.call({'id':SESSION_ID, 'node':'test_node01', 'ret_code':0, 'ret_message':'ok', 'progress': '100'})
         self.assertEqual(err_code, 0)
 
         s = 'qwertyuiop'*1024
         print 'SENDING %s bytes string' %len(s)
-        err_code, err_message = client.call({'id':SESSION_ID, 'node':'test_node01', 'ret_code':0, 'ret_message':'ok', 'ret_parameters':{'param1':s}})
+        err_code, err_message = client.call({'id':SESSION_ID, 'node':'test_node01', 'ret_code':0, 'ret_message':'ok', 'progress':'100', 'ret_parameters':{'param1':s}})
 
     def test_99_stop_all(self):
         print 'STOPING fake agent'
@@ -142,7 +146,7 @@ if __name__ == '__main__':
     ##########################################
     fri_client = friClientLibrary.FriClient()
 
-    def test1(session_id, node, ret_code, ret_message, ret_params_map):
+    def test1(session_id, node, progress, ret_code, ret_message, ret_params_map):
         def assertEqual(a,b):
             if a != b:
                 raise Exception ('%s is not equal to %s'%(a,b))
@@ -155,7 +159,7 @@ if __name__ == '__main__':
             assertEqual(ret_params_map, {})
         else:
             assertEqual(ret_params_map.keys()[0], 'param1')
-        print 'onAsyncOperationResult OK'
+        print 'onAsyncOperationResult: node=%s, progress=%s, ret_code=%s'%(node, progress, ret_code)
 
     fri_client.onAsyncOperationResult = test1
     try:

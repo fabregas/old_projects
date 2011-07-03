@@ -115,7 +115,7 @@ class DbusAgentTestCase(unittest.TestCase):
             sessions.append(session_id)
 
             client = FRIClient('127.0.0.1', friBase.FRI_BIND_PORT)
-            err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'ret_code':0, 'ret_message':'ok'})
+            err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'progress':'100','ret_code':0, 'ret_message':'ok'})
             self.assertEqual(err_code, 0)
 
             #waiting operations finishing

@@ -16,6 +16,6 @@ INSERT INTO NM_OPERATION (id, name, timeout) VALUES (1, 'COMMON_OPERATION', 5);
 INSERT INTO NM_OPERATION (id, name, timeout, node_type_id) VALUES (2, 'TEST_OPERATION', 2, 1);
 
 INSERT INTO NM_OPERATION_INSTANCE (id, operation_id, initiator_id, start_datetime, status) VALUES (4444, 1,1,now(),0);
-INSERT INTO NM_OPERATION_PROGRESS (node_id, instance_id, status) VALUES ( 1, 4444, 0);
+INSERT INTO NM_OPERATION_PROGRESS (node_id, instance_id, progress) VALUES ( 1, 4444, 0);
 
 COMMIT;

@@ -118,7 +118,7 @@ class OperationsEngineTestCase(unittest.TestCase):
         self.assertEqual(len(message)>0, True)
 
         client = FRIClient('127.0.0.1', friBase.FRI_BIND_PORT)
-        err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'ret_code':0, 'ret_message':'ok'})
+        err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'ret_code':0, 'ret_message':'ok', 'progress':'100'})
         self.assertEqual(err_code, 0)
 
         session_id, code, message = ENGINE.callOperationOnNodes('fabregas',
@@ -129,7 +129,11 @@ class OperationsEngineTestCase(unittest.TestCase):
         self.assertEqual(len(message)>0, True)
 
         client = FRIClient('127.0.0.1', friBase.FRI_BIND_PORT)
-        err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'ret_code':0, 'ret_message':'ok', 'ret_parameters':{'param1':23}})
+        err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'ret_code':0, 'ret_message':'ok', 'progress':'20','ret_parameters':{'param1':23}})
+        self.assertEqual(err_code, 0)
+        err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'ret_code':0, 'ret_message':'ok', 'progress':'75','ret_parameters':{'param1':23}})
+        self.assertEqual(err_code, 0)
+        err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'ret_code':0, 'ret_message':'ok', 'progress':'100','ret_parameters':{'param1':23}})
         self.assertEqual(err_code, 0)
 
         #waiting operations finishing
