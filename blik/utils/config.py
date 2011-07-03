@@ -27,6 +27,9 @@ class Config:
 
             Config.oper_callers_count = int(config.get('FRI', 'oper_callers_count'))
             Config.oper_results_threads = int(config.get('FRI', 'oper_results_threads'))
+            Config.monitor_workers_count = int(config.get('FRI', 'monitor_workers_count'))
+            Config.nodes_monitor_timeout = int(config.get('FRI', 'monitor_timeout'))
+            Config.monitor_wait_response_timeout = int(config.get('FRI', 'monitor_wait_response_timeout'))
         except ConfigParser.NoOptionError, msg:
             raise Exception('ConfigParser. No option error: %s' % msg)
         except ConfigParser.Error, msg:
@@ -45,6 +48,9 @@ class Config:
 
         config.set('FRI', 'oper_callers_count', '3') #TODO: may be FRI parameters calculate automatically?
         config.set('FRI', 'oper_results_threads', '5')
+        config.set('FRI', 'monitor_workers_count', '3')
+        config.set('FRI', 'monitor_timeout', '60')
+        config.set('FRI', 'monitor_wait_response_timeout', '5')
 
         config_file = getConfigFilePath()
         f = open(config_file, 'w')

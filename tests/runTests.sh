@@ -10,7 +10,7 @@ TEST_SET="
 ./tests/nodesManager/friClientLibrary_test.py
 ./tests/nodesManager/operationsEngine_test.py
 ./tests/nodesManager/dbusAgent_test.py
-
+./tests/nodesManager/nodesMonitor_test.py
 "
 
 

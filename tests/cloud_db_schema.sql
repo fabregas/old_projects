@@ -63,7 +63,8 @@ CREATE TABLE NM_NODE (
 	node_type bigint NOT NULL,
 	hostname varchar(50) NOT NULL,
 	logic_name varchar(128) NOT NULL,
-	status smallint NOT NULL,
+	admin_status smallint DEFAULT 0 NOT NULL,    --  0 - not active 1 - active 2 - failure 
+	current_state smallint DEFAULT 0 NOT NULL,    --  0 - down 1 - up 
 	last_datestart timestamp NOT NULL,
 	login varchar(50) NOT NULL,
 	password varchar(50) NOT NULL,
@@ -73,6 +74,12 @@ CREATE TABLE NM_NODE (
 	DC timestamp,
 	DM timestamp
 )
+;
+COMMENT ON COLUMN NM_NODE.admin_status
+    IS '0 - not active 1 - active 2 - failure'
+;
+COMMENT ON COLUMN NM_NODE.current_state
+    IS '0 - down 1 - up'
 ;
 
 CREATE TABLE NM_NODE_TYPE ( 

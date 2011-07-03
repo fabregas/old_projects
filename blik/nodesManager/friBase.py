@@ -51,6 +51,9 @@ class FriServer:
 
             thread.start()
 
+    def onAsyncOperationResult( self, json_object ):
+        raise Exception('This method should be implemented in child class')
+
     def __bind_socket(self):
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -170,14 +173,13 @@ class ProcessAsyncResultThread(threading.Thread):
 
 class FriCaller:
     """class for calling asynchronous operation over FRI protocol"""
-    timeout = 3.0
 
-    def call(self, hostname, packet, port=FRI_PORT):
+    def call(self, hostname, packet, port=FRI_PORT, timeout=3.0):
         sock = None
 
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(self.timeout)
+            sock.settimeout(timeout)
             sock.connect((hostname, port))
 
             data = json.dumps(packet)
