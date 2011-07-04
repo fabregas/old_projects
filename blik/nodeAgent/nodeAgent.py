@@ -1,3 +1,18 @@
+#!/usr/bin/python
+"""
+Copyright (C) 2011 Konstantin Andrusenko
+    See the documentation for further information on copyrights,
+    or contact the author. All Rights Reserved.
+
+@package blik.nodeAgent.friClientLibrary
+@author Konstantin Andrusenko
+@date July 10, 2011
+
+This module contains the implementation of NodeAgent class.
+NodeAgent should be runned in separate thread
+(start method block execution)
+"""
+
 import threading
 from Queue import Queue
 from blik.utils.friBase import FriServer

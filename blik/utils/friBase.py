@@ -84,6 +84,7 @@ class FriServer:
                 err_message = 'FriServer failed: %s'%err
                 logger.error(err_message)
 
+
     def stop(self):
         if self.stopped:
             return
@@ -112,6 +113,7 @@ class FriServer:
         self.queue.join()
 
         self.sock.close()
+
 
 
 class ProcessConnectionsThread(threading.Thread):

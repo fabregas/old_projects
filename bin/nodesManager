@@ -1,0 +1,64 @@
+#!/usr/bin/python
+
+import os
+import sys
+import dbus, dbus.glib, dbus.service
+import gobject
+import signal
+from blik.utils.logger import logger
+from blik.nodesManager.dbusAgent import NodesManagerService, NODES_MANAGER_INTERFACE
+from blik.nodesManager.nodesMonitor import NodesMonitor
+
+DBUS_PATH='/nodes/manager'
+
+nodes_manager = None
+nodes_monitor = None
+loop = None
+
+def stop(s, p):
+    global nodes_manager, nodes_monitor, loop
+    try:
+        logger.info('Nodes monitor stoping...')
+        nodes_monitor.stop()
+    except Exception, err:
+        logger.error('Stoping dbusAgent error: %s'%err)
+
+
+    try:
+        logger.info('dbusAgent stoping...')
+
+        nodes_manager.stop()
+        loop.quit()
+        logger.info('dbusAgent stoped')
+    except Exception, err:
+        logger.error('Stoping dbusAgent error: %s'%err)
+
+
+def start():
+    try:
+        global nodes_manager, nodes_monitor, loop
+
+        logger.info('Nodes monitor starting...')
+        nodes_monitor = NodesMonitor()
+        nodes_monitor.start()
+
+        logger.info('dbusAgent starting...')
+        gobject.threads_init()
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+
+        loop = gobject.MainLoop()
+        bus = dbus.SystemBus()
+        name = dbus.service.BusName(NODES_MANAGER_INTERFACE, bus)
+        nodes_manager = NodesManagerService(bus, DBUS_PATH)
+
+        signal.signal(signal.SIGINT, stop)
+
+        logger.info('dbusAgent started')
+
+        loop.run()
+    except Exception, err:
+        logger.error('nodesManager error: %s. exit!'%err)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    start()

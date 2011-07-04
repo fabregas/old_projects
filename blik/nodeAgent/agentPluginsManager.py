@@ -1,3 +1,16 @@
+#!/usr/bin/python
+"""
+Copyright (C) 2011 Konstantin Andrusenko
+    See the documentation for further information on copyrights,
+    or contact the author. All Rights Reserved.
+
+@package blik.nodeAgent.agentPluginsManager
+@author Konstantin Andrusenko
+@date July 10, 2011
+
+This module contains the implementation of PluginManager and NodeAgentPlugin classes.
+"""
+
 from blik.nodeAgent.plugins import OPERATIONS_PLUGINS
 from blik.utils.friBase import FriCaller
 from blik.utils.logger import logger

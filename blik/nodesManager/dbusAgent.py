@@ -17,10 +17,9 @@ Use INT signal for stoping service
 
 import sys
 import dbus, dbus.glib, dbus.service
-import gobject
-import signal
 from blik.nodesManager.operationsPluginManager import OperationsPluginManager
 from blik.nodesManager.operationsEngine import OperationsEngine
+from blik.nodesManager.nodesMonitor import NodesMonitor
 from blik.utils.logger import logger
 
 NODES_MANAGER_INTERFACE = 'com.blik.nodesManager'
@@ -154,34 +153,3 @@ class NodesManagerService(dbus.service.Object):
         return status_code, OPER_STATUSES[status_code]
 
 
-if __name__ == '__main__':
-    try:
-        logger.info('dbusAgent starting...')
-        gobject.threads_init()
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-
-        loop = gobject.MainLoop()
-        bus = dbus.SystemBus()
-        name = dbus.service.BusName(NODES_MANAGER_INTERFACE, bus)
-        nodes_manager = NodesManagerService(bus, '/nodes/manager')
-
-        def stop(s, p):
-            try:
-                logger.info('dbusAgent stoping...')
-
-                global nodes_manager
-                nodes_manager.stop()
-                loop.quit()
-            except Exception, err:
-                logger.error('Stoping dbusAgent error: %s'%err)
-
-        signal.signal(signal.SIGINT, stop)
-
-        logger.info('dbusAgent started')
-
-        loop.run()
-
-        logger.info('dbusAgent stoped')
-    except Exception, err:
-        logger.error('dbusAgent error: %s. exit!'%err)
-        sys.exit(1)

@@ -85,18 +85,22 @@ class NodesMonitor(threading.Thread):
                     self.__nodes_queue.put((row[0], row[1]))
 
                 self.__nodes_queue.join()
-
-                dt = datetime.now() - t0_point
-                wait_time = timedelta(0, self.__monitor_timeout) - dt
-                if wait_time.days < 0:
-                    #geted more then __monitor_timeout seconds for processing
-                    continue
-
-                wait_seconds = wait_time.seconds + (wait_time.microseconds * 0.000001)
-                time.sleep(wait_seconds)
             except Exception, err:
                 logger.error('NodesMonitor failed: %s' % err)
-                time.sleep(self.__monitor_timeout)
+            finally:
+                #calculate timeout
+                dt = datetime.now() - t0_point
+                wait_time = timedelta(0, self.__monitor_timeout) - dt
+
+                if wait_time.days == 0:
+                    #sleep cycle
+                    for i in range(wait_time.seconds):
+                        #check daemon state every second
+                        if self.__stoped:
+                            break
+                        time.sleep(1.0)
+
+                    time.sleep(wait_time.microseconds * 0.000001)
 
         logger.info('NodesMonitor stoped!')
 
