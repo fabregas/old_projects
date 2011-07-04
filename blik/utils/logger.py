@@ -1,14 +1,24 @@
-from datetime import datetime
+import sys
+import logging, logging.handlers
 
-class Logger:
-    def error(self, message):
-        print '[%s] ERROR: %s' % (datetime.now(), message)
+def init_logger():
+    logger = logging.getLogger('localhost')
 
-    def info(self, message):
-        print '[%s] INFO: %s' % (datetime.now(), message)
+    logger.setLevel(logging.INFO)
 
-    def debug(self, message):
-        #print '[%s] DEBUG: %s' % (datetime.now(), message)
-        pass
+    log_path = '/dev/log'
 
-logger = Logger()
+    hdlr = logging.handlers.SysLogHandler(address=log_path,
+              facility=logging.handlers.SysLogHandler.LOG_DAEMON)
+    #formatter = logging.Formatter('%(filename)s: %(levelname)s: %(message)s')
+    formatter = logging.Formatter('BLIK %(levelname)s: %(message)s')
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+
+    console = logging.StreamHandler()
+    console.setFormatter(formatter)
+    logger.addHandler(console)
+
+    return logger
+
+logger = init_logger()
