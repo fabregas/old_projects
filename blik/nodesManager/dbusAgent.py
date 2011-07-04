@@ -21,6 +21,7 @@ from blik.nodesManager.operationsPluginManager import OperationsPluginManager
 from blik.nodesManager.operationsEngine import OperationsEngine
 from blik.nodesManager.nodesMonitor import NodesMonitor
 from blik.utils.logger import logger
+import logging
 
 NODES_MANAGER_INTERFACE = 'com.blik.nodesManager'
 
@@ -153,3 +154,27 @@ class NodesManagerService(dbus.service.Object):
         return status_code, OPER_STATUSES[status_code]
 
 
+    @dbus.service.method(dbus_interface=NODES_MANAGER_INTERFACE,
+                    in_signature='', out_signature='s')
+    def getLogLevel(self):
+        '''
+        Get current log level
+        '''
+        ll_names = {logging.INFO: 'INFO', logging.ERROR: 'ERROR', logging.DEBUG: 'DEBUG'}
+
+        ll = logger.getEffectiveLevel()
+
+        return ll_names[ll]
+
+    @dbus.service.method(dbus_interface=NODES_MANAGER_INTERFACE,
+                    in_signature='s', out_signature='')
+    def setLogLevel(self, log_level):
+        '''
+        Get current log level
+        '''
+        if log_level not in ['INFO', 'ERROR', 'DEBUG']:
+            raise Exception('Log level should be one of: INFO, ERROR, DEBUG')
+
+        ll_codes = {'INFO': logging.INFO, 'ERROR': logging.ERROR, 'DEBUG': logging.DEBUG}
+
+        logger.setLevel(ll_codes[log_level])
