@@ -12,7 +12,7 @@ from dbus.types import Dictionary
 import gobject
 import multiprocessing
 from friClientLibrary_test import FRIClient
-from blik.nodesManager import friBase
+from blik.utils import friBase
 
 from blik.nodesManager import plugins
 from blik.nodesManager.operationsPluginManager import OperationPlugin

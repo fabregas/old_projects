@@ -22,7 +22,7 @@ import threading
 import time
 from Queue import Queue
 from blik.utils.logger import logger
-from blik.nodesManager.friBase import FriServer, FriCaller
+from blik.utils.friBase import FriServer, FriCaller
 
 STOP_THREAD_EVENT = None
 
@@ -36,6 +36,7 @@ class FriClient:
         self.__listener_thread = None
 
         self.__async_packets = Queue()
+        self.stoped = False
 
 
     def start(self, async_threads=3, async_result_threads=5):
@@ -62,16 +63,18 @@ class FriClient:
         '''
         Stop all module threads
         '''
+        if self.stoped:
+            return
+        self.stoped = True
+
         for thread in self.__async_threads:
-            thread.stop()
+            self.__async_packets.put(STOP_THREAD_EVENT)
 
         self.__listener_thread.stop()
-
         #waiting threads finishing... 
         #FIXME: may be dead-lock in this block
         self.__listener_thread.join()
-        for thread in self.__async_threads:
-            thread.join()
+        self.__async_packets.join()
 
     def __form_fri_packet(self, session_id, operation_name, parameters_map):
         if not issubclass(parameters_map.__class__, dict):
@@ -140,9 +143,6 @@ class AsyncOperationThread(threading.Thread):
         # Initialize the thread 
         threading.Thread.__init__(self)
 
-    def stop(self):
-        self.queue.put(STOP_THREAD_EVENT)
-
     def run(self):
         """Thread class run method. Call asynchronous cluster operation"""
 
@@ -168,6 +168,8 @@ class AsyncOperationThread(threading.Thread):
             except Exception, err:
                 err_message = '%s failed: %s'%(self.getName(), err)
                 logger.error(err_message)
+            finally:
+                self.queue.task_done()
 
 
 class ResponsesListenerServer(FriServer):
@@ -176,7 +178,7 @@ class ResponsesListenerServer(FriServer):
 
         FriServer.__init__(self, workers_count=workers_count)
 
-    def onAsyncOperationResult( self, json_object ):
+    def onDataReceive( self, json_object ):
             session_id = json_object.get('id', None)
             if session_id is None:
                 raise Exception('id element is not found')

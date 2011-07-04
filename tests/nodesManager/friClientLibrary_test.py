@@ -7,7 +7,7 @@ import time
 import json
 import sys
 from blik.nodesManager import friClientLibrary
-from blik.nodesManager import friBase
+from blik.utils import friBase
 
 SESSION_ID = 'sfdw12ed2sd2324wedsfsfs'
 

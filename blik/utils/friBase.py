@@ -4,7 +4,7 @@ Copyright (C) 2011 Konstantin Andrusenko
     See the documentation for further information on copyrights,
     or contact the author. All Rights Reserved.
 
-@package blik.nodesManager.friBase
+@package blik.utils.friBase
 @author Konstantin Andrusenko
 @date July 6, 2011
 
@@ -45,13 +45,13 @@ class FriServer:
 
         self.__process_async_result_threads = []
         for i in xrange(workers_count):
-            thread = ProcessAsyncResultThread(self.queue, self.onAsyncOperationResult)
-            thread.setName('ProcessAsyncResultThread#%i'%i)
+            thread = ProcessConnectionsThread(self.queue, self.onDataReceive)
+            thread.setName('ProcessConnectionsThread#%i'%i)
             self.__process_async_result_threads.append( thread )
 
             thread.start()
 
-    def onAsyncOperationResult( self, json_object ):
+    def onDataReceive( self, json_object ):
         raise Exception('This method should be implemented in child class')
 
     def __bind_socket(self):
@@ -85,10 +85,13 @@ class FriServer:
                 logger.error(err_message)
 
     def stop(self):
+        if self.stopped:
+            return
+
         self.stopped = True
 
         for thread in self.__process_async_result_threads:
-            thread.stop()
+            self.queue.put(STOP_THREAD_EVENT)
 
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -106,22 +109,18 @@ class FriServer:
                 s.close()
 
         #waiting threads finishing... 
-        for thread in self.__process_async_result_threads:
-            thread.join()
+        self.queue.join()
 
         self.sock.close()
 
 
-class ProcessAsyncResultThread(threading.Thread):
+class ProcessConnectionsThread(threading.Thread):
     def __init__(self, queue, event_routine):
         self.queue = queue
-        self.__onAsyncOperationResult = event_routine
+        self.__onProcessResult = event_routine
 
         # Initialize the thread 
         threading.Thread.__init__(self)
-
-    def stop(self):
-        self.queue.put(STOP_THREAD_EVENT)
 
     def run(self):
         logger.info('%s started!'%self.getName())
@@ -157,11 +156,13 @@ class ProcessAsyncResultThread(threading.Thread):
 
                 json_object = json.loads(data)
 
-                self.__onAsyncOperationResult(json_object)
+                self.__onProcessResult(json_object)
             except Exception, err:
                 ret_message = '%s error: %s' % (self.getName(), err)
                 ret_code = RC_ERROR
                 logger.error(ret_message)
+            finally:
+                self.queue.task_done()
 
             try:
                 if sock:
@@ -194,7 +195,7 @@ class FriCaller:
 
             return json_object['ret_code'], json_object['ret_message']
         except Exception, err:
-            return RC_ERROR, str(err)
+            return RC_ERROR, 'FriCaller failed: %s'%err
         finally:
             if sock:
                 sock.close()

@@ -21,7 +21,7 @@ import time
 from blik.utils.config import Config
 from blik.utils.databaseConnection import DatabaseConnection
 from blik.utils.logger import logger
-from blik.nodesManager.friBase import FriCaller
+from blik.utils.friBase import FriCaller
 
 #cluster states
 CS_NOT_ACTIVE = 0
@@ -58,6 +58,9 @@ class NodesMonitor(threading.Thread):
         threading.Thread.__init__(self, name='NodesMonitor')
 
     def stop(self):
+        if self.__stoped:
+            return
+
         self.__stoped = True
 
         for i in self.__threads:

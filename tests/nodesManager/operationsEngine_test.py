@@ -10,7 +10,7 @@ import sys
 from friClientLibrary_test import FRIClient
 from blik.nodesManager import operationsEngine
 from blik.nodesManager import friClientLibrary
-from blik.nodesManager import friBase
+from blik.utils import friBase
 from blik.utils.databaseConnection import DatabaseConnection
 
 

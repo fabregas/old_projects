@@ -11,7 +11,9 @@ TEST_SET="
 ./tests/nodesManager/operationsEngine_test.py
 ./tests/nodesManager/dbusAgent_test.py
 ./tests/nodesManager/nodesMonitor_test.py
+./tests/nodeAgent/nodeAgent_test.py
 "
+
 
 
 for PY in $TEST_SET ; do

@@ -9,7 +9,7 @@ import unittest
 import thread
 import time
 import sys
-from blik.nodesManager import friBase
+from blik.utils import friBase
 from blik.nodesManager.nodesMonitor import NodesMonitor
 from blik.utils.databaseConnection import DatabaseConnection
 
@@ -19,7 +19,7 @@ class NodeSimulator(friBase.FriServer):
     def __init__(self):
         friBase.FriServer.__init__(self, port=friBase.FRI_PORT, workers_count=1)
 
-    def onAsyncOperationResult( self, json_object ):
+    def onDataReceive( self, json_object ):
         print 'NODE RECEIVED: ', json_object
         session_id = json_object.get('id')
         if int(session_id) != 0:
@@ -72,6 +72,7 @@ class NodesMonitorTestCase(unittest.TestCase):
             self.assertEqual(state, 0)#OFF
         finally:
             node.stop()
+        print 'STOPED'
 
 
 if __name__ == '__main__':
