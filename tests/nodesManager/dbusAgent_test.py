@@ -102,6 +102,22 @@ class DbusAgentTestCase(unittest.TestCase):
             self.assertEqual(ret_code>0, True, ret_message)
             self.assertEqual(session_id>0, False)
 
+            #test log level changes
+            c_log_level = proxy.getLogLevel()
+            self.assertEqual(c_log_level, 'INFO')
+
+            proxy.setLogLevel('ERROR')
+            c_log_level = proxy.getLogLevel()
+            self.assertEqual(c_log_level, 'ERROR')
+
+            try:
+                proxy.setLogLevel('FAKE')
+            except:
+                pass
+            else:
+                raise Exception('Should be exception in this case!')
+            #end test log level changes
+
             #positive tests
             sessions = []
             session_id, ret_code, ret_message = proxy.callOperationOnCluster('fabregas', 'TEST_CLUSTER', 'TEST_OPERATION', {'param1':10})
@@ -129,20 +145,6 @@ class DbusAgentTestCase(unittest.TestCase):
 
             time.sleep(1)
 
-            #test log level changes
-            c_log_level = proxy.getLogLevel()
-            self.assertEqual(c_log_level, 'INFO')
-
-            proxy.setLogLevel('ERROR')
-            c_log_level = proxy.getLogLevel()
-            self.assertEqual(c_log_level, 'ERROR')
-
-            try:
-                proxy.setLogLevel('FAKE')
-            except:
-                pass
-            else:
-                raise Exception('Should be exception in this case!')
         finally:
             print 'process for D-BUS service stoping...'
             p.terminate()

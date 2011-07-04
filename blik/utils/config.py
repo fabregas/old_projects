@@ -19,6 +19,8 @@ class Config:
             config = RawConfigParser()
             config.read(config_file)
 
+            Config.log_level = config.get('LOG','log_level')
+
             Config.db_host = config.get('DATABASE','host')
             Config.db_port = config.get('DATABASE','port')
             Config.db_user = config.get('DATABASE','user')
@@ -40,6 +42,10 @@ class Config:
         config = RawConfigParser()
         config.add_section('DATABASE')
         config.add_section('FRI')
+        config.add_section('LOG')
+
+        config.set('LOG', 'log_level', 'INFO')
+
         config.set('DATABASE', 'host', '127.0.0.1')
         config.set('DATABASE', 'port', '5432')
         config.set('DATABASE', 'user', 'postgres')

@@ -21,6 +21,7 @@ from blik.nodesManager.operationsPluginManager import OperationsPluginManager
 from blik.nodesManager.operationsEngine import OperationsEngine
 from blik.nodesManager.nodesMonitor import NodesMonitor
 from blik.utils.logger import logger
+from blik.utils.config import Config
 import logging
 
 NODES_MANAGER_INTERFACE = 'com.blik.nodesManager'
@@ -41,6 +42,8 @@ class NodesManagerService(dbus.service.Object):
         self.pluginManager = OperationsPluginManager(self.operations_engine)
 
         dbus.service.Object.__init__(self, bus, object_path)
+
+        self.setLogLevel(Config.log_level)
 
     def stop(self):
         self.operations_engine.stop()
