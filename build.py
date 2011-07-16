@@ -58,7 +58,7 @@ def __process_tree(dir_name, files):
 
 def copy_dist(dist_name, tmp_dir):
     install_dir = './install/%s'%dist_name
-    lines = open('%s/%s.content'%(install_dir,dist_name)).readlines()
+    lines = open('%s/CONTENT'%install_dir).readlines()
 
     files = []
     for line in lines:
@@ -103,19 +103,15 @@ def pack(pkg_name):
 
     tar = tarfile.TarFile(out_file,'w')
 
+    cur_dir = os.path.abspath('.')
     os.chdir(TMP_DIR)
     tar.add(pkg_name)
     tar.close()
+    os.chdir(cur_dir)
 
 
-if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print ('Usage: build.py <dist name>')
-        sys.exit(1)
-
-    dist_name = sys.argv[1]
+def build(dist_name):
     version = get_current_version()
-
     pkg_name = '%s-%s'%(dist_name, version)
 
     tmp_dir = make_tempdir(pkg_name)
@@ -126,5 +122,17 @@ if __name__ == '__main__':
 
     copy_dist(dist_name, tmp_dir)
     pack(pkg_name)
+
+    return '%s.tar' % pkg_name, version
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print ('Usage: build.py <dist name>')
+        sys.exit(1)
+
+    dist_name = sys.argv[1]
+
+    build(dist_name)
 
     print ('Package %s created successfully!'%pkg_name)
