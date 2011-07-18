@@ -19,6 +19,8 @@ IUSE=""
 DEPEND="dev-python/setuptools
         net-misc/dhcp
 		net-dns/bind
+        net-ftp/tftp-hpa
+        sys-boot/syslinux
 		sys-cluster/glusterfs"
 RDEPEND="${DEPEND}"
 
@@ -39,6 +41,9 @@ src_install() {
     insinto /etc/bind/pri
     newins config/blik.zone blik.zone
     newins config/192.168.87.zone 192.168.87.zone
+
+    insinto /etc/pxelinux
+    newins config/pxeboot.default default
 }
 
 pkg_postinst() {

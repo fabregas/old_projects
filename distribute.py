@@ -87,6 +87,8 @@ if __name__ == '__main__':
     version = distribute_package(dist_name)
     distribute_portage(dist_name, version)
 
+    os.system('ssh %s rm /usr/portage/blik-products/%s/Manifest'%(DISTR_SERVER,dist_name))
+
     mirror_updater = '/opt/blik/sbin/portage-mirror-update'
     ret = os.system('ssh %s %s'%(DISTR_SERVER, mirror_updater))
     if ret:

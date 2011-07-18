@@ -4,4 +4,5 @@ config/dhcpd.conf
 config/named.conf
 config/blik.zone
 config/192.168.87.zone
+config/pxeboot.default
 bin/configureBootManager.py
