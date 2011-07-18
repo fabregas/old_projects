@@ -9,14 +9,15 @@ inherit distutils
 
 DESCRIPTION="Blik Cloud boot manager"
 HOMEPAGE=""
-SRC_URI="ftp://blik_products/distfiles/${P}.tar"
+SRC_URI="ftp://blik_mirror/distfiles/${PF}.tar"
 
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64 x86"
 IUSE=""
 
-DEPEND="net-misc/dhcp
+DEPEND="dev-python/setuptools
+        net-misc/dhcp
 		net-dns/bind
 		sys-cluster/glusterfs"
 RDEPEND="${DEPEND}"
@@ -28,8 +29,18 @@ src_compile() {
 
 src_install() {
 	distutils_src_install
+    
+    insinto /etc/dhcp
+    newins config/dhcpd.conf dhcpd.conf
+
+    insinto /etc/bind
+    newins config/named.conf named.conf
+
+    insinto /etc/bind/pri
+    newins config/blik.zone blik.zone
+    newins config/192.168.87.zone 192.168.87.zone
 }
 
 pkg_postinst() {
-	python /opt/blik/bin/configureBootManager.py
+	python /usr/bin/configureBootManager.py || die
 }

@@ -1,3 +1,7 @@
 blik/__init__.py
 blik/bootManager/*
 config/dhcpd.conf
+config/named.conf
+config/blik.zone
+config/192.168.87.zone
+bin/configureBootManager.py

@@ -104,8 +104,12 @@ def pack(pkg_name):
     tar = tarfile.TarFile(out_file,'w')
 
     cur_dir = os.path.abspath('.')
-    os.chdir(TMP_DIR)
-    tar.add(pkg_name)
+    os.chdir(os.path.join(TMP_DIR,pkg_name))
+    content = os.listdir('.')
+    for item in content:
+        if item.startswith('.'):
+            continue
+        tar.add(item)
     tar.close()
     os.chdir(cur_dir)
 
@@ -133,6 +137,6 @@ if __name__ == '__main__':
 
     dist_name = sys.argv[1]
 
-    build(dist_name)
+    pkg_name, ver = build(dist_name)
 
     print ('Package %s created successfully!'%pkg_name)
