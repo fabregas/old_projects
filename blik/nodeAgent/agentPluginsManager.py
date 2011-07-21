@@ -11,7 +11,8 @@ Copyright (C) 2011 Konstantin Andrusenko
 This module contains the implementation of PluginManager and NodeAgentPlugin classes.
 """
 
-from blik.nodeAgent.plugins import OPERATIONS_PLUGINS
+import os
+from blik.nodeAgent import plugins
 from blik.utils.friBase import FriCaller
 from blik.utils.logger import logger
 
@@ -24,7 +25,30 @@ class PluginManager:
     operations_map = {}
 
     @staticmethod
+    def _import_plugins():
+        work_dir = plugins.__path__[0]
+        dirs = os.listdir(work_dir)
+
+        ret_map = plugins.OPERATIONS_PLUGINS
+        for item in dirs:
+            item_path = os.path.join(work_dir, item)
+
+            if not os.path.isdir(item_path):
+                continue
+
+            try:
+                exec('from blik.nodeAgent.plugins.%s import OPERATIONS_PLUGINS'%item)
+
+                ret_map.update(OPERATIONS_PLUGINS)
+            except ImportError, err:
+                logger.warning('Can not import %s module. Details: %s'%(item_path,err))
+
+        return ret_map
+
+    @staticmethod
     def init():
+        OPERATIONS_PLUGINS = PluginManager._import_plugins()
+
         for operation, plugin_class in OPERATIONS_PLUGINS.items():
             plugins_objects = []
 

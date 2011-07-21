@@ -4,8 +4,30 @@ import unittest
 import thread
 import time
 import sys
+import os
+import shutil
 
 from blik.nodeAgent.agentPluginsManager import NodeAgentPlugin, PluginManager
+
+#------------------------------------------------------
+plugin = '''
+from blik.nodeAgent.agentPluginsManager import NodeAgentPlugin
+
+class TestPlugin(NodeAgentPlugin):
+    def process(self, parameters):
+        print 'PLUGIN #2: %s'%parameters
+
+        self.updateOperationProgress(100, ret_message='all steps are processed by PLUGIN #2!')
+
+        print 'PLUGIN #2 PROCESSED'
+'''
+TEST_PLUGIN_DIR = 'blik/nodeAgent/plugins/testPlusginsGroup'
+os.mkdir(TEST_PLUGIN_DIR)
+open(TEST_PLUGIN_DIR+'/__init__.py','w').write("from plugin2 import TestPlugin\nOPERATIONS_PLUGINS={'TEST_OPERATION2': TestPlugin}")
+open(TEST_PLUGIN_DIR+'/plugin2.py','w').write(plugin)
+
+
+#------------------------------------------------------
 
 class TestPlugin(NodeAgentPlugin):
     def process(self, parameters):
@@ -97,6 +119,11 @@ class NodeAgentTestCase(unittest.TestCase):
             code,msg = caller.call('127.0.0.1', packet, 1987)
             self.assertEqual(code, 0, msg)
 
+            #plugin 2 operation
+            packet['operation'] = 'TEST_OPERATION2'
+            code,msg = caller.call('127.0.0.1', packet, 1987)
+            self.assertEqual(code, 0, msg)
+
             #fake operation
             packet['operation'] = 'FAKE_OPERATION'
             code,msg = caller.call('127.0.0.1', packet, 1987)
@@ -108,34 +135,10 @@ class NodeAgentTestCase(unittest.TestCase):
             farnsworth.stop()
 
 
-    '''
-    def test_02_simulate_node(self):
-        db = DatabaseConnection()
-        state = db.select("SELECT current_state FROM nm_node WHERE hostname='127.0.0.1'")[0][0]
-        self.assertEqual(state, 0)#OFF
-
-
-        node = NodeSimulator()
-        def start_server(node):
-            node.start()
-
-        thread.start_new_thread(start_server,(node,))
-
-        try:
-            time.sleep(1.5)
-            state = db.select("SELECT current_state FROM nm_node WHERE hostname='127.0.0.1'")[0][0]
-            self.assertEqual(state, 1)#ON
-            node.stop()
-
-            time.sleep(1.5)
-
-            state = db.select("SELECT current_state FROM nm_node WHERE hostname='127.0.0.1'")[0][0]
-            self.assertEqual(state, 0)#OFF
-        finally:
-            node.stop()
-        print 'STOPED'
-    '''
-
+    def test_03_rmtestdir(self):
+        print 'REMOVING'
+        shutil.rmtree(TEST_PLUGIN_DIR)
+        print 'REMOVed'
 
 if __name__ == '__main__':
     ##########################################
