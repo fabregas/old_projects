@@ -5,4 +5,6 @@ config/named.conf
 config/blik.zone
 config/192.168.87.zone
 config/pxeboot.default
+config/postgresql-9.0.confd
 bin/configureBootManager.py
+blik/db/cloud_db_schema.sql

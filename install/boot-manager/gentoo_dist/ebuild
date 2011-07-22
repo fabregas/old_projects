@@ -21,6 +21,8 @@ DEPEND="dev-python/setuptools
 		net-dns/bind
         net-ftp/tftp-hpa
         sys-boot/syslinux
+        >=dev-db/postgresql-server-9.0
+        dev-python/psycopg
 		sys-cluster/glusterfs"
 RDEPEND="${DEPEND}"
 
@@ -44,6 +46,9 @@ src_install() {
 
     insinto /etc/pxelinux
     newins config/pxeboot.default default
+
+    insinto /etc/conf.d
+    newins config/postgresql-9.0.confd postgresql-9.0
 }
 
 pkg_postinst() {

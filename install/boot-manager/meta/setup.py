@@ -11,9 +11,7 @@ setup(
     packages = ['blik', 'blik.bootManager'],  # include all packages under src
     scripts = ['bin/configureBootManager.py'],
     license = 'GPLv3',
-    data_files = [('/etc/dhcp/', ['config/dhcpd.conf']),
-                    ('/etc/bind', ['config/named.conf']),
-                    ('/etc/bind/pri', ['config/blik.zone', 'config/192.168.87.zone'])],
+    data_files = [('/opt/blik/db', ['blik/db/cloud_db_schema.sql'])],
     zip_safe = True
 )
 
