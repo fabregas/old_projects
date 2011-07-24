@@ -1,0 +1,30 @@
+#!/sbin/runscript
+
+		#--chdir "${HOME}/bin" \
+		#--chuid ${USER}:${GROUP} \
+
+start() {
+	[ -d /var/run/node_agent ] || mkdir -m 777 /var/run/node_agent
+	ebegin "Starting BlikCloud Node Agent"
+	start-stop-daemon --start --quiet --background \
+		--exec nodeAgent \
+		--make-pidfile --pidfile /var/run/node_agent/node_agent.pid
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping BlikCloud Node Agent"
+	start-stop-daemon --stop --signal INT  \
+		--pidfile /var/run/node_agent/node_agent.pid
+	eend $?
+}
+
+reload() {
+	if [ ! -f /var/run/node_agent/node_agent.pid ] ; then
+		eerror "Blik Application Server is not running."
+	else
+        stop
+	fi
+
+	start
+}
