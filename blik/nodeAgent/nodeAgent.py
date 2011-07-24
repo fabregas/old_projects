@@ -18,6 +18,7 @@ from Queue import Queue
 from blik.utils.friBase import FriServer
 from blik.utils.logger import logger
 from blik.nodeAgent.agentPluginsManager import PluginManager
+from blik.nodeAgent.bootEventSender import BootEventSenderThread
 
 FINISH_FLAG=None
 
@@ -34,6 +35,9 @@ class NodeAgent(FriServer):
     def __init__(self, workers_count=3):
         self.__process_threads = []
         self.__operations_queue = Queue()
+        self.__boot_event_sender = BootEventSenderThread()
+        self.__boot_event_sender.start()
+
         for i in xrange(workers_count):
             thread = ProcessOperationThread(self.__operations_queue)
             thread.setName('ProcessOperationThread#%i'%i)
@@ -82,6 +86,7 @@ class NodeAgent(FriServer):
 
 
     def stop(self):
+        self.__boot_event_sender.stop()
         FriServer.stop(self)
         for i in self.__process_threads:
             self.__operations_queue.put(FINISH_FLAG)

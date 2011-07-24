@@ -63,7 +63,10 @@ class BootEventListener(FriServer):
         if element is None:
             raise Exception('Element <%s> is not found in boot event packet!'%name)
 
-        return element.strip()
+        if type(element) == str:
+            element = element.strip()
+
+        return element
 
     def __process_event(self, uuid, hostname, login, password, mac_address, ip_address, processor, memory):
         hw_info = 'Processor: %s\nMemory: %s'%(processor, memory)
