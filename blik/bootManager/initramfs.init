@@ -1,0 +1,127 @@
+#!/bin/busybox sh
+
+rescue_shell() {
+        echo "!!!ERROR!!!"
+        busybox --install -s
+        exec /bin/busybox sh
+}
+
+remote_rescue_shell() {
+    # telnetd requires devpts
+    mkdir -p /dev/pts
+    mount -t devpts none /dev/pts
+
+    # Start the telnet server
+    telnetd
+    
+    # Continue with the local rescue shell
+    rescue_shell
+}
+
+#rescue_shell
+
+# Do your stuff here.
+echo "This script mounts rootfs and boots it up, nothing more!"
+
+# Mount the /proc and /sys filesystems.
+mount -t proc none /proc
+mount -t sysfs none /sys
+mdev -s
+
+mkdir /mnt/rootfs
+ifconfig eth0 up
+udhcpc -t 5 -q -s /bin/udhcpc.script
+
+echo "NTP date syncing.."
+/sbin/ntpdate farnsworth.blik.org
+
+echo "Mounting glusterfs rootfs..."
+
+glusterfs --read-only --volfile /etc/glusterfs/glusterfs.vol /mnt/rootfs || remote_rescue_shell
+
+echo "**** GlusterFS mounted ****"
+
+#----------------------------------------------------------------
+
+node_type='default'
+arch='x86_64'
+rootfs_type='networked'
+
+str="$(cat '/proc/cmdline')"
+set -- junk $str
+shift
+
+echo COMMAND LINE: $str
+
+for param in $str
+do
+    value="$(echo $param | cut -d '=' -f2)"
+    key="$(echo $param | cut -d '=' -f1)"
+
+    if [ $key == 'root' ]; then
+        echo ROOT=$value
+    elif [ $key == 'rootfs_type' ]; then
+        rootfs_type=$value
+    elif [ $key == 'node_type' ]; then
+        node_type=$value
+    elif [ $key == 'arch' ]; then
+        arch=$value
+    fi
+done
+
+
+echo "Node type: $node_type"
+
+if [ $rootfs_type == 'networked' ]; then
+    echo 'This node should be booted by networked rootfs over GlusterFS'
+    #mount node type rootfs
+    echo "Mounting /mnt/root/$node_type/$arch/ to /mnt/rootfs"
+    mount --bind /mnt/rootfs/$node_type/$arch /mnt/rootfs
+
+    mount -t sysfs none /mnt/rootfs/sys
+    mount -t tmpfs none /mnt/rootfs/tmp
+    mount -t tmpfs none /mnt/rootfs/home
+    mount -t tmpfs none /mnt/rootfs/root
+ 
+    cp -r /mnt/rootfs/var/* /mnt/rootfs/tmp/
+ 
+    mount -t tmpfs none /mnt/rootfs/var
+    mv /mnt/rootfs/tmp/* /mnt/rootfs/var/
+    #rm -rf /mnt/rootfs/var/db #FIXME: may be this is not need
+
+    cp -r /mnt/rootfs/etc/* /mnt/rootfs/tmp/
+ 
+    mount -t tmpfs none /mnt/rootfs/etc
+    mv /mnt/rootfs/tmp/* /mnt/rootfs/etc/
+
+
+elif [ $rootfs_type == 'memorized' ]; then
+
+    echo 'This node should be booted by RAMed rootfs'
+    echo "Downloading $node_type/$arch/image.tar.bz2 to /tmp/"
+    #download rootfs archive
+    cp /mnt/rootfs/$node_type/$arch/image.tar.bz2 /tmp/
+    umount /mnt/rootfs
+    #mount ramdisk
+    mount -t tmpfs none /mnt/rootfs
+
+    #untar rootfs
+    echo "Untar image to /mnt/rootfs"
+    tar -xjf /tmp/image.tar.bz2 -C /mnt/rootfs || remote_rescue_shell
+    #remove downloaded archive
+    rm -rf /tmp/image.tar.bz2
+else
+    echo "ERROR! RootFS type $value is not supported"
+fi
+
+
+#----------------------------------------------------------------
+
+# Clean up.
+umount /proc
+umount /sys
+
+echo "Switching root to /mnt/rootfs"
+# Boot the real thing.
+exec switch_root /mnt/rootfs /sbin/init || remote_rescue_shell
+

@@ -12,8 +12,8 @@ TEST_SET="
 ./tests/nodesManager/dbusAgent_test.py
 ./tests/nodesManager/nodesMonitor_test.py
 ./tests/nodeAgent/nodeAgent_test.py
+./tests/bootManager/bootEventListener_test.py
 "
-
 
 
 for PY in $TEST_SET ; do
