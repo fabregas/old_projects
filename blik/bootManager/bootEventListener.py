@@ -11,10 +11,11 @@ Copyright (C) 2011 Konstantin Andrusenko
 This module contains the implementation of BootEventListener class.
 """
 
-import threading
-from Queue import Queue
+import sys
+import signal
 from blik.utils.friBase import FriServer
 from blik.utils.databaseConnection import DatabaseConnection
+from blik.utils.logger import logger
 
 LISTENER_PORT = 1986
 
@@ -80,4 +81,28 @@ class BootEventListener(FriServer):
             self.__dbconn.modify("UPDATE nm_node SET hostname=%s, login=%s, password=%s, mac_address=%s, ip_address=%s, hw_info=%s\
                                     WHERE node_uuid=%s", (hostname, login, password, mac_address, ip_address, hw_info, uuid))
 
+
+
+if __name__ == '__main__':
+    try:
+        logger.info('Boot event listener starting...')
+
+        listener = BootEventListener()
+
+        def stop(s, p):
+            global listener
+            try:
+                logger.info('Boot event listener stoping...')
+                listener.stop()
+            except Exception, err:
+                logger.error('Stoping boot event listener error: %s'%err)
+
+        signal.signal(signal.SIGINT, stop)
+
+        listener.start()
+
+        logger.info('Boot event listener stoped')
+    except Exception, err:
+        logger.error('Boot event listener error: %s. exit!'%err)
+        sys.exit(1)
 
