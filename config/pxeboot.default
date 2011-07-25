@@ -1,2 +1,0 @@
-DEFAULT /bzImage
-APPEND initrd=/common_initramfs

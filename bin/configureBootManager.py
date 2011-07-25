@@ -21,11 +21,6 @@ if not os.path.exists('/var/lib/postgresql/9.0/data'):
 print 'Trying start postgresql server!'
 os.system('/etc/init.d/postgresql-9.0 restart')
 
-pxe_cfg = os.path.join(DISKLESS_HOME,'pxelinux.cfg')
-if not os.path.exists(pxe_cfg):
-    os.makedirs(pxe_cfg)
-
-shutil.copy('/etc/pxelinux/default', os.path.join(pxe_cfg, 'default'))
 
 ####################################
 #database configuration
@@ -59,3 +54,13 @@ ret = os.system('node-type-installer --skip-db %s'%default_node_yaml)
 if ret:
     sys.exit(1)
 
+pxe_cfg = os.path.join(DISKLESS_HOME,'pxelinux.cfg')
+if not os.path.exists(pxe_cfg):
+    os.makedirs(pxe_cfg)
+
+default_x86 = os.path.join(pxe_cfg, 'default-x86')
+default = os.path.join(pxe_cfg, 'default')
+
+if not os.path.exists(default):
+    os.system('ln %s %s'%(default_x86, default))
+#os.system('unlink %s'%default)

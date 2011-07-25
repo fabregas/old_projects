@@ -44,9 +44,6 @@ src_install() {
     newins config/blik.zone blik.zone
     newins config/192.168.87.zone 192.168.87.zone
 
-    insinto /etc/pxelinux
-    newins config/pxeboot.default default
-
     insinto /etc/conf.d
     newins config/postgresql-9.0.confd postgresql-9.0
 }
