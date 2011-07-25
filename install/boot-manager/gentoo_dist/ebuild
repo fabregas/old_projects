@@ -48,8 +48,14 @@ src_install() {
     insinto /etc/conf.d
     newins config/postgresql-9.0.confd postgresql-9.0
 
+    insinto /etc/conf.d
+    newins config/in.tftpd in.tftpd
+
     insinto /etc
     newins config/ntp.conf ntp.conf
+
+    insinto /etc
+    newins config/resolv.conf.head resolv.conf.head
 }
 
 pkg_postinst() {

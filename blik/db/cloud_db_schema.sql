@@ -63,6 +63,7 @@ CREATE TABLE NM_NODE (
 	cluster_id integer,
 	node_type bigint,
 	hostname varchar(50) NOT NULL,
+	architecture varchar(10) DEFAULT 'x86' ,
 	logic_name varchar(128),
 	admin_status smallint DEFAULT 0 NOT NULL,    --  0 - new 1 - active 2 - not active 
 	current_state smallint DEFAULT 0 NOT NULL,    --  0 - down 1 - up 
