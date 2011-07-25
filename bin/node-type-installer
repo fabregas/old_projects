@@ -48,6 +48,16 @@ def _get_item(obj, element_name):
 
 
 def parse_specification(yaml_file):
+    url_lower = yaml_file.lower()
+    if url_lower.startswith('http://') or url_lower.startswith('ftp://'):
+        yaml_file_out = '/tmp/tmp-node-spec.yaml'
+
+        ret,out,err = run_command(['wget', yaml_file, '-O', yaml_file_out])
+        if ret:
+            raise Exception('Node specification is not downloaded! Details: %s'%err)
+    else:
+        yaml_file_out = yaml_file
+
     f = open(yaml_file)
     objects = yaml.load(f.read())
     f.close()
