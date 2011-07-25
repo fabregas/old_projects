@@ -9,7 +9,7 @@ db_user = Config.db_user
 
 Config.db_name = db_name
 
-schema_file = './tests/cloud_db_schema.sql'
+schema_file = './blik/db/cloud_db_schema.sql'
 fixture_file = './tests/test_data.sql'
 
 def createTestDB():
