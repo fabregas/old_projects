@@ -6,6 +6,7 @@ config/named.conf
 config/blik.zone
 config/192.168.87.zone
 config/postgresql-9.0.confd
+config/ntp.conf
 bin/configureBootManager.py
 bin/node-type-installer
 bin/node-image-updater

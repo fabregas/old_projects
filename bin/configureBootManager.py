@@ -4,6 +4,7 @@ import shutil
 
 DISKLESS_HOME = '/opt/blik/diskless'
 
+os.system('rc-update add ntpd default')
 os.system('rc-update add dhcpd default')
 os.system('rc-update add named default')
 os.system('rc-update add in.tftpd default')

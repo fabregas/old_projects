@@ -17,6 +17,7 @@ KEYWORDS="amd64 x86"
 IUSE=""
 
 DEPEND="dev-python/setuptools
+        net-misc/ntp
         net-misc/dhcp
 		net-dns/bind
         net-ftp/tftp-hpa
@@ -46,6 +47,9 @@ src_install() {
 
     insinto /etc/conf.d
     newins config/postgresql-9.0.confd postgresql-9.0
+
+    insinto /etc
+    newins config/ntp.conf ntp.conf
 }
 
 pkg_postinst() {
