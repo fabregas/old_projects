@@ -1,0 +1,292 @@
+#!/usr/bin/python
+"""
+Copyright (C) 2011 Konstantin Andrusenko
+    See the documentation for further information on copyrights,
+    or contact the author. All Rights Reserved.
+
+@author Konstantin Andrusenko
+@date July 30, 2011
+
+node-type-installer is utility for making and installing images
+"""
+
+import yaml
+import os
+import sys
+import shutil
+from blik.utils.databaseConnection import DatabaseConnection
+from blik.utils.exec_command import run_command
+from blik.utils.pexpect import spawn
+
+DISKLESS_KERNELS_PATH = '/opt/blik/diskless/kernels/'
+TMP_DIR = '/opt/blik/tmp/'
+CANONICAL_IMAGE_PATH = '/opt/blik/diskless/images/canonical/%s/image.tar.bz2'
+IMAGE_PATH = '/opt/blik/diskless/images/%s/%s/'
+PXECONFIG_DIR = '/opt/blik/diskless/pxelinux.cfg/'
+
+class KernelSource:
+    def __init__(self, arch, url):
+        self.arch = arch
+        self.kernel_url = url
+
+class NodeType:
+    def __init__(self):
+        self.type_name = None
+        self.supported_archs = None
+        self.packages = None
+        self.description = None
+        self.rootfs_mode = None
+        self.kernels = []
+
+
+def _get_item(obj, element_name):
+    element = obj.get(element_name, None)
+    if element is None:
+        raise Exception('<%s> element is not found'%element_name)
+
+    return element
+
+
+def parse_specification(yaml_file):
+    f = open(yaml_file)
+    objects = yaml.load(f.read())
+    f.close()
+
+    nt = NodeType()
+    node_info = _get_item(objects, 'node_info')
+    nt.node_info = node_info[0]
+
+    nt.type_name = _get_item(nt.node_info, 'type_name')
+    supported_archs = _get_item(nt.node_info, 'supported_archs')
+    nt.supported_archs = [s.strip() for s in supported_archs.split(',')]
+
+    packages = _get_item(nt.node_info, 'packages')
+    nt.packages = packages.split(',')
+    nt.description = _get_item(nt.node_info, 'description')
+    nt.rootfs_mode = _get_item(nt.node_info, 'rootfs_mode')
+
+    kernels = objects.get('kernels', [])
+    for kernel in kernels:
+        kernel_url = _get_item(kernel, 'kernel_url')
+        arch = _get_item(kernel, 'arch')
+
+        nt.kernels.append(KernelSource(arch, kernel_url))
+
+    return nt
+
+def insert_node_type(node_type):
+    dbsrv = DatabaseConnection()
+
+    rows = dbsrv.select("SELECT description FROM nm_node_type WHERE type_sid=%s",(node_type.type_name,))
+
+    if not rows:
+        dbsrv.modify("INSERT INTO nm_node_type (type_sid, description) VALUES (%s, %s)",
+                    (node_type.type_name, node_type.description))
+    else:
+        dbsrv.modify("UPDATE nm_node_type SET description=%s WHERE type_sid=%s",
+                    (node_type.description, node_type.type_name))
+
+
+def install_kernels(node_type):
+    for kernel in node_type.kernels:
+        url_lower = kernel.kernel_url.lower()
+        if url_lower.startswith('http://') or url_lower.startswith('ftp://'):
+            url = '/tmp/tmp-kernel'
+
+            ret,out,err = run_command(['wget', kernel.kernel_url, '-O', url])
+            if ret:
+                raise Exception('Kernel is not downloaded! Details: %s'%err)
+        else:
+            url = kernel.kernel_url
+
+        path = DISKLESS_KERNELS_PATH + '%s/'%(node_type.type_name)
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        shutil.copy(url, path + 'bzImage-%s'%kernel.arch)
+
+
+
+def get_emerge_variables():
+    lines = open('/etc/make.conf').readlines()
+
+    ret_lines = []
+    for line in lines:
+        line = line.strip()
+
+        if line.startswith('GENTOO_MIRRORS'):
+            ret_lines.append(line)
+
+        elif line.startswith('PORTAGE_BINHOST'):
+            ret_lines.append(line)
+
+    ret_lines.append('FEATURES="buildpkg"')
+
+    return ret_lines
+
+
+def install_image(node_type, arch):
+    if os.path.exists(TMP_DIR):
+        shutil.rmtree(TMP_DIR)
+
+    os.mkdir(TMP_DIR)
+
+    #untar image
+    print ('Untar canonical image to tmp dir...')
+    ret,out,err = run_command(['tar', '-xjf', CANONICAL_IMAGE_PATH %arch, '-C', TMP_DIR])
+    if ret:
+        raise Exception('Canonical image is not unpacked! Details: %s'%err)
+
+    #bind portage tree
+    ret,out,err = run_command(['mount', '--bind', '/usr/portage', TMP_DIR+'usr/portage'])
+    if ret:
+        raise Exception('Binding portage tree error! Details: %s'%err)
+
+    #preparing to chroot
+    os.system('cp /etc/resolv.conf %setc/resolv.conf'%TMP_DIR)
+    os.system('mount -t proc none %sproc'%TMP_DIR)
+    os.system('mount -o bind /dev %sdev'%TMP_DIR)
+
+
+    log_file = open('/tmp/make_image-%s.log'%arch,'w')
+    print ('See log in /tmp/make_image-%s.log ...'%arch)
+
+    #chroot to tmp rootfs and install packages
+    session = spawn('chroot %s /bin/bash'%TMP_DIR, timeout=3000)
+    try:
+        session.logfile_read = log_file
+        session.logfile_write = log_file
+        session.expect("#")
+
+        variables = get_emerge_variables()
+        prompt = 'CHROOT #'
+        prefix = ' '.join(variables)
+
+        session.sendline('env-update; source /etc/profile')
+        session.readline()
+        session.sendline('export PS1="%s"'%prompt)
+        session.readline()
+        session.expect(prompt)
+
+        for package in node_type.packages:
+            print 'Installing %s package...' % package
+
+            session.sendline('%s emerge -v --color n --usepkg --getbinpkg %s'%(prefix, package))
+            session.readline()
+            session.readline()
+            session.expect(prompt)
+
+            stdout = session.before
+
+            if (len(stdout)<100) or (stdout.find('>>> Failed to emerge')>0):
+                raise Exception('Error ocured while install %s package! See log for details.'%package)
+
+
+        #pack image if need
+        if node_type.rootfs_mode != 'networked':
+            #pack image
+            print ('Pack image ...')
+            session.sendline('tar cvjpf /image.tar.bz2 / -X /root/stage4.excl')
+            session.readline()
+            session.expect(prompt)
+    finally:
+        session.sendline('exit')
+        session.close()
+        os.system('umount %susr/portage'%TMP_DIR)
+        os.system('umount %sproc'%TMP_DIR)
+        os.system('umount %sdev'%TMP_DIR)
+
+    os.system('rm -rf %stmp/*'%TMP_DIR)
+    os.system('rm -rf %svar/log/*'%TMP_DIR)
+
+
+    image_path = IMAGE_PATH %(node_type.type_name, arch)
+    if os.path.exists(image_path):
+        shutil.rmtree(image_path)
+    os.makedirs(image_path)
+
+    if node_type.rootfs_mode != 'networked':
+        tar_image_path = image_path + 'image.tar.bz2'
+        print ('Move image to %s'%tar_image_path)
+        shutil.move('%simage.tar.bz2'%TMP_DIR, tar_image_path)
+    else:
+        #mv rootfs
+        print ('Move rootfs to %s ...'%image_path)
+        ret = os.system('cp -r %s* %s'%(TMP_DIR, image_path))
+        if ret:
+            raise Exception('Move rootfs error!')
+
+    print ('Remove temp rootfs...')
+    shutil.rmtree(TMP_DIR)
+
+
+
+def create_pxeboot_configs(node_type, arch):
+    kernel = '/kernels/default/bzImage-%s'%arch
+    initramfs = '/kernels/default/initramfs-%s'%arch
+
+    for kernel in node_type.kernels:
+        if kernel.arch == arch:
+            kernel = '/kernels/%s/bzImage-%s'%(node_type.type_name,arch)
+            break
+
+    config = 'DEFAULT %s rootfs_type=%s arch=%s\n' % (kernel, node_type.rootfs_mode, arch)
+    config += 'APPEND initrd=%s\n'%initramfs
+
+    open(PXECONFIG_DIR+'%s-%s'%(node_type.type_name, arch),'w').write(config)
+
+
+def main(yaml_file, is_db_skip, is_image_skip):
+    try:
+        node_type = parse_specification(yaml_file)
+
+        if not is_db_skip:
+            insert_node_type(node_type)
+
+        if node_type.kernels:
+            print ('Installing kernels:')
+            install_kernels(node_type)
+            print ('Kernels installed successful!')
+        else:
+            print ('No kernels found for this node type. Skip kernels installations')
+
+
+        for arch in node_type.supported_archs:
+            if not is_image_skip:
+                print ('Make image for %s architecture:'%arch)
+                install_image(node_type, arch)
+
+            create_pxeboot_configs(node_type, arch)
+
+        print ('Images installed successful!')
+    except Exception, err:
+        print (err)
+        print ('Image installation failed!')
+        return 1
+
+    return 0
+
+#-----------------------------------------------------------------------------------
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print 'Usage: node-type-installer [--skip-db] [--skip-images] <yaml-file>'
+        sys.exit(1)
+
+    yaml_file = sys.argv[-1]
+    is_skip_db = False
+    is_skip_images = False
+
+    for param in sys.argv:
+        if param.strip() == '--skip-db':
+            is_skip_db = True
+        elif param.strip() == '--skip-images':
+            is_skip_images = True
+
+    ret = main(yaml_file, is_skip_db, is_skip_images)
+
+    sys.exit(ret)
+
+#node_type = parse_specification('/home/fabregas/test_node_type.yaml')
+#insert_node_type(node_type)
+#install_image(node_type, 'x86')

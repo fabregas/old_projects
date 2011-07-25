@@ -1,7 +1,8 @@
 #!/sbin/runscript
 
-		#--chdir "${HOME}/bin" \
-		#--chuid ${USER}:${GROUP} \
+#TODO: may be chdir and chuid should be used?
+#--chdir "${HOME}/bin" \
+#--chuid ${USER}:${GROUP} \
 
 start() {
 	[ -d /var/run/node_agent ] || mkdir -m 777 /var/run/node_agent
@@ -21,7 +22,7 @@ stop() {
 
 reload() {
 	if [ ! -f /var/run/node_agent/node_agent.pid ] ; then
-		eerror "Blik Application Server is not running."
+		eerror "BlikCloud Node Agent is not running."
 	else
         stop
 	fi

@@ -2,6 +2,6 @@ blik/utils/logger.py
 blik/utils/friBase.py
 blik/utils/__init__.py
 blik/nodeAgent/*
-#test
 bin/nodeAgent
+init_scripts/node_agent
 

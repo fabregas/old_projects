@@ -1,0 +1,101 @@
+#!/usr/bin/python
+"""
+Copyright (C) 2011 Konstantin Andrusenko
+    See the documentation for further information on copyrights,
+    or contact the author. All Rights Reserved.
+
+@author Konstantin Andrusenko
+@date July 30, 2011
+
+change-node-type is utility for changing node type
+"""
+
+import os
+import sys
+import shutil
+import getopt
+from blik.utils.databaseConnection import DatabaseConnection
+from blik.utils.exec_command import run_command
+
+PXECONFIG_DIR = '/opt/blik/diskless/pxelinux.cfg/'
+
+def change_node_in_database(uuid, type_sid, arch):
+    dbconn = DatabaseConnection()
+
+    rows = dbconn.select("SELECT id FROM nm_node_type WHERE type_sid=%s", (type_sid,))
+
+    if not rows:
+        raise Exception('Node type with SID "%s" is not found in database'%type_sid)
+
+    type_id = rows[0][0]
+
+    if arch:
+        arch_change = ", architecture='%s'"%arch
+    else:
+        arch_change = ''
+    query = "UPDATE nm_node SET node_type=%s %s WHERE node_uuid='%s'" % (type_id, arch_change, uuid)
+
+    dbconn.modify(query)
+
+    rows = dbconn.select("SELECT mac_address, architecture FROM nm_node WHERE node_uuid=%s",(uuid,))
+    if not rows:
+        raise Exception('Node with UUID "%s" is not found in database'%uuid)
+
+    return rows[0]
+
+
+def change_node_config(uuid, type_sid, arch, mac_address):
+    mac_address = mac_address.replace(':', '-').upper()
+
+    config = '%s%s-%s'%(PXECONFIG_DIR, type_sid, arch)
+    dest_config = PXECONFIG_DIR + mac_address
+
+    if os.path.exists(dest_config):
+        ret,out,err = run_command(['unlink', dest_config])
+        if ret:
+            raise Exception('Unlink %s error. Details: %s'%(dest_config,err))
+
+    ret,out,err = run_command(['ln', config, dest_config])
+    if ret:
+        raise Exception('Creating node PXEBoot config error. Details: %s'%err)
+
+
+def usage(err_msg=None):
+    if err_msg:
+        print ('ERROR: %s'%err_msg)
+    print ('Usage: change-node-type -t|--node-type <node type> -u|--uuid <node uuid> [-a|--arch <node arch>]')
+    sys.exit(0)
+
+#---------------------------------------------------------------------------------------------------------------------
+
+if __name__ == '__main__':
+    try:
+        opts,args = getopt.getopt(sys.argv[1:], "t:a:u:", ["node-type=", "arch=", "uuid=",'dont-unpack'])
+    except getopt.GetoptError, err:
+        usage(err)
+
+    node_type = arch = uuid = None
+
+    for opt, arg in opts:
+        if opt in ['-t','--node-type']:
+            node_type = arg
+        elif opt in ['-a', '--arch']:
+            arch = arg
+        elif opt in ['-u', '--uuid']:
+            uuid = arg
+
+    if node_type is None:
+        usage('Node type is not specified')
+
+    if uuid is None:
+        usage('Node UUID is not specified')
+
+    try:
+        mac, arch = change_node_in_database(uuid, node_type, arch)
+
+        change_node_config(uuid, node_type, arch, mac)
+    except Exception, err:
+        print ('ERROR: %s'%err)
+        sys.exit(1)
+
+    sys.exit(0)

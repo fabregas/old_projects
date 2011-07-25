@@ -7,7 +7,7 @@ PYTHON_DEPEND="2"
 
 inherit distutils
 
-DESCRIPTION="Node Agent for Blik Cloud management system"
+DESCRIPTION="Node Agent for BlikCloud management system"
 HOMEPAGE=""
 SRC_URI="ftp://blik_mirror/distfiles/${PF}.tar"
 
@@ -25,4 +25,7 @@ src_compile() {
 
 src_install() {
 	distutils_src_install
+
+    insinto /etc/init.d
+    newins init_scripts/node_agent node_agent
 }
