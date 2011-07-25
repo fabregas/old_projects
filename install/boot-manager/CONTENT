@@ -1,10 +1,13 @@
 blik/__init__.py
 blik/bootManager/*
+blik/utils/*
 config/dhcpd.conf
 config/named.conf
 config/blik.zone
 config/192.168.87.zone
-config/pxeboot.default
 config/postgresql-9.0.confd
 bin/configureBootManager.py
+bin/node-type-installer
+bin/node-image-updater
+bin/change-node-type
 blik/db/cloud_db_schema.sql
