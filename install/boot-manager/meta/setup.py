@@ -14,7 +14,8 @@ setup(
                 'bin/node-image-updater',
                 'bin/change-node-type'],
     license = 'GPLv3',
-    data_files = [('/opt/blik/db', ['blik/db/cloud_db_schema.sql'])],
+    data_files = [('/opt/blik/db', ['blik/db/cloud_db_schema.sql']),
+                    ('/opt/blik/conf',['config/default_node.yaml'])],
     zip_safe = True
 )
 

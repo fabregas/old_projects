@@ -59,6 +59,11 @@ src_install() {
     newins config/resolv.conf.head resolv.conf.head
 }
 
-#pkg_postinst() {
+pkg_postinst() {
 #	python /usr/bin/configureBootManager.py || die
-#}
+	if [ ! -d "/var/lib/postgresql/9.0/data" ] ; then
+        emerge postgresql-server --config || die
+        createdb -U postgres  blik_cloud_db || die
+        psql -U postgres -d blik_cloud_db -f /opt/blik/db/cloud_db_schema.sql || die
+	fi
+}

@@ -131,6 +131,7 @@ def get_emerge_variables():
             ret_lines.append(line)
 
     ret_lines.append('FEATURES="buildpkg"')
+    ret_lines.append('CONFIG_PROTECT="-*"')
 
     return ret_lines
 

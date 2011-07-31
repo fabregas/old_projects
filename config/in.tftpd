@@ -1,2 +1,2 @@
-INTFTPD_PATH=”/opt/blik/diskless/”
-INTFTPD_OPTS=”-l -v -s ${INTFTPD_PATH}”
+INTFTPD_PATH="/opt/blik/diskless/"
+INTFTPD_OPTS="-l -v -s ${INTFTPD_PATH}"
