@@ -18,6 +18,7 @@ IUSE=""
 
 DEPEND="dev-python/setuptools
         dev-python/pyyaml
+        dev-python/pexpect
         net-misc/ntp
         net-misc/dhcp
 		net-dns/bind
@@ -63,7 +64,5 @@ pkg_postinst() {
 #	python /usr/bin/configureBootManager.py || die
 	if [ ! -d "/var/lib/postgresql/9.0/data" ] ; then
         emerge postgresql-server --config || die
-        createdb -U postgres  blik_cloud_db || die
-        psql -U postgres -d blik_cloud_db -f /opt/blik/db/cloud_db_schema.sql || die
 	fi
 }

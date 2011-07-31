@@ -16,7 +16,7 @@ import sys
 import shutil
 from blik.utils.databaseConnection import DatabaseConnection
 from blik.utils.exec_command import run_command
-from blik.utils.pexpect import spawn
+from pexpect import spawn
 
 DISKLESS_KERNELS_PATH = '/opt/blik/diskless/kernels/'
 TMP_DIR = '/opt/blik/tmp/'
@@ -132,11 +132,14 @@ def get_emerge_variables():
 
     ret_lines.append('FEATURES="buildpkg"')
     ret_lines.append('CONFIG_PROTECT="-*"')
+    ret_lines.append('COLLISION_IGNORE="/etc /lib/modules"')
 
     return ret_lines
 
 
 def install_image(node_type, arch):
+    os.system('umount %susr/portage'%TMP_DIR)
+    os.system('umount %sproc'%TMP_DIR)
     if os.path.exists(TMP_DIR):
         shutil.rmtree(TMP_DIR)
 
@@ -163,8 +166,9 @@ def install_image(node_type, arch):
     print ('See log in /tmp/make_image-%s.log ...'%arch)
 
     #chroot to tmp rootfs and install packages
-    session = spawn('chroot %s /bin/bash'%TMP_DIR, timeout=3000)
+    session = None
     try:
+        session = spawn('chroot %s /bin/bash'%TMP_DIR, timeout=3000)
         session.logfile_read = log_file
         session.logfile_write = log_file
         session.expect("#")
@@ -207,8 +211,10 @@ def install_image(node_type, arch):
             session.readline()
             session.expect(prompt)
     finally:
-        session.sendline('exit')
-        session.close()
+        if session:
+            session.sendline('exit')
+            session.close()
+
         ret = os.system('umount %susr/portage'%TMP_DIR)
         if ret:
             raise Exception('Unmounting portage tree failed!')

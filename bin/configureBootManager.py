@@ -28,11 +28,11 @@ os.system('/etc/init.d/postgresql-9.0 restart')
 #database configuration
 ####################################
 
-#ret = os.system('createdb -U postgres  blik_cloud_db')
-#if not ret:
-#    ret = os.system('psql -U postgres -d blik_cloud_db -f /opt/blik/db/cloud_db_schema.sql')
-#    if ret:
-#        sys.exit(1)
+ret = os.system('createdb -U postgres  blik_cloud_db')
+if not ret:
+    ret = os.system('psql -U postgres -d blik_cloud_db -f /opt/blik/db/cloud_db_schema.sql')
+    if ret:
+        sys.exit(1)
 
 ######################################
 #canonical images and kernels install

@@ -9,6 +9,7 @@ config/postgresql-9.0.confd
 config/ntp.conf
 config/resolv.conf.head
 config/in.tftpd
+config/default_node.yaml
 bin/configureBootManager.py
 bin/node-type-installer
 bin/node-image-updater
