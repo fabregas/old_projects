@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import os
+import sys
 import shutil
 
 DISKLESS_HOME = '/opt/blik/diskless'
@@ -29,7 +30,9 @@ os.system('/etc/init.d/postgresql-9.0 restart')
 
 ret = os.system('createdb -U postgres  blik_cloud_db')
 if not ret:
-    os.system('psql -U postgres -d blik_cloud_db -f /opt/blik/db/cloud_db_schema.sql')
+    ret = os.system('psql -U postgres -d blik_cloud_db -f /opt/blik/db/cloud_db_schema.sql')
+    if ret:
+        sys.exit(1)
 
 ######################################
 #canonical images and kernels install

@@ -17,6 +17,7 @@ KEYWORDS="amd64 x86"
 IUSE=""
 
 DEPEND="dev-python/setuptools
+        dev-python/pyyaml
         net-misc/ntp
         net-misc/dhcp
 		net-dns/bind
@@ -58,6 +59,6 @@ src_install() {
     newins config/resolv.conf.head resolv.conf.head
 }
 
-pkg_postinst() {
-	python /usr/bin/configureBootManager.py || die
-}
+#pkg_postinst() {
+#	python /usr/bin/configureBootManager.py || die
+#}

@@ -155,7 +155,7 @@ def install_image(node_type, arch):
     #preparing to chroot
     os.system('cp /etc/resolv.conf %setc/resolv.conf'%TMP_DIR)
     os.system('mount -t proc none %sproc'%TMP_DIR)
-    os.system('mount -o bind /dev %sdev'%TMP_DIR)
+    os.system('cp -a /dev/* %sdev/'%TMP_DIR)
 
 
     log_file = open('/tmp/make_image-%s.log'%arch,'w')
@@ -184,7 +184,13 @@ def install_image(node_type, arch):
             session.sendline('%s emerge -v --color n --usepkg --getbinpkg %s'%(prefix, package))
             session.readline()
             session.readline()
-            session.expect(prompt)
+            while True:
+                ret = session.expect(['(Y/n)', prompt])
+                if ret == 0:
+                    session.sendline('Y')
+                    session.readline()
+                elif ret == 1:
+                    break
 
             stdout = session.before
 
@@ -202,9 +208,14 @@ def install_image(node_type, arch):
     finally:
         session.sendline('exit')
         session.close()
-        os.system('umount %susr/portage'%TMP_DIR)
-        os.system('umount %sproc'%TMP_DIR)
-        os.system('umount %sdev'%TMP_DIR)
+        ret = os.system('umount %susr/portage'%TMP_DIR)
+        if ret:
+            raise Exception('Unmounting portage tree failed!')
+
+        ret = os.system('umount %sproc'%TMP_DIR)
+        if ret:
+            raise Exception('Unmounting /proc failed!')
+
 
     os.system('rm -rf %stmp/*'%TMP_DIR)
     os.system('rm -rf %svar/log/*'%TMP_DIR)
