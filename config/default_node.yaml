@@ -5,7 +5,7 @@ node_info:
       packages: node-agent
       supported_archs: x86, x86_64
 kernels:
-    - kernel_url: ftp://blik-products-distribution/images/kernel-default-x86
+    - kernel_url: ftp://blik-mirror/images/kernel-default-x86
       arch: x86
-    - kernel_url: ftp://blik-products-distribution/images/kernel-default-x86_64
+    - kernel_url: ftp://blik-mirror/images/kernel-default-x86_64
       arch: x86_64
