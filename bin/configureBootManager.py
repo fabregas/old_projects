@@ -42,11 +42,11 @@ IMAGES = 'ftp://blik-mirror/images/'
 
 INITRAMFS_DIR = os.path.join(DISKLESS_HOME, 'initramfs')
 
-ret = os.system('wget -c %s -C %s'%(os.path.join(IMAGES, 'initramfs-x86'),INITRAMFS_DIR))
+ret = os.system('wget %s -O %s'%(os.path.join(IMAGES, 'initramfs-x86'),INITRAMFS_DIR))
 if ret:
     sys.exit(1)
 
-ret = os.system('wget -c %s -C %s'%(os.path.join(IMAGES, 'initramfs-x86_64'),INITRAMFS_DIR))
+ret = os.system('wget %s -O %s'%(os.path.join(IMAGES, 'initramfs-x86_64'),INITRAMFS_DIR))
 if ret:
     sys.exit(1)
 
