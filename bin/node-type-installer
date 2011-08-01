@@ -261,6 +261,9 @@ def create_pxeboot_configs(node_type, arch):
     config = 'DEFAULT %s rootfs_type=%s arch=%s\n' % (kernel, node_type.rootfs_mode, arch)
     config += 'APPEND initrd=%s\n'%initramfs
 
+    if not os.path.exists(PXECONFIG_DIR):
+        os.makedirs(PXECONFIG_DIR)
+
     open(PXECONFIG_DIR+'%s-%s'%(node_type.type_name, arch),'w').write(config)
 
 
