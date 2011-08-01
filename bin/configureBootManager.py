@@ -38,7 +38,7 @@ if not ret:
 #canonical images and kernels install
 ######################################
 
-IMAGES = 'ftp://blik_mirror/images/'
+IMAGES = 'ftp://blik-mirror/images/'
 
 x86_canonical_image = IMAGES + 'image_canonical_x86.tar.bz2'
 x86_64_canonical_image = IMAGES + 'image_canonical_x86_64.tar.bz2'

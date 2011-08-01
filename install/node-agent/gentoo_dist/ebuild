@@ -9,7 +9,7 @@ inherit distutils
 
 DESCRIPTION="Node Agent for BlikCloud management system"
 HOMEPAGE=""
-SRC_URI="ftp://blik_mirror/distfiles/${PF}.tar"
+SRC_URI="ftp://blik-mirror/distfiles/${PF}.tar"
 
 LICENSE="GPL-3"
 SLOT="0"
