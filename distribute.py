@@ -15,7 +15,7 @@ This script distribute Blik packages to Distribution Server.
 import sys, os, shutil
 from build import build, TMP_DIR, DIST_DIR as LOCAL_DIST
 
-DISTR_SERVER='root@192.168.56.103'
+DISTR_SERVER='root@192.168.56.107'
 #DISTR_SERVER='distributor@blik-products-distribution'
 
 ####################################################################

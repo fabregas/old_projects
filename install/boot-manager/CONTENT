@@ -1,6 +1,5 @@
 blik/__init__.py
 blik/bootManager/*
-blik/utils/*
 config/dhcpd.conf
 config/named.conf
 config/blik.zone

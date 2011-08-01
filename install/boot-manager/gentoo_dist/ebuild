@@ -16,7 +16,7 @@ SLOT="0"
 KEYWORDS="amd64 x86"
 IUSE=""
 
-DEPEND="dev-python/setuptools
+DEPEND="blik-products/blik-utils
         dev-python/pyyaml
         dev-python/pexpect
         net-misc/ntp
