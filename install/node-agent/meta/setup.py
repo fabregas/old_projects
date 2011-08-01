@@ -8,7 +8,7 @@ setup(
     maintainer = "Konstantin Andrusenko",
     maintainer_email = "kksstt@gmail.com",
     description = "Node agent for Blik Cloud management system",
-    packages = ['blik', 'blik.nodeAgent', 'blik.nodeAgent.plugins', 'blik.utils'],  # include all packages under src
+    packages = ['blik', 'blik.nodeAgent', 'blik.nodeAgent.plugins'],  # include all packages under src
     scripts = ['bin/nodeAgent'],
     license = 'GPLv3',
     zip_safe = True
