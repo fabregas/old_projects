@@ -251,7 +251,7 @@ def install_image(node_type, arch):
 
 def create_pxeboot_configs(node_type, arch):
     kernel = '/kernels/default/bzImage-%s'%arch
-    initramfs = '/kernels/default/initramfs-%s'%arch
+    initramfs = '/initramfs/initramfs-%s'%arch
 
     for kernel in node_type.kernels:
         if kernel.arch == arch:

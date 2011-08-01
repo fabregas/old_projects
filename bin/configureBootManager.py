@@ -40,9 +40,21 @@ if not ret:
 
 IMAGES = 'ftp://blik-mirror/images/'
 
+INITRAMFS_DIR = os.path.join(DISKLESS_HOME, 'initramfs')
+
+ret = os.system('wget -c %s -C %s'%(os.path.join(IMAGES, 'initramfs-x86'),INITRAMFS_DIR))
+if ret:
+    sys.exit(1)
+
+ret = os.system('wget -c %s -C %s'%(os.path.join(IMAGES, 'initramfs-x86_64'),INITRAMFS_DIR))
+if ret:
+    sys.exit(1)
+
+
 x86_canonical_image = IMAGES + 'image_canonical_x86.tar.bz2'
 x86_64_canonical_image = IMAGES + 'image_canonical_x86_64.tar.bz2'
 default_node_yaml = '/opt/blik/conf/default_node.yaml'
+
 
 ret = os.system('node-image-updater -t canonical -a x86 -i %s --dont-unpack'%x86_canonical_image)
 if ret:
