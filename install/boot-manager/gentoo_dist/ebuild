@@ -58,10 +58,12 @@ src_install() {
 
     insinto /etc
     newins config/resolv.conf.head resolv.conf.head
+
+    insinto /etc/glusterfs
+    newins config/glusterfsd.vol glusterfsd.vol
 }
 
 pkg_postinst() {
-#	python /usr/bin/configureBootManager.py || die
 	if [ ! -d "/var/lib/postgresql/9.0/data" ] ; then
         emerge postgresql-server --config || die
 	fi

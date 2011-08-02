@@ -9,12 +9,14 @@ os.system('rc-update add ntpd default')
 os.system('rc-update add dhcpd default')
 os.system('rc-update add named default')
 os.system('rc-update add in.tftpd default')
+os.system('rc-update add glusterfsd default')
 os.system('rc-update add postgresql-9.0 default') #FIXME
 
 #starting services
 os.system('/etc/init.d/dhcpd restart')
 os.system('/etc/init.d/named restart')
 os.system('/etc/init.d/in.tftpd restart')
+os.system('/etc/init.d/glusterfsd restart')
 
 #if not os.path.exists('/var/lib/postgresql/9.0/data'):
 #    print 'Postgresql is not configured! Configuring...'
@@ -28,7 +30,7 @@ os.system('/etc/init.d/postgresql-9.0 restart')
 #database configuration
 ####################################
 
-ret = os.system('createdb -U postgres  blik_cloud_db')
+ret = os.system('createdb -U postgres  blik_cloud_db > /dev/null')
 if not ret:
     ret = os.system('psql -U postgres -d blik_cloud_db -f /opt/blik/db/cloud_db_schema.sql')
     if ret:
@@ -38,15 +40,23 @@ if not ret:
 #canonical images and kernels install
 ######################################
 
-IMAGES = 'ftp://blik-mirror/images/'
-
-INITRAMFS_DIR = os.path.join(DISKLESS_HOME, 'initramfs')
-
-ret = os.system('wget %s -O %s'%(os.path.join(IMAGES, 'initramfs-x86'),INITRAMFS_DIR))
+if not os.path.exists(DISKLESS_HOME):
+    os.makedirs(DISKLESS_HOME)
+ret = os.system('cp /usr/share/syslinux/pxelinux.0 %s'%DISKLESS_HOME)
 if ret:
     sys.exit(1)
 
-ret = os.system('wget %s -O %s'%(os.path.join(IMAGES, 'initramfs-x86_64'),INITRAMFS_DIR))
+IMAGES = 'ftp://blik-mirror/images/'
+
+INITRAMFS_DIR = os.path.join(DISKLESS_HOME, 'initramfs')
+if not os.path.exists(INITRAMFS_DIR):
+    os.makedirs(INITRAMFS_DIR)
+
+ret = os.system('wget %s -O %s/initramfs-x86'%(os.path.join(IMAGES, 'initramfs-x86'),INITRAMFS_DIR))
+if ret:
+    sys.exit(1)
+
+ret = os.system('wget %s -O %s/initramfs-x86_64'%(os.path.join(IMAGES, 'initramfs-x86_64'),INITRAMFS_DIR))
 if ret:
     sys.exit(1)
 
