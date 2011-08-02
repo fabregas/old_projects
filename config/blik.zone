@@ -11,4 +11,4 @@ blik.org		IN SOA	blik.org. root.blik.org. (
 $ORIGIN blik.org.
 farnsworth-master		A	192.168.87.1
 farnsworth-slave    	A	192.168.87.2
-farnsworth              A   192.168.87.3
+farnsworth              A   192.168.87.1

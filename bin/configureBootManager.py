@@ -90,3 +90,16 @@ default = os.path.join(pxe_cfg, 'default')
 if not os.path.exists(default):
     os.system('ln %s %s'%(default_x86, default))
 #os.system('unlink %s'%default)
+
+
+##### DNS files configure #######
+#os.system('touch /etc/bind/pri/192.168.87.zone.jnl')
+#os.system('touch /etc/bind/pri/blik.zone.jnl')
+
+os.system('chown root:named /{etc,var}/bind /var/{run,log}/named /var/bind/{sec,pri,dyn}')
+os.system('chown root:named /var/bind/named.cache /var/bind/pri/{127,localhost}.zone /etc/bind/{bind.keys,named.conf}')
+os.system('chmod 0640 /var/bind/named.cache /var/bind/pri/*.zone /etc/bind/{bind.keys,named.conf}')
+os.system('chmod 0750 /etc/bind /var/bind/pri')
+os.system('chmod 0770 /var/{run,log}/named /var/bind/{,sec,dyn}')
+
+#################################

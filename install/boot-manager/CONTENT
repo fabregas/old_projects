@@ -1,4 +1,3 @@
-blik/__init__.py
 blik/bootManager/*
 config/dhcpd.conf
 config/named.conf
