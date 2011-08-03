@@ -1,0 +1,27 @@
+#!/sbin/runscript
+
+start() {
+	[ -d /var/run/boot_manager ] || mkdir -m 777 /var/run/boot_manager
+	ebegin "Starting BlikCloud boot events listener"
+	start-stop-daemon --start --quiet --background \
+		--exec bootEventListener.py start \
+		--make-pidfile --pidfile /var/run/boot_manager/event_listener.pid
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping BlikCloud boot events listener"
+	start-stop-daemon --stop --signal INT  \
+		--pidfile /var/run/boot_manager/event_listener.pid
+	eend $?
+}
+
+reload() {
+	if [ ! -f /var/run/boot_manager/event_listener.pid ] ; then
+		eerror "BlikCloud boot events listener is not running."
+	else
+        stop
+	fi
+
+	start
+}

@@ -11,12 +11,14 @@ os.system('rc-update add named default')
 os.system('rc-update add in.tftpd default')
 os.system('rc-update add glusterfsd default')
 os.system('rc-update add postgresql-9.0 default') #FIXME
+os.system('rc-update add boot_event_listener defaut')
 
 #starting services
 os.system('/etc/init.d/dhcpd restart')
 os.system('/etc/init.d/named restart')
 os.system('/etc/init.d/in.tftpd restart')
 os.system('/etc/init.d/glusterfsd restart')
+os.system('/etc/init.d/boot_event_listener restart')
 
 #if not os.path.exists('/var/lib/postgresql/9.0/data'):
 #    print 'Postgresql is not configured! Configuring...'

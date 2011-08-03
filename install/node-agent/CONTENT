@@ -1,3 +1,4 @@
+blik/__init__.py
 blik/nodeAgent/*
 bin/nodeAgent
 init_scripts/node_agent

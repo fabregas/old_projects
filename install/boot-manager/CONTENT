@@ -1,3 +1,4 @@
+blik/__init__.py
 blik/bootManager/*
 config/dhcpd.conf
 config/named.conf
@@ -14,3 +15,4 @@ bin/node-type-installer
 bin/node-image-updater
 bin/change-node-type
 blik/db/cloud_db_schema.sql
+init_scripts/boot_event_listener
