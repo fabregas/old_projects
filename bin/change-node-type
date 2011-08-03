@@ -45,10 +45,11 @@ def change_node_in_database(uuid, type_sid, arch):
 
 
 def change_node_config(uuid, type_sid, arch, mac_address):
-    mac_address = mac_address.replace(':', '-').upper()
+    #config_file = mac_address.replace(':', '-').lower()
+    config_file = uuid.lower()
 
     config = '%s%s-%s'%(PXECONFIG_DIR, type_sid, arch)
-    dest_config = PXECONFIG_DIR + mac_address
+    dest_config = PXECONFIG_DIR + config_file
 
     if os.path.exists(dest_config):
         ret,out,err = run_command(['unlink', dest_config])

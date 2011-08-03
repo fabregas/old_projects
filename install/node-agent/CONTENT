@@ -1,5 +1,5 @@
 blik/__init__.py
 blik/nodeAgent/*
 bin/nodeAgent
-init_scripts/node_agent
+init_scripts/node-agent
 

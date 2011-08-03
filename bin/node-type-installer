@@ -151,6 +151,18 @@ def install_image(node_type, arch):
     if ret:
         raise Exception('Canonical image is not unpacked! Details: %s'%err)
 
+    ######### fix some issues ######################
+    open('%setc/fstab'%TMP_DIR, 'w').write('shm    /dev/shm   tmpfs     nodev,nosuid,noexec     0 0')
+
+    if node_type.rootfs_mode == 'networked':
+        killprocs = '#!/sbin/runscript\n'
+        killprocs += 'description="Kill all processes so we can unmount disks cleanly."\n'
+        killprocs += 'depend()\n{\n   keyword -prefix\n}\n'
+        killprocs += 'start()\n{\n   echo "Skip killing processes for networted rootfs!"\n}\n'
+
+        open('%setc/init.d/killprocs'%TMP_DIR, 'w').write(killprocs)
+    #################################################
+
     #bind portage tree
     ret,out,err = run_command(['mount', '--bind', '/usr/portage', TMP_DIR+'usr/portage'])
     if ret:
@@ -258,7 +270,7 @@ def create_pxeboot_configs(node_type, arch):
             kernel = '/kernels/%s/bzImage-%s'%(node_type.type_name,arch)
             break
 
-    config = 'DEFAULT %s rootfs_type=%s arch=%s\n' % (kernel, node_type.rootfs_mode, arch)
+    config = 'DEFAULT %s node_type=%s rootfs_type=%s arch=%s\n' % (kernel, node_type.type_name, node_type.rootfs_mode, arch)
     config += 'APPEND initrd=%s\n'%initramfs
 
     if not os.path.exists(PXECONFIG_DIR):

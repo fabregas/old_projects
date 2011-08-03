@@ -29,12 +29,10 @@ src_compile() {
 src_install() {
 	distutils_src_install
 
-    newinitd init_scripts/node_agent node_agent
+    newinitd init_scripts/node-agent node-agent
 
 }
 
 pkg_postinst() {
-    rc-update add node_agent default
-	
-    /etc/init.d/node_agent start
+    rc-update add node-agent default
 }

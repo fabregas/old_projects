@@ -87,10 +87,8 @@ if __name__ == '__main__':
     version = distribute_package(dist_name)
     distribute_portage(dist_name, version)
 
-    os.system('ssh %s rm /usr/portage/blik-products/%s/Manifest'%(DISTR_SERVER,dist_name))
-
     mirror_updater = '/opt/blik/sbin/portage-mirror-update'
-    ret = os.system('ssh %s %s'%(DISTR_SERVER, mirror_updater))
+    ret = os.system('ssh %s %s /usr/portage/blik-products/%s/%s-%s.ebuild'%(DISTR_SERVER, mirror_updater, dist_name, dist_name, version))
     if ret:
         print ('ERROR! Mirror is not updated on distribution server')
         sys.exit(1)

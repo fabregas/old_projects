@@ -37,7 +37,7 @@ src_compile() {
 src_install() {
 	distutils_src_install
 
-    newinitd init_scripts/boot_event_listener boot_event_listener
+    newinitd init_scripts/boot-event-listener boot-event-listener
     
     insinto /etc/dhcp
     newins config/dhcpd.conf dhcpd.conf
