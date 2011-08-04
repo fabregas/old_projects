@@ -11,7 +11,7 @@ os.system('rc-update add named default')
 os.system('rc-update add in.tftpd default')
 os.system('rc-update add glusterfsd default')
 os.system('rc-update add postgresql-9.0 default') #FIXME
-os.system('rc-update add boot-event-listener defaut')
+os.system('rc-update add boot-event-listener default')
 
 #starting services
 os.system('/etc/init.d/dhcpd restart')

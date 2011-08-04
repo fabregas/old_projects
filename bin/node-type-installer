@@ -24,6 +24,43 @@ CANONICAL_IMAGE_PATH = '/opt/blik/diskless/images/canonical/%s/image.tar.bz2'
 IMAGE_PATH = '/opt/blik/diskless/images/%s/%s/'
 PXECONFIG_DIR = '/opt/blik/diskless/pxelinux.cfg/'
 
+localmount = '''#!/sbin/runscript
+
+description="Mounts disks and swap according to /etc/fstab."
+
+depend()
+{
+        need fsck
+        use lvm modules mtab
+        after lvm modules
+        keyword -jail -openvz -prefix -vserver -lxc
+}
+
+start()
+{
+        # Mount local filesystems in /etc/fstab.
+        local types="noproc" x= no_netdev=
+        for x in $net_fs_list; do
+                types="${types},${x}"
+        done
+
+        if [ "$RC_UNAME" = Linux ]; then
+                no_netdev="-O no_netdev"
+        fi
+        ebegin "Mounting local filesystems"
+        mount -at "$types" $no_netdev
+        eend $? "Some local filesystem failed to mount"
+
+        # Always return 0 - some local mounts may not be critical for boot
+        return 0
+}
+
+stop()
+{
+        echo "Umount filesystems skiped!"
+}
+'''
+
 class KernelSource:
     def __init__(self, arch, url):
         self.arch = arch
@@ -164,6 +201,14 @@ def install_image(node_type, arch):
         killprocs += 'start()\n{\n   echo "Skip killing processes for networted rootfs!"\n}\n'
 
         open('%setc/init.d/killprocs'%TMP_DIR, 'w').write(killprocs)
+
+        mountro = '#!/sbin/runscript\n'
+        mountro += 'description="Re-mount filesytems read-only for a clean reboot."\n'
+        mountro += 'depend()\n{\n   keyword -prefix\n}\n'
+        mounrto += 'start()\n{\n   echo "Skip remounting filesystems read-only"\n}\n'
+
+        open('%setc/init.d/mount-ro'%TMP_DIR, 'w').write(mountro)
+        open('%setc/init.d/localmount'%TMP_DIR, 'w').write(localmount)
     #################################################
 
     #bind portage tree
