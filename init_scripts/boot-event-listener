@@ -4,7 +4,7 @@ start() {
 	[ -d /var/run/boot_manager ] || mkdir -m 777 /var/run/boot_manager
 	ebegin "Starting BlikCloud boot events listener"
 	start-stop-daemon --start --quiet --background \
-		--exec bootEventListener.py start \
+		--exec bootEventListener.py \
 		--make-pidfile --pidfile /var/run/boot_manager/event_listener.pid
 	eend $?
 }

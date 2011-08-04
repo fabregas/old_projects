@@ -12,7 +12,7 @@ This module contains the implementation of BootEventListener class.
 """
 
 import sys
-from blik.utils.daemonBase import Daemon
+import signal
 from blik.utils.friBase import FriServer
 from blik.utils.databaseConnection import DatabaseConnection
 from blik.utils.logger import logger
@@ -26,8 +26,8 @@ NAS_NOTACTIVE  = 2
 
 class BootEventListener(FriServer):
     def __init__(self):
-        FriServer.__init__(self, hostname='0.0.0.0', port=LISTENER_PORT, workers_count=1)
         self.__dbconn = DatabaseConnection()
+        FriServer.__init__(self, hostname='0.0.0.0', port=LISTENER_PORT, workers_count=1)
 
     def onDataReceive( self, json_object ):
         #get hostname
@@ -88,36 +88,28 @@ class BootEventListener(FriServer):
 #--------------------------------------------------------------------------------
 
 
-class BootEventListenerDaemon(Daemon):
-    def onExit(self):
-        try:
-            logger.info('Boot event listener stoping...')
-            self.listener.stop()
-            logger.info('Boot event listener stoped')
-        except Exception, err:
-            logger.error('Stoping boot event listener error: %s'%err)
 
-    def run(self):
+if __name__ == '__main__':
+    try:
         logger.info('Boot event listener starting...')
 
-        self.listener = BootEventListener()
+        listener = BootEventListener()
 
-        self.listener.start()
+        def stop(s, p):
+            global listener
+            try:
+                logger.info('Boot event listener stoping...')
+                listener.stop()
+            except Exception, err:
+                logger.error('Stoping boot event listener error: %s'%err)
+
+        signal.signal(signal.SIGINT, stop)
+
+        listener.start()
+
+        logger.info('Boot event listener stoped')
+    except Exception, err:
+        logger.error('Boot event listener error: %s. exit!'%err)
+        sys.exit(1)
 
 
-if __name__ == "__main__":
-    daemon = BootEventListenerDaemon('/tmp/boot-event-listener-daemon.pid', stop_timeout=5)
-    if len(sys.argv) == 2:
-        if 'start' == sys.argv[1]:
-            daemon.start()
-        elif 'stop' == sys.argv[1]:
-            daemon.stop()
-        elif 'restart' == sys.argv[1]:
-            daemon.restart()
-        else:
-            print "Unknown command"
-            sys.exit(2)
-        sys.exit(0)
-    else:
-        print "usage: %s start|stop|restart" % sys.argv[0]
-        sys.exit(2)
