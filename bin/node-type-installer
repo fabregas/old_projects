@@ -263,6 +263,14 @@ def install_image(node_type, arch):
                 raise Exception('Error ocured while install %s package! See log for details.'%package)
 
 
+        session.ession.sendline('rc-update -u')
+        session.readline()
+        session.expect(prompt)
+        session.sendline('/etc/init.d/savecache start')
+        session.readline()
+        session.expect(prompt)
+
+
         #pack image if need
         if node_type.rootfs_mode != 'networked':
             #pack image
