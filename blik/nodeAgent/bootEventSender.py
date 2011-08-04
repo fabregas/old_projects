@@ -91,6 +91,8 @@ class BootEventSenderThread(threading.Thread):
         try:
             self.stoped = False
 
+            self._remount_devfs()#FIXME
+
             uuid = self._get_uuid()
             hostname = self._set_new_hostname(uuid)
             mac_address, ip_address = self._get_interface_info()
