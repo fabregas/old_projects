@@ -1,5 +1,11 @@
 #!/sbin/runscript
 
+depend() {
+	need syslog-ng
+	need sshd
+    need postgresql-9.0
+}
+
 start() {
 	[ -d /var/run/boot_manager ] || mkdir -m 777 /var/run/boot_manager
 	ebegin "Starting BlikCloud boot events listener"
