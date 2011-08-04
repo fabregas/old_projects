@@ -205,7 +205,7 @@ def install_image(node_type, arch):
         mountro = '#!/sbin/runscript\n'
         mountro += 'description="Re-mount filesytems read-only for a clean reboot."\n'
         mountro += 'depend()\n{\n   keyword -prefix\n}\n'
-        mounrto += 'start()\n{\n   echo "Skip remounting filesystems read-only"\n}\n'
+        mountro += 'start()\n{\n   echo "Skip remounting filesystems read-only"\n}\n'
 
         open('%setc/init.d/mount-ro'%TMP_DIR, 'w').write(mountro)
         open('%setc/init.d/localmount'%TMP_DIR, 'w').write(localmount)
