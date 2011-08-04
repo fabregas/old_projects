@@ -18,8 +18,9 @@ os.system('/etc/init.d/dhcpd restart')
 os.system('/etc/init.d/named restart')
 os.system('/etc/init.d/in.tftpd restart')
 os.system('/etc/init.d/glusterfsd restart')
-os.system('/etc/init.d/boot-event-listener restart')
+os.system('/etc/init.d/boot-event-listener stop')
 os.system('/etc/init.d/postgresql-9.0 restart')
+os.system('/etc/init.d/boot-event-listener start')
 
 
 ####################################
