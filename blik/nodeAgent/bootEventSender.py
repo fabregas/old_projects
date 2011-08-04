@@ -6,6 +6,7 @@ import struct
 import fcntl
 import crypt
 import string
+import os
 from random import choice
 from blik.utils import friBase
 from blik.utils.logger import logger
@@ -18,6 +19,12 @@ SLEEP_SENDER_TIME = 5
 SALT = 'fabregas_salt'
 
 class BootEventSenderThread(threading.Thread):
+    def _remount_devfs(self):
+        #FIXME: I dont know why /dev mouned AFTER /dev/pts and /dev/shm, but its fact :(
+        os.system('umount /dev/pts')
+        os.system('umount /dev/shm')
+        os.system('mount -av')
+
     def _set_new_hostname(self, uuid):
         hostname = 'NODE-%s' % uuid.split('-')[-1]
 
