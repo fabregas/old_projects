@@ -7,7 +7,7 @@
 #--chuid ${USER}:${GROUP} \
 
 depend() {
-	need syslog-ng
+	after syslog-ng
 }
 
 

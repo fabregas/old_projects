@@ -152,7 +152,10 @@ def install_image(node_type, arch):
         raise Exception('Canonical image is not unpacked! Details: %s'%err)
 
     ######### fix some issues ######################
-    open('%setc/fstab'%TMP_DIR, 'w').write('shm    /dev/shm   tmpfs     nodev,nosuid,noexec     0 0')
+    fstab = 'shm    /dev/shm   tmpfs     nodev,nosuid,noexec     0 0\n'
+    fstab +='none   /dev/pts   devpts    defaults                0 0\n'
+
+    open('%setc/fstab'%TMP_DIR, 'w').write(fstab)
 
     if node_type.rootfs_mode == 'networked':
         killprocs = '#!/sbin/runscript\n'
