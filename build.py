@@ -22,6 +22,8 @@ TMP_DIR = '/tmp'
 def get_current_version():
     version = subprocess.Popen(['git', 'describe', '--always', '--tag', '--abbrev=0'], stdout=subprocess.PIPE).communicate()[0]
     version = version.strip()
+    if len(version) == 0 or len(version) > 10:
+        raise Exception('Project version is invalid!')
 
     log = subprocess.Popen(['git', 'log', '%s..HEAD'%version, '--format=%h'], stdout=subprocess.PIPE).communicate()[0]
     if log:
