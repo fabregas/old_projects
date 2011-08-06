@@ -3,7 +3,7 @@
 
 volume diskless-client-ds
        type storage/posix
-       option directory /opt/blik/diskless/images
+       option directory /opt/blik/diskless_data
 end-volume
 
 volume diskless-client-locks

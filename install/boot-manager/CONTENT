@@ -10,6 +10,7 @@ config/resolv.conf.head
 config/in.tftpd
 config/default_node.yaml
 config/glusterfsd.vol
+config/glusterfs.vol
 bin/configureBootManager.py
 bin/node-type-installer
 bin/node-image-updater

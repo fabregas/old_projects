@@ -4,6 +4,7 @@ import sys
 import shutil
 
 DISKLESS_HOME = '/opt/blik/diskless'
+DISKLESS_GL_HOME = '/opt/blik/diskless_data'
 
 os.system('rc-update add ntpd default')
 os.system('rc-update add dhcpd default')
@@ -22,6 +23,17 @@ os.system('/etc/init.d/boot-event-listener stop')
 os.system('/etc/init.d/postgresql-9.0 restart')
 os.system('/etc/init.d/boot-event-listener start')
 
+####################################
+# Glusterfs share mounting
+####################################
+if not os.path.exists(DISKLESS_HOME):
+    os.makedirs(DISKLESS_HOME)
+if not os.path.exists(DISKLESS_GL_HOME):
+    os.makedirs(DISKLESS_GL_HOME)
+
+os.system('umount %s'%DISKLESS_HOME)
+os.system('glusterfs %s'%DISKLESS_HOME)
+
 
 ####################################
 #database configuration
@@ -37,8 +49,6 @@ if not ret:
 #canonical images and kernels install
 ######################################
 
-if not os.path.exists(DISKLESS_HOME):
-    os.makedirs(DISKLESS_HOME)
 ret = os.system('cp /usr/share/syslinux/pxelinux.0 %s'%DISKLESS_HOME)
 if ret:
     sys.exit(1)
