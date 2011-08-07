@@ -12,8 +12,10 @@ This module contains the implementation for the
 OperationsPluginManager class and OperationPlugin interface.
 """
 
-from blik.nodesManager.plugins import OPERATIONS_PLUGINS
+import os
+from blik.nodesManager import plugins
 from blik.utils.databaseConnection import DatabaseConnection
+from blik.utils.logger import logger
 
 RC_OK = 0
 
@@ -61,6 +63,7 @@ class OperationsPluginManager:
         dbconn = DatabaseConnection()
         self.operations_map = {}
 
+        OPERATIONS_PLUGINS = self._import_plugins()
         for operation, plugins in OPERATIONS_PLUGINS.items():
             plugins_objects = []
             for plugin_class in plugins:
@@ -73,6 +76,26 @@ class OperationsPluginManager:
                 plugins_objects.append( plugin_class() )
 
             self.operations_map[operation] = plugins_objects
+
+    def _import_plugins(self):
+        work_dir = plugins.__path__[0]
+        dirs = os.listdir(work_dir)
+
+        ret_map = plugins.OPERATIONS_PLUGINS
+        for item in dirs:
+            item_path = os.path.join(work_dir, item)
+
+            if not os.path.isdir(item_path):
+                continue
+
+            try:
+                exec('from blik.nodesManager.plugins.%s import OPERATIONS_PLUGINS'%item)
+
+                ret_map.update(OPERATIONS_PLUGINS)
+            except Exception, err:
+                logger.warning('Can not import %s module. Details: %s'%(item_path,err))
+
+        return ret_map
 
 
     def processBeforeCallPlugins(self, operation, call_object, parameters):

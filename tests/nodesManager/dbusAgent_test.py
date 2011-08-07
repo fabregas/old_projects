@@ -10,13 +10,17 @@ import sys
 import dbus
 from dbus.types import Dictionary
 import gobject
+import os
+import shutil
 import multiprocessing
 from friClientLibrary_test import FRIClient
 from blik.utils import friBase
-
 from blik.nodesManager import plugins
-from blik.nodesManager.operationsPluginManager import OperationPlugin
+from blik.nodesManager.dbusAgent import NodesManagerService, NODES_MANAGER_INTERFACE
 
+plugin_src = '''
+from blik.nodesManager.operationsPluginManager import OperationPlugin
+import time
 
 class TestPlugin(OperationPlugin):
     def beforeCall(self, operation, call_object, parameters):
@@ -44,15 +48,17 @@ class FakeFailPlugin(OperationPlugin):
     def onCallResults(self, operation, status, ret_parameters):
         pass
 
-plugins.OPERATIONS_PLUGINS['TEST_OPERATION'] = (TestPlugin,FakeFailPlugin)
-
-
-from blik.nodesManager.dbusAgent import NodesManagerService, NODES_MANAGER_INTERFACE
-
+OPERATIONS_PLUGINS = {'TEST_OPERATION' : (TestPlugin,FakeFailPlugin)}
+'''
+TEST_PLUGIN_DIR = 'blik/nodesManager/plugins/testPlusgins'
 
 class DbusAgentTestCase(unittest.TestCase):
     def test_01_test_dbus_iface(self):
         def process_func():
+            #install test plugin
+            os.mkdir(TEST_PLUGIN_DIR)
+            open(TEST_PLUGIN_DIR+'/__init__.py','w').write(plugin_src)
+
             #init d-bus service
             gobject.threads_init()
             dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -151,8 +157,10 @@ class DbusAgentTestCase(unittest.TestCase):
             print 'process for D-BUS service stoped'
 
 
-    def test_99_stop_dbusAgent(self):
-        pass
+    def test_99_rmtestdir(self):
+        print 'REMOVING'
+        shutil.rmtree(TEST_PLUGIN_DIR)
+        print 'REMOVED'
 
 
 if __name__ == '__main__':

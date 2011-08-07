@@ -1,9 +1,13 @@
 #
-#Update OPERATIONS_PLUGINS for usage custom plugins
+# blik.nodesManager.plugins contain operations plugins packages
 #
-#OPERATIONS_PLUGINS format:  {'<operation_name>' : (PluginClass1, PluginClass2, ...), ...}
+# Every plugin pakage in __init__.py package should contain OPERATIONS_PLUGINS variable
+# OPERATIONS_PLUGINS format:  {'<operation_name>' : PluginClass1, ...}
 #
-#Note: don't forget import plugin class before use it in OPERATIONS_PLUGINS structure 
+# Every plugin class should be inherited from OperationPlugin class (defined in blik.nodesManager.operationsPluginManager)
 #
-
-OPERATIONS_PLUGINS = {}
+# Note: don't forget import OperationPlugin class as following:
+#       from blik.nodesManager.operationsPluginManager import OperationPlugin
+#
+# Note: don't forget import plugin class before use it in OPERATIONS_PLUGINS structure 
+#
