@@ -2,4 +2,4 @@ blik/__init__.py
 blik/nodeAgent/*
 bin/nodeAgent
 init_scripts/node-agent
-
+config/com.blik.nodeAgent.conf

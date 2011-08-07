@@ -32,6 +32,8 @@ src_install() {
 
     newinitd init_scripts/node-agent node-agent
 
+    insinto /etc/dbus-1/system.d
+    newins config/com.blik.nodeAgent.conf com.blik.nodeAgent.conf
 }
 
 pkg_postinst() {
