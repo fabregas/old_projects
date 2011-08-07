@@ -17,6 +17,7 @@ KEYWORDS="amd64 x86"
 IUSE=""
 
 DEPEND="blik-products/blik-utils
+        dev-python/dbus-python
         sys-apps/dmidecode"
 
 RDEPEND="${DEPEND}"

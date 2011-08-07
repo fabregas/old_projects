@@ -14,6 +14,11 @@ NodeAgent should be runned in separate thread
 """
 
 import threading
+import dbus
+import dbus.service
+import dbus.mainloop.glib
+from dbus.types import Dictionary
+
 from Queue import Queue
 from blik.utils.friBase import FriServer
 from blik.utils.logger import logger
@@ -23,6 +28,18 @@ from blik.nodeAgent.bootEventSender import BootEventSenderThread
 FINISH_FLAG=None
 
 NODE_AGENT_BIND_PORT=1987
+
+NODE_AGENT = 'com.blik.nodeAgent'
+
+class NodeAgentEventService (dbus.service.Object):
+    @dbus.service.signal(dbus_interface=NODE_AGENT, signature='sssa{ss}')
+    def operationReceivedEvent(self, session_id, node, operation, parameters):
+        pass
+
+    @dbus.service.signal(dbus_interface=NODE_AGENT, signature='sssa{ss}')
+    def operationProcessedEvent(self, session_id, node, operation, parameters):
+        pass
+
 
 class Operation:
     def __init__(self, session_id, node, operation, parameters):
@@ -38,8 +55,15 @@ class NodeAgent(FriServer):
         self.__boot_event_sender = BootEventSenderThread()
         self.__boot_event_sender.start()
 
+        #register service on bus
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        #self.loop = gobject.MainLoop()
+        bus = dbus.SystemBus()
+        name = dbus.service.BusName(NODE_AGENT, bus)
+        self.dbus_client = NodeAgentEventService(bus, '/events')
+
         for i in xrange(workers_count):
-            thread = ProcessOperationThread(self.__operations_queue)
+            thread = ProcessOperationThread(self.__operations_queue, self.dbus_client)
             thread.setName('ProcessOperationThread#%i'%i)
             self.__process_threads.append( thread )
 
@@ -74,6 +98,10 @@ class NodeAgent(FriServer):
         #get parameters
         parameters = json_object.get('parameters', None)
 
+        #send message to D-BUS
+        op_args = Dictionary(signature='ss')
+        op_args.update(parameters)
+        self.dbus_client.operationReceivedEvent(str(session_id), str(node), str(operation), op_args)
 
         #check appropriate plugin
         can_process = PluginManager.can_process_operation( operation )
@@ -96,8 +124,9 @@ class NodeAgent(FriServer):
 
 
 class ProcessOperationThread(threading.Thread):
-    def __init__(self, queue):
+    def __init__(self, queue, dbus_client):
         self.queue = queue
+        self.dbus_client = dbus_client
 
         threading.Thread.__init__(self)
 
@@ -121,8 +150,14 @@ class ProcessOperationThread(threading.Thread):
                                     (operation.operation_name, err, operation.session_id,
                                     operation.node, operation.parameters))
 
+                op_args = Dictionary(signature='ss')
+                op_args.update(operation.parameters)
+                self.dbus_client.operationProcessedEvent(str(operation.session_id), str(operation.node), 
+                                    str(operation.operation_name), op_args)
             except Exception, err:
                 logger.error('%s failed: %s'%(name, err))
             finally:
                 self.queue.task_done()
+
+
 
