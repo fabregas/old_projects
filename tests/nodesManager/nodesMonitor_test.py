@@ -50,8 +50,7 @@ class NodesMonitorTestCase(unittest.TestCase):
 
     def test_02_simulate_node(self):
         db = DatabaseConnection()
-        state = db.select("SELECT current_state FROM nm_node WHERE hostname='127.0.0.1'")[0][0]
-        self.assertEqual(state, 0)#OFF
+        state = db.modify("UPDATE nm_node SET current_state=0 WHERE hostname='127.0.0.1'") # shutdown node :)
 
 
         node = NodeSimulator()

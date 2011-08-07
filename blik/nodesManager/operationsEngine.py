@@ -27,6 +27,16 @@ ORS_INPROGRESS  = 0
 ORS_COMPLETE    = 1
 ORS_TIMEOUTED   = 2
 
+#node admin states
+NAS_NEW         = 0
+NAS_ACTIVE      = 1
+NAS_NOTACTIVE   = 2
+
+#node current state
+NCS_DOWN = 0
+NCS_UP   = 1
+
+
 class OperationResult:
     def __init__(self, operation_name, operation_timeout, callbackFunction):
         self.operation_name = operation_name
@@ -163,8 +173,10 @@ class OperationsEngine:
 
             operation_id, node_type_id, timeout = self.__get_operation_info(operation_name)
 
+            #select all ACTIVE nodes in cluster
             rows = self._dbconn.select("SELECT N.id, N.hostname, N.node_type FROM NM_NODE N, NM_CLUSTER C \
-                                        WHERE C.id = N.cluster_id AND C.cluster_sid=%s",(cluster_name,))
+                                        WHERE C.id = N.cluster_id AND C.cluster_sid=%s AND N.admin_status<>%s\
+                                        AND N.current_state=%s",(cluster_name, NAS_NOTACTIVE, NCS_UP))
             if not rows:
                 raise Exception('No nodes found for cluster with name %s' % cluster_name)
 
@@ -209,8 +221,12 @@ class OperationsEngine:
 
             operation_id, node_type_id, timeout = self.__get_operation_info(operation_name)
 
+            #select all ACTIVE nodes
             rows = self._dbconn.select("SELECT id, hostname, node_type FROM NM_NODE \
-                                        WHERE hostname IN (%s)" % ','.join(["'%s'"%n for n in nodes_list]))
+                                        WHERE hostname IN (%s) AND admin_status<>%s \
+                                        AND current_state=%s" %
+                                        (','.join(["'%s'"%n for n in nodes_list]), NAS_NOTACTIVE, NCS_UP))
+
             if not rows:
                 raise Exception('No nodes found with hostnames %s in database' % nodes_list)
 

@@ -58,6 +58,22 @@ class OperationPlugin:
         '''
         raise Exception('This method should be implemented in child class')
 
+
+    def checkRunnedOperations(self, call_object, operations=[]):
+        '''
+        Select inprogress operations on resources described by call_object
+
+        @call_object (CallObject object) - object of calling (cluster, nodes list)
+        @operations (list of operations SIDs) - if specified, used for selecting only this inprogress operations.
+                                                if equsl to [], select all inprogress operations
+
+        @return list of inprogress operations
+        '''
+        raise Exception('THIS METHOD IS NOT IMPLEMENTED')
+        #self.dbConn.select('')
+
+
+
 class OperationsPluginManager:
     def __init__(self, operationsEngine):
         dbconn = DatabaseConnection()
