@@ -17,6 +17,7 @@ import shutil
 from blik.utils.databaseConnection import DatabaseConnection
 from blik.utils.exec_command import run_command
 from pexpect import spawn
+from datetime import datetime
 
 DISKLESS_KERNELS_PATH = '/opt/blik/diskless/kernels/'
 TMP_DIR = '/opt/blik/tmp/'
@@ -75,6 +76,9 @@ class NodeType:
         self.rootfs_mode = None
         self.kernels = []
 
+
+def print_log(message):
+    print ('[%s] %s' % (datetime.now(), message))
 
 def _get_item(obj, element_name):
     element = obj.get(element_name, None)
@@ -154,6 +158,8 @@ def install_kernels(node_type):
 
 
 
+#----------------- image ---------------------------------------------
+
 def get_emerge_variables():
     lines = open('/etc/make.conf').readlines()
 
@@ -174,61 +180,77 @@ def get_emerge_variables():
     return ret_lines
 
 
-def install_image(node_type, arch):
-    os.system('umount %susr/portage'%TMP_DIR)
-    os.system('umount %sproc'%TMP_DIR)
+
+def _prepare_work_path(node_type, arch):
     if os.path.exists(TMP_DIR):
         shutil.rmtree(TMP_DIR)
-
     os.mkdir(TMP_DIR)
 
-    #untar image
-    print ('Untar canonical image to tmp dir...')
-    ret,out,err = run_command(['tar', '-xjf', CANONICAL_IMAGE_PATH %arch, '-C', TMP_DIR])
-    if ret:
-        raise Exception('Canonical image is not unpacked! Details: %s'%err)
+    #check exists image for update
+    need_move = True
+    work_path = None
+    image_path = IMAGE_PATH % (node_type.type_name, arch)
 
-    ######### fix some issues ######################
+    if node_type.rootfs_mode != 'networked':
+        exists_path = image_path + 'image.tar.bz2'
+
+        if os.path.exists(exists_path):
+            print_log('Untar image %s to tmp dir...'%exists_path)
+            ret,out,err = run_command(['tar', '-xjf', exists_path, '-C', TMP_DIR])
+        else:
+            print_log('Untar canonical image to tmp dir...')
+            os.makedirs(image_path)
+            ret,out,err = run_command(['tar', '-xjf', CANONICAL_IMAGE_PATH %arch, '-C', TMP_DIR])
+
+        if ret:
+            raise Exception('Image is not unpacked! Details: %s'%err)
+
+        work_path = TMP_DIR
+    else:
+        if os.path.exists(image_path+'sbin/init'):
+            work_path = image_path
+            need_move = False
+        else:
+            print_log('Untar canonical image to tmp dir...')
+            ret,out,err = run_command(['tar', '-xjf', CANONICAL_IMAGE_PATH %arch, '-C', TMP_DIR])
+            if ret:
+                raise Exception('Image is not unpacked! Details: %s'%err)
+
+            work_path = TMP_DIR
+
+    if not os.path.exists(image_path):
+        os.makedirs(image_path)
+
+    return image_path, work_path, need_move
+
+def _fix_diskless_issues(work_path, rootfs_mode):
     fstab = 'shm    /dev/shm   tmpfs     nodev,nosuid,noexec     0 0\n'
     fstab +='none   /dev/pts   devpts    defaults                0 0\n'
 
-    open('%setc/fstab'%TMP_DIR, 'w').write(fstab)
+    open('%setc/fstab'%work_path, 'w').write(fstab)
 
-    if node_type.rootfs_mode == 'networked':
+    if rootfs_mode == 'networked':
         killprocs = '#!/sbin/runscript\n'
         killprocs += 'description="Kill all processes so we can unmount disks cleanly."\n'
         killprocs += 'depend()\n{\n   keyword -prefix\n}\n'
         killprocs += 'start()\n{\n   echo "Skip killing processes for networted rootfs!"\n}\n'
 
-        open('%setc/init.d/killprocs'%TMP_DIR, 'w').write(killprocs)
+        open('%setc/init.d/killprocs'%work_path, 'w').write(killprocs)
 
         mountro = '#!/sbin/runscript\n'
         mountro += 'description="Re-mount filesytems read-only for a clean reboot."\n'
         mountro += 'depend()\n{\n   keyword -prefix\n}\n'
         mountro += 'start()\n{\n   echo "Skip remounting filesystems read-only"\n}\n'
 
-        open('%setc/init.d/mount-ro'%TMP_DIR, 'w').write(mountro)
-        open('%setc/init.d/localmount'%TMP_DIR, 'w').write(localmount)
-    #################################################
-
-    #bind portage tree
-    ret,out,err = run_command(['mount', '--bind', '/usr/portage', TMP_DIR+'usr/portage'])
-    if ret:
-        raise Exception('Binding portage tree error! Details: %s'%err)
-
-    #preparing to chroot
-    os.system('cp /etc/resolv.conf %setc/resolv.conf'%TMP_DIR)
-    os.system('mount -t proc none %sproc'%TMP_DIR)
-    os.system('cp -a /dev/* %sdev/'%TMP_DIR)
+        open('%setc/init.d/mount-ro'%work_path, 'w').write(mountro)
+        open('%setc/init.d/localmount'%work_path, 'w').write(localmount)
 
 
-    log_file = open('/tmp/make_image-%s.log'%arch,'w')
-    print ('See log in /tmp/make_image-%s.log ...'%arch)
-
+def _portage_update(node_type, arch, work_path, log_file):
     #chroot to tmp rootfs and install packages
     session = None
     try:
-        session = spawn('chroot %s /bin/bash'%TMP_DIR, timeout=3000)
+        session = spawn('chroot %s /bin/bash'%work_path, timeout=3000)
         session.logfile_read = log_file
         session.logfile_write = log_file
         session.expect("#")
@@ -244,9 +266,9 @@ def install_image(node_type, arch):
         session.expect(prompt)
 
         for package in node_type.packages:
-            print 'Installing %s package...' % package
+            print_log( 'Installing %s package...' % package)
 
-            session.sendline('%s emerge -v --color n --usepkg --getbinpkg %s'%(prefix, package))
+            session.sendline('%s emerge -v --color n --usepkg --getbinpkg -uND %s'%(prefix, package))
             session.readline()
             session.readline()
             while True:
@@ -274,7 +296,7 @@ def install_image(node_type, arch):
         #pack image if need
         if node_type.rootfs_mode != 'networked':
             #pack image
-            print ('Pack image ...')
+            print_log('Pack image ...')
             session.sendline('tar cvjpf /image.tar.bz2 / -X /root/stage4.excl')
             session.readline()
             session.expect(prompt)
@@ -283,36 +305,56 @@ def install_image(node_type, arch):
             session.sendline('exit')
             session.close()
 
-        ret = os.system('umount %susr/portage'%TMP_DIR)
+        ret = os.system('umount %susr/portage'%work_path)
         if ret:
             raise Exception('Unmounting portage tree failed!')
 
-        ret = os.system('umount %sproc'%TMP_DIR)
+        ret = os.system('umount %sproc'%work_path)
         if ret:
             raise Exception('Unmounting /proc failed!')
 
+    #os.system('rm -rf %stmp/*'%work_path)
+    #os.system('rm -rf %svar/log/*'%work_path)
 
-    os.system('rm -rf %stmp/*'%TMP_DIR)
-    os.system('rm -rf %svar/log/*'%TMP_DIR)
 
+def install_image(node_type, arch):
+    image_path, work_path, need_move = _prepare_work_path(node_type, arch)
 
-    image_path = IMAGE_PATH %(node_type.type_name, arch)
-    if os.path.exists(image_path):
-        shutil.rmtree(image_path)
-    os.makedirs(image_path)
+    _fix_diskless_issues(work_path, node_type.rootfs_mode)
+
+    run_command(['umount', '%susr/portage'%work_path])
+    run_command(['umount', '%sproc'%work_path])
+
+    #bind portage tree
+    ret,out,err = run_command(['mount', '--bind', '/usr/portage', work_path+'usr/portage'])
+    if ret:
+        raise Exception('Binding portage tree error! Details: %s'%err)
+
+    #preparing to chroot
+    os.system('cp /etc/resolv.conf %setc/resolv.conf'%work_path)
+    os.system('mount -t proc none %sproc'%work_path)
+    os.system('cp -a /dev/* %sdev/'%work_path)
+
+    #open log file for write
+    log_file = open('/tmp/make_image-%s.log'%arch,'w')
+    print_log('See log in /tmp/make_image-%s.log ...'%arch)
+
+    #chroot to image rootfs and install/update software.
+    _portage_update(node_type, arch, work_path, log_file)
 
     if node_type.rootfs_mode != 'networked':
         tar_image_path = image_path + 'image.tar.bz2'
-        print ('Move image to %s'%tar_image_path)
+        print_log('Move image to %s'%tar_image_path)
         shutil.move('%simage.tar.bz2'%TMP_DIR, tar_image_path)
     else:
         #mv rootfs
-        print ('Move rootfs to %s ...'%image_path)
-        ret = os.system('cp -r %s* %s'%(TMP_DIR, image_path))
-        if ret:
-            raise Exception('Move rootfs error!')
+        if need_move:
+            print_log('Move rootfs to %s ...'%image_path)
+            ret = os.system('cp -r %s* %s'%(TMP_DIR, image_path))
+            if ret:
+                raise Exception('Move rootfs error!')
 
-    print ('Remove temp rootfs...')
+    print_log('Remove temp rootfs...')
     shutil.rmtree(TMP_DIR)
 
 
@@ -343,24 +385,24 @@ def main(yaml_file, is_db_skip, is_image_skip):
             insert_node_type(node_type)
 
         if node_type.kernels:
-            print ('Installing kernels:')
+            print_log('Installing kernels:')
             install_kernels(node_type)
-            print ('Kernels installed successful!')
+            print_log('Kernels installed successful!')
         else:
-            print ('No kernels found for this node type. Skip kernels installations')
+            print_log('No kernels found for this node type. Skip kernels installations')
 
 
         for arch in node_type.supported_archs:
             if not is_image_skip:
-                print ('Make image for %s architecture:'%arch)
+                print_log('Make image for %s architecture:'%arch)
                 install_image(node_type, arch)
 
             create_pxeboot_configs(node_type, arch)
 
-        print ('Images installed successful!')
+        print_log('Images installed successful!')
     except Exception, err:
-        print (err)
-        print ('Image installation failed!')
+        print_log(err)
+        print_log('Image installation failed!')
         return 1
 
     return 0
@@ -386,6 +428,3 @@ if __name__ == '__main__':
 
     sys.exit(ret)
 
-#node_type = parse_specification('/home/fabregas/test_node_type.yaml')
-#insert_node_type(node_type)
-#install_image(node_type, 'x86')
