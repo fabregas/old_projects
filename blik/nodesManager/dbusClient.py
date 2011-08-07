@@ -23,6 +23,7 @@ DBUS_PATH='/nodes/manager'
 class DBUSInterfaceClient:
     def __init__(self, skip_resp=False):
         self.skip_resp = skip_resp
+        self.session_id = None
         self.bus = dbus.SystemBus()
         self.proxy = self.bus.get_object(NODES_MANAGER_INTERFACE, DBUS_PATH)
 
@@ -33,12 +34,15 @@ class DBUSInterfaceClient:
 
     def __onOperationFinish(self,  session_id, status, ret_params):
         try:
-            self.onOperationFinish(session_id, status, ret_params)
+            if session_id != self.session_id:
+                return
+
+            self.onOperationFinish(status, ret_params)
         finally:
             self.loop.quit()
 
 
-    def onOperationFinish(self, session_id, status, ret_params):
+    def onOperationFinish(self, status, ret_params):
         """
             This methos sohuld be reimplemented if you can receive operations responses
         """
@@ -54,7 +58,10 @@ class DBUSInterfaceClient:
         if not op_args:
             op_args = Dictionary(signature='ss')
 
-        return self.proxy.callOperationOnNodes(user_name, nodes_list, operation, op_args)
+        self.session_id, ret_code, ret_message = self.proxy.callOperationOnNodes(user_name, nodes_list, operation, op_args)
+
+        return ret_code, ret_message
+
 
 
     def call_cluster_operation(self, user_name, cluster, operation, op_args):
@@ -63,13 +70,20 @@ class DBUSInterfaceClient:
         if not op_args:
             op_args = Dictionary(signature='ss')
 
-        return self.proxy.callOperationOnCluster(user_name, cluster, operation, op_args)
+        self.session_id, ret_code, ret_message = self.proxy.callOperationOnCluster(user_name, cluster, operation, op_args)
+
+        return ret_code, ret_message
 
 
     def get_operation_status(self, session_id):
         """Call getOperationStatus operation over DBUS"""
 
         return self.proxy.getOperationStatus(session_id)
+
+    def get_current_operation_status(self):
+        """Call getOperationStatus operation over DBUS"""
+
+        return self.proxy.getOperationStatus(self.session_id)
 
 
     def get_log_level(self):

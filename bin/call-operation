@@ -6,7 +6,7 @@ import getopt
 from blik.nodesManager.dbusClient import DBUSInterfaceClient
 
 class DbusCliClient(DBUSInterfaceClient):
-    def onOperationFinish(self, session_id, status, ret_params):
+    def onOperationFinish(self, status, ret_params):
         print ('Operation finished with status: %s'%status)
         if not ret_params:
             print ('No additional parameters receved')
@@ -75,9 +75,9 @@ if __name__ == '__main__':
         if nodes:
             nodes_list = [n.strip() for n in nodes.split(',')]
 
-            session_id, ret_code, ret_message = client.call_nodes_operation(ADMIN_LOGIN, nodes_list, operation, op_args)
+            ret_code, ret_message = client.call_nodes_operation(ADMIN_LOGIN, nodes_list, operation, op_args)
         else:
-            session_id, ret_code, ret_message = client.call_cluster_operation(ADMIN_LOGIN, cluster, operation, op_args)
+            ret_code, ret_message = client.call_cluster_operation(ADMIN_LOGIN, cluster, operation, op_args)
 
         if int(ret_code) != 0:
             print ('Operation call failed!\nDetails: %s'%ret_message)
@@ -86,5 +86,6 @@ if __name__ == '__main__':
         if not skip_resp:
             print ('Waiting operation finishing...')
             client.wait_response()
-    except ImportError, err:
+    except Exception, err:
         print ('call-operation failed! Details: %s'%err)
+
