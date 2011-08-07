@@ -1,0 +1,90 @@
+#!/usr/bin/python
+
+import os
+import sys
+import getopt
+from blik.nodesManager.dbusClient import DBUSInterfaceClient
+
+class DbusCliClient(DBUSInterfaceClient):
+    def onOperationFinish(self, session_id, status, ret_params):
+        print ('Operation finished with status: %s'%status)
+        if not ret_params:
+            print ('No additional parameters receved')
+            return
+
+        for node,node_params in ret_params.items():
+            print ('-'*80)
+            print ('NODE: %s'%node)
+            print ('-'*80)
+
+            for name,value in node_params.items():
+                print ('\t%s = %s'%(name, value))
+
+ADMIN_LOGIN='admin'
+
+def usage():
+    print ('Usage: call-operation --cluster|-c <cluster name> | --nodes|-n <comma-separated nodes list>')
+    print ('                    --operation|-o <operation name> <name=value parameters list>')
+    print ('                    --skip-response')
+
+if __name__ == '__main__':
+    try:
+        if len(sys.argv) < 3:
+            usage()
+            sys.exit(1)
+
+        try:
+            opts,args = getopt.getopt(sys.argv[1:], "hc:n:o:", ["help", "cluster=","nodes=","operation=", 'skip-response'])
+        except getopt.GetoptError, err:
+            print str(err)
+            usage()
+            sys.exit(2)
+
+        cluster = nodes = operation = None
+        skip_resp = False
+        for opt, arg in opts:
+            if opt in ['-h', '--help']:
+                usage()
+                sys.exit(0)
+            elif opt in ['-c', '--cluster']:
+                cluster = arg
+            elif opt in ['-n', '--nodes']:
+                nodes = arg
+            elif opt in ['-o', '--operation']:
+                operation = arg
+            elif opt in ['--skip-response']:
+                skip_resp = True
+
+        if cluster == nodes == None:
+            raise Exception('--cluster or --nodes should be specified')
+
+        op_args = {}
+
+        #get parameters from command line
+        for param in sys.argv:
+            if param.find('=') <= 0:
+                continue
+
+            name, value = param.split('=')
+            name = name.strip()
+            value = value.strip()
+
+            op_args[name] = value
+
+        client = DbusCliClient(skip_resp)
+        if nodes:
+            nodes_list = [n.strip() for n in nodes.split(',')]
+
+            session_id, ret_code, ret_message = client.call_nodes_operation(ADMIN_LOGIN, nodes_list, operation, op_args)
+        else:
+            session_id, ret_code, ret_message = client.call_cluster_operation(ADMIN_LOGIN, cluster, operation, op_args)
+
+        if int(ret_code) != 0:
+            print ('Operation call failed!\nDetails: %s'%ret_message)
+            sys.exit(3)
+
+        if not skip_resp:
+            print ('Waiting operation finishing...')
+            client.wait_response()
+    except ImportError, err:
+        print ('call-operation failed! Details: %s'%err)

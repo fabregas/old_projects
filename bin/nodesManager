@@ -58,6 +58,7 @@ def start():
         loop.run()
     except Exception, err:
         logger.error('nodesManager error: %s. exit!'%err)
+        stop(None, None)
         sys.exit(1)
 
 if __name__ == '__main__':

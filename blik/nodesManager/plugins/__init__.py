@@ -11,3 +11,5 @@
 #
 # Note: don't forget import plugin class before use it in OPERATIONS_PLUGINS structure 
 #
+
+OPERATIONS_PLUGINS = {}
