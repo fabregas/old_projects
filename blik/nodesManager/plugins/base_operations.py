@@ -3,17 +3,13 @@ Copyright (C) 2011 Konstantin Andrusenko
     See the documentation for further information on copyrights,
     or contact the author. All Rights Reserved.
 
-@package blik.nodesManager.dbusAgent
+@package blik.nodesManager.plugins.base_operations
 @author Konstantin Andrusenko
-@date August 8, 2011
+@date August 9, 2011
 
 This module contains the implementation of basic nodes operations
 """
-from blik.nodesManager.operationsPluginManager import OperationPlugin
-
-#objects
-CLUSTER=1
-NODES=2
+from blik.nodesManager.operationsPlugin import OperationPlugin, CLUSTER
 
 #config objects types
 CLUSTER_CONFIG_TYPE  = 1
@@ -49,7 +45,7 @@ class SynchronizeOperation(OperationPlugin):
         in_params = {'logic_name': logic_name,
                      'arch': arch,
                      'node_type': type_name,
-                     'cluster_sid', cluster_sid}
+                     'cluster_sid': cluster_sid}
 
         for name, value in rows:
             in_params[name] = value

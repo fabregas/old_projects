@@ -16,62 +16,10 @@ import os
 from blik.nodesManager import plugins
 from blik.utils.databaseConnection import DatabaseConnection
 from blik.utils.logger import logger
+from operationsPlugin import OperationPlugin
+
 
 RC_OK = 0
-
-class OperationPlugin:
-    dbConn = None
-    operationsEngine = None
-
-    #statuses of operation
-    OS_INPROGRESS = 0
-    OS_COMPLETED  = 1
-    OS_TIMEOUTED  = 2
-
-    def beforeCall(self, operation, call_object, parameters):
-        '''
-        This hook method call before cluster operation call
-        In this method we can append/modify remove operation parameters,
-                modify call_object,
-                perform database operations (use dbConn),
-                perform other cluster operations (use operationsEngine)
-        @operation (string) - name of operation for call
-        @call_object (CallObject object) - object of calling (cluster, nodes list)
-        @parameters (dict {param_name: param_value}) - operation input parameters
-
-        @return (ret_code, ret_message)
-        '''
-        raise Exception('This method should be implemented in child class')
-
-    def onCallResults(self, operation, status, ret_parameters):
-        '''
-        This hook method call after cluster operation call
-        In this method we can append/modify remove return parameters,
-            perform database operations (use dbConn),
-            perform other cluster operations (use operationsEngine)
-        @operation (string) - name of called operation
-        @status (integer) - status of operation
-        @ret_parameters (dict {node_hostname : {param_name: param_value}}) -
-            return parameters from nodes
-
-        @return None
-        '''
-        raise Exception('This method should be implemented in child class')
-
-
-    def checkRunnedOperations(self, call_object, operations=[]):
-        '''
-        Select inprogress operations on resources described by call_object
-
-        @call_object (CallObject object) - object of calling (cluster, nodes list)
-        @operations (list of operations SIDs) - if specified, used for selecting only this inprogress operations.
-                                                if equsl to [], select all inprogress operations
-
-        @return list of inprogress operations
-        '''
-        raise Exception('THIS METHOD IS NOT IMPLEMENTED')
-        #self.dbConn.select('')
-
 
 
 class OperationsPluginManager:

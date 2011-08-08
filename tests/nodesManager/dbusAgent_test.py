@@ -19,12 +19,16 @@ from blik.nodesManager import plugins
 from blik.nodesManager.dbusAgent import NodesManagerService, NODES_MANAGER_INTERFACE
 
 plugin_src = '''
-from blik.nodesManager.operationsPluginManager import OperationPlugin
+from blik.nodesManager.operationsPlugin import OperationPlugin
 import time
 
 class TestPlugin(OperationPlugin):
     def beforeCall(self, operation, call_object, parameters):
         print 'BEFORE CALL START'
+
+        ops = self.checkRunnedOperations(call_object, ['TEST_OPERATION'])
+        if ops:
+            raise Exception('TEST_OPERATION is already inprogress in cluster')
 
         time.sleep(1)
 
@@ -90,6 +94,7 @@ class DbusAgentTestCase(unittest.TestCase):
             proxy = bus.get_object(NODES_MANAGER_INTERFACE, '/nodes/manager_test')
             print proxy.Introspect()
             proxy.connect_to_signal('onOperationFinishEvent', onSignal, dbus_interface=NODES_MANAGER_INTERFACE)
+            proxy.setLogLevel('DEBUG')
 
             #negative calls
             session_id, ret_code, ret_message = proxy.callOperationOnCluster('fabregas', 'TEST_CLUSTER', 'TEST_OPERATION', {'error':'yes'})
@@ -110,7 +115,7 @@ class DbusAgentTestCase(unittest.TestCase):
 
             #test log level changes
             c_log_level = proxy.getLogLevel()
-            self.assertEqual(c_log_level, 'INFO')
+            self.assertEqual(c_log_level, 'DEBUG')
 
             proxy.setLogLevel('ERROR')
             c_log_level = proxy.getLogLevel()
@@ -125,29 +130,35 @@ class DbusAgentTestCase(unittest.TestCase):
             #end test log level changes
 
             #positive tests
-            sessions = []
             session_id, ret_code, ret_message = proxy.callOperationOnCluster('fabregas', 'TEST_CLUSTER', 'TEST_OPERATION', {'param1':10})
             self.assertEqual(ret_code, 0, ret_message)
             self.assertEqual(session_id>0, True)
-            sessions.append(session_id)
+
+            fail_session_id, ret_code, ret_message = proxy.callOperationOnNodes('fabregas', ['127.0.0.1', '23.23.23.23'], 'TEST_OPERATION',{'a':2})
+            self.assertNotEqual(ret_code, 0, ret_message)
+
+            while True:
+                status_code, status_name = proxy.getOperationStatus(session_id)
+                if status_name == 'INPROGRESS':
+                    time.sleep(1)
+                    continue
+                break
 
             session_id, ret_code, ret_message = proxy.callOperationOnNodes('fabregas', ['127.0.0.1', '23.23.23.23'], 'TEST_OPERATION', {'param1':10})
             self.assertEqual(ret_code, 0, ret_message)
             self.assertEqual(session_id>0, True)
-            sessions.append(session_id)
 
             client = FRIClient('127.0.0.1', friBase.FRI_BIND_PORT)
             err_code, err_message = client.call({'id':session_id, 'node':'127.0.0.1', 'progress':'100','ret_code':0, 'ret_message':'ok'})
             self.assertEqual(err_code, 0)
 
             #waiting operations finishing
-            for session_id in sessions:
-                while True:
-                    status_code, status_name = proxy.getOperationStatus(session_id)
-                    if status_name == 'INPROGRESS':
-                        time.sleep(1)
-                        continue
-                    break
+            while True:
+                status_code, status_name = proxy.getOperationStatus(session_id)
+                if status_name == 'INPROGRESS':
+                    time.sleep(1)
+                    continue
+                break
 
             time.sleep(1)
 

@@ -23,6 +23,7 @@ from blik.nodesManager.nodesMonitor import NodesMonitor
 from blik.utils.logger import logger
 from blik.utils.config import Config
 import logging
+import traceback
 
 NODES_MANAGER_INTERFACE = 'com.blik.nodesManager'
 
@@ -44,6 +45,12 @@ class NodesManagerService(dbus.service.Object):
         dbus.service.Object.__init__(self, bus, object_path)
 
         self.setLogLevel(Config.log_level)
+
+    def __debug_error(self):
+        err_message =  '-'*80 + '\n'
+        err_message += ''.join(apply(traceback.format_exception, sys.exc_info()))
+        err_message += '-'*80 + '\n'
+        logger.debug(err_message)
 
     def stop(self):
         self.operations_engine.stop()
@@ -110,7 +117,8 @@ class NodesManagerService(dbus.service.Object):
             session_id = 0
             ret_code = 21
             ret_message = str(err)
-            logger.error(ret_message)
+            logger.error('callOperationOnCluster error: %s'%ret_message)
+            self.__debug_error()
 
             return session_id, ret_code, ret_message
 
@@ -142,7 +150,8 @@ class NodesManagerService(dbus.service.Object):
             session_id = 0
             ret_code = 21
             ret_message = str(err)
-            logger.error(ret_message)
+            logger.error('callOperationOnNodes error: %s'%ret_message)
+            self.__debug_error()
 
             return session_id, ret_code, ret_message
 
