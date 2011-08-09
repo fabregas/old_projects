@@ -1,0 +1,44 @@
+# Copyright 1999-2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+EAPI=3
+PYTHON_DEPEND="2"
+
+inherit distutils
+
+DESCRIPTION="Nodes Manager module of BlikCloud management system"
+HOMEPAGE=""
+SRC_URI="ftp://blik-mirror/distfiles/${PF}.tar"
+
+LICENSE="GPL-3"
+SLOT="0"
+KEYWORDS="amd64 x86"
+IUSE=""
+
+DEPEND="blik-products/blik-utils
+        blik-products/boot-manager
+        dev-python/dbus-python"
+
+RDEPEND="${DEPEND}"
+
+src_compile() {
+	distutils_src_compile
+}
+
+
+src_install() {
+	distutils_src_install
+
+    newinitd init_scripts/nodes-manager nodes-manager
+
+    insinto /etc/dbus-1/system.d
+    newins config/com.blik.nodesManager.conf com.blik.nodesManager.conf
+
+    python install/nodes-manager/meta/dictionaries.py 
+}
+
+pkg_postinst() {
+    rc-update add nodes-manager default
+}
+
