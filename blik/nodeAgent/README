@@ -23,7 +23,7 @@ defined in agentPluginsManager.py module.
 
 Example of plugin class:
 #-------------------------------------------------------------------------------------------------
-from blik.nodeAgent.agentPluginsManager import NodeAgentPlugin
+from blik.nodeAgent.agentPlugin import NodeAgentPlugin
 
 class TestPlugin(NodeAgentPlugin):
     def process(self, parameters):

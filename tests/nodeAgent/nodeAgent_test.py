@@ -129,6 +129,10 @@ class NodeAgentTestCase(unittest.TestCase):
             code,msg = caller.call('127.0.0.1', packet, 1987)
             self.assertNotEqual(code, 0)
 
+            #get node info
+            packet['operation'] = 'GET_NODE_INFO'
+            code,msg = caller.call('127.0.0.1', packet, 1987)
+            self.assertEqual(code, 0)
 
             time.sleep(1)
         finally:

@@ -6,4 +6,10 @@
 #Note: don't forget import plugin class before use it in OPERATIONS_PLUGINS structure 
 #
 
-OPERATIONS_PLUGINS = {}
+from blik.nodeAgent.plugins.base_operations import *
+
+OPERATIONS_PLUGINS = {
+        'SYNC': SynchronizeOperation,
+        'REBOOT': RebootOperation,
+        'GET_NODE_INFO': GetNodeInfoOperation
+        }
