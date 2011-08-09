@@ -174,8 +174,8 @@ def get_emerge_variables():
             ret_lines.append(line)
 
     ret_lines.append('FEATURES="buildpkg"')
-    ret_lines.append('CONFIG_PROTECT="-*"')
-    ret_lines.append('COLLISION_IGNORE="/etc /lib/modules"')
+    #ret_lines.append('CONFIG_PROTECT="-*"')
+    #ret_lines.append('COLLISION_IGNORE="/etc /lib/modules"')
 
     return ret_lines
 

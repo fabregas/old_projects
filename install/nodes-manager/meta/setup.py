@@ -8,7 +8,7 @@ setup(
     maintainer = "Konstantin Andrusenko",
     maintainer_email = "blikproject@gmail.com",
     description = "Nodes Manager module of Blik Cloud management system",
-    packages = ['blik', 'blik.nodesManager', 'blik.nodesManager.plugins'],  # include all packages under src
+    packages = [ 'blik.nodesManager', 'blik.nodesManager.plugins'],  # include all packages under src
     scripts = ['bin/nodesManager'],
     license = 'GPLv3',
     zip_safe = True

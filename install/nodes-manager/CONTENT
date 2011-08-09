@@ -1,4 +1,3 @@
-blik/__init__.py
 blik/nodesManager/*
 bin/nodesManager
 bin/call-operation

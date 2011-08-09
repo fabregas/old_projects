@@ -37,7 +37,7 @@ class DBDict:
         else:
             self._insert_dict_item(params)
 
-    def del(self, unique):
+    def delete(self, unique):
         self.dbconn.modify("DELETE FROM %s WHERE %s='%s'"%(self.name, self.unique_field, unique))
 
     def _has_dict_item(self, unique_value):
