@@ -63,7 +63,7 @@ class NodesManagerService(dbus.service.Object):
         try:
             self.onOperationFinishEvent(session_id, OPER_STATUSES[status], ret_params)
 
-            self.pluginManager.processAfterCallPlugins(operation_name, status, ret_params)
+            self.pluginManager.processAfterCallPlugins(operation_name, session_id, status, ret_params)
         except Exception, err:
             logger.error('afterCall operation plugins processing error: %s'%err)
 

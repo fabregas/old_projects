@@ -51,9 +51,9 @@ class OperationPlugin:
 
         @return (ret_code, ret_message)
         '''
-        raise Exception('This method should be implemented in child class')
+        pass
 
-    def onCallResults(self, operation, status, ret_parameters):
+    def onCallResults(self, operation, session_id, status, ret_parameters):
         '''
         This hook method call after cluster operation call
         In this method we can append/modify remove return parameters,
@@ -61,12 +61,13 @@ class OperationPlugin:
             perform other cluster operations (use operationsEngine)
         @operation (string) - name of called operation
         @status (integer) - status of operation
+        @session_id (integer) - identifier of finished operation instance
         @ret_parameters (dict {node_hostname : {param_name: param_value}}) -
             return parameters from nodes
 
         @return None
         '''
-        raise Exception('This method should be implemented in child class')
+        pass
 
 
     def checkRunnedOperations(self, call_object, operations=[]):

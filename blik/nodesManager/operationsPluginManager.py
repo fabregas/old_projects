@@ -81,9 +81,9 @@ class OperationsPluginManager:
 
         return RC_OK, ''
 
-    def processAfterCallPlugins(self, operation, status, ret_parameters):
+    def processAfterCallPlugins(self, operation, session_id, status, ret_parameters):
         plugins = self.operations_map.get(operation,[])
 
         for plugin in plugins:
-            plugin.onCallResults(operation, status, ret_parameters)
+            plugin.onCallResults(operation, session_id, status, ret_parameters)
 

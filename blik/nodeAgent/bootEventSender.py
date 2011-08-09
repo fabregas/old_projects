@@ -25,14 +25,42 @@ class BootEventSenderThread(threading.Thread):
         os.system('umount /dev/shm')
         os.system('mount -av')
 
-    def _set_new_hostname(self, uuid):
-        hostname = 'NODE-%s' % uuid.split('-')[-1]
+    def __reload_dhcpcd(self, force_hostname=False):
+        pid_file = '/var/run/dhcpcd-eth0.pid'
+        if os.path.exists(pid_file):
+            pid = open(pid_file).read()
 
-        run_command(['hostname',hostname])
+            ret,out,err = run_command(['kill', pid])
 
-        ret,out,err = run_command(['dhcpcd','eth0'])
+            if ret:
+                raise Exception('dhcpcd process is not killed! Details: %s'%err)
+
+        if force_hostname:
+            params = ['dhcpcd','-e force_hostname=YES','eth0']
+        else:
+            params = ['dhcpcd','eth0']
+
+        ret,out,err = run_command(params)
         if ret:
             raise Exception('dhcpcd eth0 error: %s'%err)
+
+
+    def _set_new_hostname(self, uuid):
+        try:
+            self.__reload_dhcpcd(force_hostname=True)
+
+            ret,out,err = run_command(['hostname'])
+
+            return out.strip()
+        except Exception, err:
+            logger.warning('Dhcpcd with force_hostname is failed!')
+
+        logger.info('Setting defaut hostname')
+
+        hostname = 'NODE-%s' % uuid.split('-')[-1]
+        run_command(['hostname',hostname])
+
+        self.__reload_dhcpcd()
 
         return hostname
 

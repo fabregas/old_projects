@@ -24,6 +24,9 @@ NAS_NEW       = 0
 NAS_ACTIVE    = 1
 NAS_NOTACTIVE  = 2
 
+ADMIN = 'admin'
+MOD_HOST_OPER = 'MOD_HOSTNAME'
+
 class BootEventListener(FriServer):
     def __init__(self):
         self.__dbconn = DatabaseConnection()
@@ -71,7 +74,7 @@ class BootEventListener(FriServer):
     def __process_event(self, uuid, hostname, login, password, mac_address, ip_address, processor, memory):
         hw_info = 'Processor: %s\nMemory: %s'%(processor, memory)
 
-        rows = self.__dbconn.select("SELECT id FROM nm_node WHERE node_uuid=%s", (uuid,))
+        rows = self.__dbconn.select("SELECT hostname FROM nm_node WHERE node_uuid=%s", (uuid,))
 
         if not rows:
             #this is new node, create it in database in NEW status
@@ -83,7 +86,26 @@ class BootEventListener(FriServer):
             #we already has this node in database, update it
             self.__dbconn.modify("UPDATE nm_node SET hostname=%s, login=%s, password=%s, mac_address=%s, ip_address=%s, hw_info=%s\
                                     WHERE node_uuid=%s", (hostname, login, password, mac_address, ip_address, hw_info, uuid))
+    '''
 
+            old_hostname = rows[0][0]
+
+            caller = self.__get_operation_caller()
+            if caller:
+                caller.call_nodes_operation(ADMIN, [hostname], MOD_HOST_OPER, {'hostname':old_hostname})
+
+    def __get_operation_caller(self):
+        #try import nodes manager caller
+        try:
+            from blik.nodesManager.dbusClient import DBUSInterfaceClient
+            client = DBUSInterfaceClient()
+
+            return client
+        except ImportError, err:
+            logger.warning('Boot manager require nodes manager for automatic changing hostname.')
+
+            return None
+    '''
 
 #--------------------------------------------------------------------------------
 

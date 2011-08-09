@@ -12,9 +12,10 @@
 # Note: don't forget import plugin class before use it in OPERATIONS_PLUGINS structure 
 #
 
-from base_operations import SynchronizeOperation, RebootOperation
+from base_operations import *
 
 OPERATIONS_PLUGINS = {
                         'SYNC':     (SynchronizeOperation,),
-                        'REBOOT':   (RebootOperation,)
+                        'REBOOT':   (RebootOperation,),
+                        'MOD_HOSTNAME': (ModHostnameOperation,)
                      }

@@ -22,7 +22,7 @@ class SynchronizeOperation(NodeAgentPlugin):
 class RebootOperation(NodeAgentPlugin):
     def process(self, parameters):
         try:
-            code, cout, cerr = run_command('reboot')
+            code, cout, cerr = run_command(['reboot'])
 
             if code:
                 raise Exception('Reboot operation failed: %s'%cerr)
@@ -75,4 +75,34 @@ class GetNodeInfoOperation(NodeAgentPlugin):
             self.updateOperationProgress(100, ret_message='Node information is collected', ret_params=ret_params)
         except Exception, err:
             self.updateOperationProgress(70, ret_message='Synchronization config failed: %s'%err, ret_code=1)
+
+
+class ChangeHosnameOperation(NodeAgentPlugin):
+    def process(self, parameters):
+        try:
+            hostname = parameters.get('hostname', None)
+            if not hostname:
+                raise Exception('Hostname parameter expected, but received: %s!'%parameters)
+
+            code, cout, cerr = run_command(['hostname',hostname])
+
+
+            pid_file = '/var/run/dhcpcd-eth0.pid'
+            if os.path.exists(pid_file):
+                pid = open(pid_file).read()
+
+                ret,out,err = run_command(['kill', pid])
+
+                if ret:
+                    raise Exception('dhcpcd process is not killed! Details: %s'%err)
+
+
+            ret,out,err = run_command(['dhcpcd','eth0'])
+            if ret:
+                raise Exception('dhcpcd eth0 error: %s'%err)
+
+
+            self.updateOperationProgress(100, ret_message='Hostname is changes')
+        except Exception, err:
+            self.updateOperationProgress(50, ret_message='Error occured: %s'%err, ret_code=1)
 

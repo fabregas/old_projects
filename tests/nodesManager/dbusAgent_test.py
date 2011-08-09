@@ -37,9 +37,10 @@ class TestPlugin(OperationPlugin):
         print 'BEFORE CALL END'
         return 0, 'ok'
 
-    def onCallResults(self, operation, status, ret_parameters):
+    def onCallResults(self, operation, session_id, status, ret_parameters):
         print 'onCallResults'
         print 'operation: %s'%operation
+        print 'session_id: %s'%session_id
         print 'status: %s'%status
         print 'params: %s'%ret_parameters
 
@@ -49,8 +50,7 @@ class FakeFailPlugin(OperationPlugin):
             return 33, 'This is fake error from plugin!'
         return 0,''
 
-    def onCallResults(self, operation, status, ret_parameters):
-        pass
+
 
 OPERATIONS_PLUGINS = {'TEST_OPERATION' : (TestPlugin,FakeFailPlugin)}
 '''

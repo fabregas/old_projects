@@ -32,6 +32,7 @@ def synchronize_operations():
         db_dict.add(1, 'SYNC', 10, None, 'Synchronization node parameters')
         db_dict.add(2, 'REBOOT', 10, None, 'Software node reboot')
         db_dict.add(3, 'GET_NODE_INFO', 10, None, 'Get actual information about node')
+        db_dict.add(4, 'MOD_HOSTNAME', 30, None, 'Modify node hostname')
     except Exception, err:
         sys.stderr.write('Operations distionary synchronization failed! Details: %s'%err)
         return 1
