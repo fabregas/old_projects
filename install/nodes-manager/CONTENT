@@ -4,4 +4,3 @@ bin/nodesManager
 bin/call-operation
 init_scripts/nodes-manager
 config/com.blik.nodesManager.conf
-install/nodes-manager/meta/dictionaries.py

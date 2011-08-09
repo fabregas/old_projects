@@ -35,7 +35,7 @@ src_install() {
     insinto /etc/dbus-1/system.d
     newins config/com.blik.nodesManager.conf com.blik.nodesManager.conf
 
-    python install/nodes-manager/meta/dictionaries.py 
+    python dictionaries.py 
 }
 
 pkg_postinst() {

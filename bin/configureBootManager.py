@@ -6,6 +6,12 @@ import shutil
 DISKLESS_HOME = '/opt/blik/diskless'
 DISKLESS_GL_HOME = '/opt/blik/diskless_data'
 
+if not os.path.exists(DISKLESS_HOME):
+    os.makedirs(DISKLESS_HOME)
+if not os.path.exists(DISKLESS_GL_HOME):
+    os.makedirs(DISKLESS_GL_HOME)
+
+
 os.system('rc-update add ntpd default')
 os.system('rc-update add dhcpd default')
 os.system('rc-update add named default')
@@ -18,7 +24,7 @@ os.system('rc-update add boot-event-listener default')
 os.system('/etc/init.d/dhcpd restart')
 os.system('/etc/init.d/named restart')
 os.system('/etc/init.d/in.tftpd restart')
-os.system('/etc/init.d/glusterfsd restart')
+os.system('/etc/init.d/glusterfsd start')
 os.system('/etc/init.d/boot-event-listener stop')
 os.system('/etc/init.d/postgresql-9.0 restart')
 os.system('/etc/init.d/boot-event-listener start')
@@ -26,12 +32,8 @@ os.system('/etc/init.d/boot-event-listener start')
 ####################################
 # Glusterfs share mounting
 ####################################
-if not os.path.exists(DISKLESS_HOME):
-    os.makedirs(DISKLESS_HOME)
-if not os.path.exists(DISKLESS_GL_HOME):
-    os.makedirs(DISKLESS_GL_HOME)
 
-os.system('umount %s'%DISKLESS_HOME)
+#os.system('umount %s'%DISKLESS_HOME)
 os.system('glusterfs %s'%DISKLESS_HOME)
 
 
