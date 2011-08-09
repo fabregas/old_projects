@@ -199,7 +199,7 @@ def _prepare_work_path(node_type, arch):
             ret,out,err = run_command(['tar', '-xjf', exists_path, '-C', TMP_DIR])
         else:
             print_log('Untar canonical image to tmp dir...')
-            os.makedirs(image_path)
+
             ret,out,err = run_command(['tar', '-xjf', CANONICAL_IMAGE_PATH %arch, '-C', TMP_DIR])
 
         if ret:
