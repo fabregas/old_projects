@@ -14,7 +14,7 @@ BESender.run_command = lambda a: (0,'test','no error')
 
 from blik.nodeAgent.bootEventSender import BootEventSenderThread
 BootEventSenderThread._set_new_hostname = lambda a,b: 'test-node'
-BootEventSenderThread._remount_devfs = lambda a,b: pass
+BootEventSenderThread._remount_devfs = lambda a: None
 
 from blik.utils import friBase
 from blik.utils.config import Config

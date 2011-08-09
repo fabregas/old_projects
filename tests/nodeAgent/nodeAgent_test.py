@@ -8,6 +8,9 @@ import os
 import shutil
 
 from blik.nodeAgent.agentPluginsManager import NodeAgentPlugin, PluginManager
+from blik.nodeAgent.bootEventSender import BootEventSenderThread
+BootEventSenderThread._set_new_hostname = lambda a,b: 'test-node'
+BootEventSenderThread._remount_devfs = lambda a: None
 
 #------------------------------------------------------
 plugin = '''

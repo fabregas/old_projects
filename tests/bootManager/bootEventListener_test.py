@@ -56,12 +56,12 @@ class BootEventListenerTestCase(unittest.TestCase):
         self.assertEqual(rows[0][0], 'test_node_01')
 
         #change params and call
-        packet['hostname'] = 'node_01'
+        packet['ip_address'] = '123.23.123.33'
         code,msg = caller.call('127.0.0.1', packet, 1986)
         self.assertEqual(code, 0, msg)
-        rows = dbconn.select("SELECT hostname, login FROM nm_node WHERE node_uuid='32542523esdf23r32r3fr'")
+        rows = dbconn.select("SELECT ip_address, login FROM nm_node WHERE node_uuid='32542523esdf23r32r3fr'")
         self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0][0], 'node_01')
+        self.assertEqual(rows[0][0], '123.23.123.33')
         self.assertEqual(rows[0][1], 'fabregas')
 
         #ip_address is optional

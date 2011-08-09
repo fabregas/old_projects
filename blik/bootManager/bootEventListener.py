@@ -86,9 +86,11 @@ class BootEventListener(FriServer):
             #we already has this node in database, update it
             self.__dbconn.modify("UPDATE nm_node SET hostname=%s, login=%s, password=%s, mac_address=%s, ip_address=%s, hw_info=%s\
                                     WHERE node_uuid=%s", (hostname, login, password, mac_address, ip_address, hw_info, uuid))
-    '''
+
 
             old_hostname = rows[0][0]
+            if hostname == old_hostname:
+                return
 
             caller = self.__get_operation_caller()
             if caller:
@@ -105,7 +107,7 @@ class BootEventListener(FriServer):
             logger.warning('Boot manager require nodes manager for automatic changing hostname.')
 
             return None
-    '''
+
 
 #--------------------------------------------------------------------------------
 
