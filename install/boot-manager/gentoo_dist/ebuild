@@ -9,7 +9,13 @@ inherit distutils
 
 DESCRIPTION="Blik Cloud boot manager"
 HOMEPAGE=""
-SRC_URI="ftp://blik-mirror/distfiles/${PF}.tar"
+SRC_URI="ftp://blik-mirror/distfiles/${PF}.tar 
+    ftp://blik-mirror/distfiles/kernel-default-x86 
+    ftp://blik-mirror/distfiles/kernel-default-x86_64 
+    ftp://blik-mirror/distfiles/initramfs-x86 
+    ftp://blik-mirror/distfiles/initramfs-x86_64
+    ftp://blik-mirror/distfiles/image_canonical_x86.tar.bz2
+    ftp://blik-mirror/distfiles/image_canonical_x86_64.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -24,11 +30,21 @@ DEPEND="blik-products/blik-utils
 		net-dns/bind
         net-ftp/tftp-hpa
         sys-boot/syslinux
+        app-admin/syslog-ng
         >=dev-db/postgresql-server-9.0
         dev-python/psycopg
 		sys-cluster/glusterfs"
 RDEPEND="${DEPEND}"
 
+
+src_unpack () {
+    for item in ${A}; do
+        case $item in
+            *tar) unpack $item;;
+            *) echo "skip $item unpacking...";;
+        esac
+    done
+}
 
 src_compile() {
 	distutils_src_compile
@@ -66,6 +82,9 @@ src_install() {
 
     insinto /etc/glusterfs
     newins config/glusterfs.vol glusterfs.vol
+
+    insinto /etc/syslog-ng
+    newins config/farnsworth-syslog-ng.conf syslog-ng.conf
 }
 
 pkg_postinst() {
@@ -73,3 +92,4 @@ pkg_postinst() {
         emerge postgresql-server --config || die
 	fi
 }
+

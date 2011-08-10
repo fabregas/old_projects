@@ -17,6 +17,7 @@ KEYWORDS="amd64 x86"
 IUSE=""
 
 DEPEND="blik-products/blik-utils
+        app-admin/syslog-ng
         dev-python/dbus-python
         sys-apps/dmidecode"
 
@@ -34,6 +35,9 @@ src_install() {
 
     insinto /etc/dbus-1/system.d
     newins config/com.blik.nodeAgent.conf com.blik.nodeAgent.conf
+
+    insinto /etc/syslog-ng
+    newins config/node-syslog-ng.conf syslog-ng.conf
 }
 
 pkg_postinst() {

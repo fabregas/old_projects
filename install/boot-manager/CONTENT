@@ -11,6 +11,7 @@ config/in.tftpd
 config/default_node.yaml
 config/glusterfsd.vol
 config/glusterfs.vol
+config/farnsworth-syslog-ng.conf
 bin/configureBootManager.py
 bin/node-type-installer
 bin/node-image-updater

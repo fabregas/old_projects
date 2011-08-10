@@ -2,6 +2,8 @@
 import os
 import sys
 import shutil
+from blik.utils.exec_command import run_command
+
 
 DISKLESS_HOME = '/opt/blik/diskless'
 DISKLESS_GL_HOME = '/opt/blik/diskless_data'
@@ -33,18 +35,17 @@ os.system('/etc/init.d/boot-event-listener start')
 # Glusterfs share mounting
 ####################################
 
-#os.system('umount %s'%DISKLESS_HOME)
-os.system('glusterfs %s'%DISKLESS_HOME)
-
+run_command(['glusterfs', DISKLESS_HOME])
 
 ####################################
 #database configuration
 ####################################
 
-ret = os.system('createdb -U postgres  blik_cloud_db > /dev/null')
+ret,out,err = run_command(['createdb', '-U',  'postgres',  'blik_cloud_db', '>', '/dev/null'])
 if not ret:
-    ret = os.system('psql -U postgres -d blik_cloud_db -f /opt/blik/db/cloud_db_schema.sql')
+    ret,out,err = run_command(['psql', '-U', 'postgres', '-d', 'blik_cloud_db', '-f', '/opt/blik/db/cloud_db_schema.sql'])
     if ret:
+        print (err)
         sys.exit(1)
 
 ######################################
@@ -55,23 +56,23 @@ ret = os.system('cp /usr/share/syslinux/pxelinux.0 %s'%DISKLESS_HOME)
 if ret:
     sys.exit(1)
 
-IMAGES = 'ftp://blik-mirror/images/'
+IMAGES = '/usr/portage/distfiles'
 
 INITRAMFS_DIR = os.path.join(DISKLESS_HOME, 'initramfs')
 if not os.path.exists(INITRAMFS_DIR):
     os.makedirs(INITRAMFS_DIR)
 
-ret = os.system('wget %s -O %s/initramfs-x86'%(os.path.join(IMAGES, 'initramfs-x86'),INITRAMFS_DIR))
+ret = os.system('cp %s/initramfs-x86 %s'%(IMAGES,INITRAMFS_DIR))
 if ret:
     sys.exit(1)
 
-ret = os.system('wget %s -O %s/initramfs-x86_64'%(os.path.join(IMAGES, 'initramfs-x86_64'),INITRAMFS_DIR))
+ret = os.system('cp %s/initramfs-x86_64 %s'%(IMAGES,INITRAMFS_DIR))
 if ret:
     sys.exit(1)
 
 
-x86_canonical_image = IMAGES + 'image_canonical_x86.tar.bz2'
-x86_64_canonical_image = IMAGES + 'image_canonical_x86_64.tar.bz2'
+x86_canonical_image = IMAGES + '/image_canonical_x86.tar.bz2'
+x86_64_canonical_image = IMAGES + '/image_canonical_x86_64.tar.bz2'
 default_node_yaml = '/opt/blik/conf/default_node.yaml'
 
 
@@ -98,12 +99,9 @@ default = os.path.join(pxe_cfg, 'default')
 
 if not os.path.exists(default):
     os.system('ln %s %s'%(default_x86, default))
-#os.system('unlink %s'%default)
 
 
 ##### DNS files configure #######
-#os.system('touch /etc/bind/pri/192.168.87.zone.jnl')
-#os.system('touch /etc/bind/pri/blik.zone.jnl')
 
 os.system('chown root:named /{etc,var}/bind /var/{run,log}/named /var/bind/{sec,pri,dyn}')
 os.system('chown root:named /var/bind/named.cache /var/bind/pri/{127,localhost}.zone /etc/bind/{bind.keys,named.conf}')

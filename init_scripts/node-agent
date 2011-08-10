@@ -9,6 +9,7 @@
 depend() {
 	need syslog-ng
 	need sshd
+    need dbus
 }
 
 

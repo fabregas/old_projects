@@ -29,6 +29,7 @@ class BootEventSenderThread(threading.Thread):
         pid_file = '/var/run/dhcpcd-eth0.pid'
         if os.path.exists(pid_file):
             pid = open(pid_file).read()
+            pid = pid.strip()
 
             ret,out,err = run_command(['kill', pid])
 
@@ -53,7 +54,7 @@ class BootEventSenderThread(threading.Thread):
 
             return out.strip()
         except Exception, err:
-            logger.warning('Dhcpcd with force_hostname is failed!')
+            logger.warning('Dhcpcd with force_hostname is failed! Details: %s'%err)
 
         logger.info('Setting defaut hostname')
 
