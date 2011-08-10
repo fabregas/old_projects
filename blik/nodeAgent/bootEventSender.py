@@ -31,10 +31,7 @@ class BootEventSenderThread(threading.Thread):
             pid = open(pid_file).read()
             pid = pid.strip()
 
-            ret,out,err = run_command(['kill', pid])
-
-            if ret:
-                raise Exception('dhcpcd process is not killed! Details: %s'%err)
+            run_command(['kill', pid])
 
         if force_hostname:
             params = ['dhcpcd','-e force_hostname=YES','eth0']

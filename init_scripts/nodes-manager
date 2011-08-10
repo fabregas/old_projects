@@ -4,6 +4,7 @@ depend() {
 	need syslog-ng
 	need sshd
     need postgresql-9.0
+    need dbus
 }
 
 start() {
