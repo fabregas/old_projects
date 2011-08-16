@@ -14,7 +14,7 @@ This module contains the implementation of PluginManager class.
 from blik.utils.friBase import FriCaller
 from blik.utils.logger import logger
 
-FARNSWORTH_HOSTNAME='farnsworth_master' #hostname of management node
+FARNSWORTH_HOSTNAME='farnsworth' #hostname of management node
 NODES_MANAGER_PORT=1989
 
 WAIT_TIMEOUT = 10 #wait for connect to management node (in seconds)

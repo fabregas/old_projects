@@ -223,9 +223,8 @@ class OperationsEngine:
 
             #select all ACTIVE nodes
             rows = self._dbconn.select("SELECT id, hostname, node_type FROM NM_NODE \
-                                        WHERE hostname IN (%s) AND admin_status<>%s \
-                                        AND current_state=%s" %
-                                        (','.join(["'%s'"%n for n in nodes_list]), NAS_NOTACTIVE, NCS_UP))
+                                        WHERE hostname IN (%s) AND current_state=%s" %
+                                        (','.join(["'%s'"%n for n in nodes_list]), NCS_UP))
 
             if not rows:
                 raise Exception('No nodes found with hostnames %s in database' % nodes_list)

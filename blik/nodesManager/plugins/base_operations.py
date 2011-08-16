@@ -11,6 +11,7 @@ This module contains the implementation of basic nodes operations
 """
 from blik.nodesManager.operationsPlugin import OperationPlugin, CLUSTER
 from blik.utils.logger import logger
+import re
 
 #config objects types
 CLUSTER_CONFIG_TYPE  = 1

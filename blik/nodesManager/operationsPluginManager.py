@@ -66,18 +66,18 @@ class OperationsPluginManager:
         plugins = self.operations_map.get(operation,[])
 
         for plugin in plugins:
-            ret = plugin.beforeCall(operation, call_object, parameters)
-            if not issubclass(ret.__class__, tuple):
-                ret_code = 31
-                ret_message = 'Method %s.beforeCall should return (ret_code,ret_message), but %s' %(plugin.__class__,ret)
-            elif len(ret) != 2:
-                ret_code = 32
-                ret_message = 'Method %s.beforeCall should return (ret_code,ret_message), but %s'%(plugin.__class__,ret)
-            else:
-                ret_code, ret_message = ret
+            try:
+                ret = plugin.beforeCall(operation, call_object, parameters)
 
-            if ret_code != RC_OK:
-                return ret_code, ret_message
+                if issubclass(ret.__class__, tuple) and (len(ret) != 2):
+                    ret_code, ret_message = ret
+                else:
+                    ret_code, ret_message = RC_OK, 'ok'
+
+                if ret_code != RC_OK:
+                    return ret_code, ret_message
+            except Exception, err:
+                return 13, 'Processing plugin %s failed. Details: %s'%(plugin.__class__.__name__, err)
 
         return RC_OK, ''
 

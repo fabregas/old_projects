@@ -24,8 +24,13 @@ NAS_NEW       = 0
 NAS_ACTIVE    = 1
 NAS_NOTACTIVE  = 2
 
+#node current states
+NCS_UP   = 1
+NCS_DOWN = 0
+
 ADMIN = 'admin'
 MOD_HOST_OPER = 'MOD_HOSTNAME'
+SYNC_OPER = 'SYNC'
 
 class BootEventListener(FriServer):
     def __init__(self):
@@ -78,23 +83,35 @@ class BootEventListener(FriServer):
 
         if not rows:
             #this is new node, create it in database in NEW status
-            self.__dbconn.modify("INSERT INTO nm_node (node_uuid, hostname, login, password, mac_address, ip_address, admin_status, hw_info)\
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                                    (uuid, hostname, login, password, mac_address, ip_address, NAS_NEW, hw_info))
+            self.__dbconn.modify("INSERT INTO nm_node (node_uuid, hostname, login, password, mac_address, ip_address, admin_status, current_state, hw_info)\
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                    (uuid, hostname, login, password, mac_address, ip_address, NAS_NEW, NCS_UP, hw_info))
 
         else:
             #we already has this node in database, update it
-            self.__dbconn.modify("UPDATE nm_node SET hostname=%s, login=%s, password=%s, mac_address=%s, ip_address=%s, hw_info=%s\
-                                    WHERE node_uuid=%s", (hostname, login, password, mac_address, ip_address, hw_info, uuid))
+            self.__dbconn.modify("UPDATE nm_node SET hostname=%s, login=%s, password=%s, mac_address=%s, ip_address=%s, hw_info=%s, current_state=%s\
+                                    WHERE node_uuid=%s", (hostname, login, password, mac_address, ip_address, hw_info, NCS_UP, uuid))
 
 
             old_hostname = rows[0][0]
             if hostname == old_hostname:
                 return
 
+            logger.info('Changing hostname from %s to %s automatically'%(hostname, old_hostname))
             caller = self.__get_operation_caller()
             if caller:
-                caller.call_nodes_operation(ADMIN, [hostname], MOD_HOST_OPER, {'hostname':old_hostname})
+                ret_code, ret_message = caller.call_nodes_operation(ADMIN, [hostname], MOD_HOST_OPER, {'hostname':old_hostname})
+
+                logger.info('call MOD_HOSTNAME operation result: [%s] %s'%(ret_code, ret_message))
+
+
+                if ret_code == 0:
+                    hostname = old_hostname
+
+                logger.info('Synchronize %s node parameters'%old_hostname)
+                ret_code, ret_message = caller.call_nodes_operation(ADMIN, [hostname], SYNC_OPER, {})
+
+                logger.info('call SYNC operation result: [%s] %s'%(ret_code, ret_message))
 
     def __get_operation_caller(self):
         #try import nodes manager caller
