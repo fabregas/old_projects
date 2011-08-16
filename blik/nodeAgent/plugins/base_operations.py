@@ -91,6 +91,7 @@ class ChangeHosnameOperation(NodeAgentPlugin):
             pid_file = '/var/run/dhcpcd-eth0.pid'
             if os.path.exists(pid_file):
                 pid = open(pid_file).read()
+                pid = pid.strip()
 
                 ret,out,err = run_command(['kill', pid])
 
@@ -102,6 +103,9 @@ class ChangeHosnameOperation(NodeAgentPlugin):
             if ret:
                 raise Exception('dhcpcd eth0 error: %s'%err)
 
+            ret,out,err = run_command(['/etc/init.d/syslog-ng','restart'])
+            if ret:
+                raise Exception('syslog restart error: %s'%err)
 
             self.updateOperationProgress(100, ret_message='Hostname is changes')
         except Exception, err:
