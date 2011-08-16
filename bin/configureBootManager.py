@@ -14,13 +14,13 @@ if not os.path.exists(DISKLESS_GL_HOME):
     os.makedirs(DISKLESS_GL_HOME)
 
 
-os.system('rc-update add ntpd default')
-os.system('rc-update add dhcpd default')
-os.system('rc-update add named default')
-os.system('rc-update add in.tftpd default')
-os.system('rc-update add glusterfsd default')
-os.system('rc-update add postgresql-9.0 default') #FIXME
-os.system('rc-update add boot-event-listener default')
+run_command(['rc-update', 'add', 'ntpd', 'default')
+run_command('rc-update', 'add', 'dhcpd', 'default')
+run_command('rc-update', 'add', 'named', 'default')
+run_command('rc-update', 'add', 'in.tftpd', 'default')
+run_command('rc-update', 'add', 'glusterfsd', 'default')
+run_command('rc-update', 'add', 'postgresql-9.0', 'default') #FIXME
+run_command('rc-update', 'add', 'boot-event-listener', 'default')
 
 #starting services
 os.system('/etc/init.d/dhcpd restart')

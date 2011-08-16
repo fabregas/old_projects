@@ -61,11 +61,11 @@ class NodesManagerService(dbus.service.Object):
 
     def __on_operation_results(self, operation_name, session_id, status, ret_params):
         try:
-            self.onOperationFinishEvent(session_id, OPER_STATUSES[status], ret_params)
-
             self.pluginManager.processAfterCallPlugins(operation_name, session_id, status, ret_params)
         except Exception, err:
             logger.error('afterCall operation plugins processing error: %s'%err)
+
+        self.onOperationFinishEvent(session_id, OPER_STATUSES[status], ret_params)
 
     def __call_operation(self, user_name, operation, call_object, parameters):
         if call_object.object == CallObject.CLUSTER:

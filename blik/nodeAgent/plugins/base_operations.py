@@ -16,7 +16,7 @@ class SynchronizeOperation(NodeAgentPlugin):
 
             f.close()
 
-            self.updateOperationProgress(100, ret_message='Node is rebooting now...')
+            self.updateOperationProgress(100, ret_message='Node parameters is synchronized')
         except Exception, err:
             self.updateOperationProgress(70, ret_message='Synchronization config failed: %s'%err, ret_code=1)
 
@@ -38,7 +38,7 @@ class GetNodeInfoOperation(NodeAgentPlugin):
     def __get_meminfo_map(self, lines):
         ret_map = {}
         for line in lines:
-            key, value = lines.split(':')
+            key, value = line.split(':')
 
             ret_map[key.strip()] = value.split()[0] # this may be defect if value is not kB
 
@@ -76,7 +76,7 @@ class GetNodeInfoOperation(NodeAgentPlugin):
 
             self.updateOperationProgress(100, ret_message='Node information is collected', ret_params=ret_params)
         except Exception, err:
-            self.updateOperationProgress(70, ret_message='Synchronization config failed: %s'%err, ret_code=1)
+            self.updateOperationProgress(70, ret_message='Getting node info failed: %s'%err, ret_code=1)
 
 
 class ChangeHosnameOperation(NodeAgentPlugin):
@@ -109,7 +109,7 @@ class ChangeHosnameOperation(NodeAgentPlugin):
             if ret:
                 raise Exception('syslog restart error: %s'%err)
 
-            self.updateOperationProgress(100, ret_message='Hostname is changes', ret_params={'hostname':hostname})
+            self.updateOperationProgress(100, ret_message='Node hostname is changed to %s'%hostname, ret_params={'hostname':hostname})
         except Exception, err:
             self.updateOperationProgress(50, ret_message='Error occured: %s'%err, ret_code=1)
 

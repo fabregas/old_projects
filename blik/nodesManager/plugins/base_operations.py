@@ -33,7 +33,9 @@ class SynchronizeOperation(OperationPlugin):
                     WHERE C.id=N.cluster_id AND NT.id=N.node_type AND N.hostname=%s', (node,))
 
         if not rows:
-            raise Exception('Node with hostname %s is not found in database!'%node)
+            msg = 'Node %s shoud be binded with cluster and type for call sync operation'%node
+            logger.info(msg)
+            return 22, msg
 
         node_id, logic_name, arch, type_name, cluster_sid = rows[0]
 

@@ -69,7 +69,7 @@ class OperationsPluginManager:
             try:
                 ret = plugin.beforeCall(operation, call_object, parameters)
 
-                if issubclass(ret.__class__, tuple) and (len(ret) != 2):
+                if issubclass(ret.__class__, tuple) and (len(ret) == 2):
                     ret_code, ret_message = ret
                 else:
                     ret_code, ret_message = RC_OK, 'ok'
@@ -77,7 +77,7 @@ class OperationsPluginManager:
                 if ret_code != RC_OK:
                     return ret_code, ret_message
             except Exception, err:
-                return 13, 'Processing plugin %s failed. Details: %s'%(plugin.__class__.__name__, err)
+                return 13, '[%s] %s'%(plugin.__class__.__name__, err)
 
         return RC_OK, ''
 
