@@ -58,6 +58,9 @@ if __name__ == '__main__':
         if cluster == nodes == None:
             raise Exception('--cluster or --nodes should be specified')
 
+        if operation is None:
+            raise Exception('--operation parameter is not specified')
+
         op_args = {}
 
         #get parameters from command line

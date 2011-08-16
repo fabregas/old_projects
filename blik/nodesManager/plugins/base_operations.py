@@ -112,5 +112,5 @@ class ModHostnameOperation(OperationPlugin):
                                 (SELECT node_id FROM nm_operation_progress WHERE instance_id=%s)',
                                 (hostname, session_id))
         except Exception, err:
-            logger.error('Chaning node hostname (in database) failed. Details: %s'%err)
+            logger.error('Changing node hostname (in database) failed. Details: %s'%err)
 

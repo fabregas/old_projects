@@ -103,7 +103,7 @@ class ChangeHosnameOperation(NodeAgentPlugin):
             if ret:
                 raise Exception('dhcpcd eth0 error: %s'%err)
 
-            ret,out,err = run_command(['/etc/init.d/syslog-ng','restart'])
+            ret,out,err = run_command(['/etc/init.d/syslog-ng','reload'])
             if ret:
                 raise Exception('syslog restart error: %s'%err)
 
