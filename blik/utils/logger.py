@@ -11,7 +11,7 @@ def init_logger():
     hdlr = logging.handlers.SysLogHandler(address=log_path,
               facility=logging.handlers.SysLogHandler.LOG_DAEMON)
     #formatter = logging.Formatter('%(filename)s: %(levelname)s: %(message)s')
-    formatter = logging.Formatter('BLIK %(levelname)s: %(message)s')
+    formatter = logging.Formatter('BLIK %(message)s')
     hdlr.setFormatter(formatter)
     logger.addHandler(hdlr)
 

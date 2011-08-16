@@ -14,13 +14,13 @@ if not os.path.exists(DISKLESS_GL_HOME):
     os.makedirs(DISKLESS_GL_HOME)
 
 
-run_command(['rc-update', 'add', 'ntpd', 'default')
-run_command('rc-update', 'add', 'dhcpd', 'default')
-run_command('rc-update', 'add', 'named', 'default')
-run_command('rc-update', 'add', 'in.tftpd', 'default')
-run_command('rc-update', 'add', 'glusterfsd', 'default')
-run_command('rc-update', 'add', 'postgresql-9.0', 'default') #FIXME
-run_command('rc-update', 'add', 'boot-event-listener', 'default')
+run_command(['rc-update', 'add', 'ntpd', 'default'])
+run_command(['rc-update', 'add', 'dhcpd', 'default'])
+run_command(['rc-update', 'add', 'named', 'default'])
+run_command(['rc-update', 'add', 'in.tftpd', 'default'])
+run_command(['rc-update', 'add', 'glusterfsd', 'default'])
+run_command(['rc-update', 'add', 'postgresql-9.0', 'default']) #FIXME
+run_command(['rc-update', 'add', 'boot-event-listener', 'default'])
 
 #starting services
 os.system('/etc/init.d/dhcpd restart')
@@ -41,12 +41,22 @@ run_command(['glusterfs', DISKLESS_HOME])
 #database configuration
 ####################################
 
-ret,out,err = run_command(['createdb', '-U',  'postgres',  'blik_cloud_db', '>', '/dev/null'])
+ret,out,err = run_command(['createdb', '-U',  'postgres',  'blik_cloud_db'])
 if not ret:
     ret,out,err = run_command(['psql', '-U', 'postgres', '-d', 'blik_cloud_db', '-f', '/opt/blik/db/cloud_db_schema.sql'])
     if ret:
         print (err)
         sys.exit(1)
+
+    ret,out,err = run_command(['psql', '-U', 'postgres', '-d', 'blik_cloud_db', '-f', '/opt/blik/db/logs_schema.sql'])
+    if ret:
+        print (err)
+        sys.exit(1)
+
+
+if len(sys.argv) > 1 and sys.argv[1] == '--skip-images':
+    print ('Skiping images recreation...')
+    sys.exit(0)
 
 ######################################
 #canonical images and kernels install

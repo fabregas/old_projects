@@ -13,9 +13,11 @@ setup(
                 'bin/node-type-installer',
                 'bin/node-image-updater',
                 'bin/change-node-type',
-                'blik/bootManager/bootEventListener.py'],
+                'blik/bootManager/bootEventListener.py',
+                'blik/db/syslog_writer.py'],
     license = 'GPLv3',
     data_files = [('/opt/blik/db', ['blik/db/cloud_db_schema.sql']),
+                    ('/opt/blik/db', ['blik/db/logs_schema.sql']),
                     ('/opt/blik/conf',['config/default_node.yaml'])],
     zip_safe = True
 )

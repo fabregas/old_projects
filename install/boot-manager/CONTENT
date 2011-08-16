@@ -17,4 +17,6 @@ bin/node-type-installer
 bin/node-image-updater
 bin/change-node-type
 blik/db/cloud_db_schema.sql
+blik/db/logs_schema.sql
+blik/db/syslog_writer.py
 init_scripts/boot-event-listener
