@@ -109,7 +109,7 @@ class ChangeHosnameOperation(NodeAgentPlugin):
             if ret:
                 raise Exception('syslog restart error: %s'%err)
 
-            self.updateOperationProgress(100, ret_message='Hostname is changes')
+            self.updateOperationProgress(100, ret_message='Hostname is changes', ret_params={'hostname':hostname})
         except Exception, err:
             self.updateOperationProgress(50, ret_message='Error occured: %s'%err, ret_code=1)
 
