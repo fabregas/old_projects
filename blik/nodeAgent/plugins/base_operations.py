@@ -2,6 +2,7 @@
 from blik.nodeAgent.agentPlugin import NodeAgentPlugin
 from blik.utils.exec_command import run_command
 import os
+import time
 
 CONFIG_FILE = '/home/node_agent/.node_config'
 
@@ -94,6 +95,11 @@ class ChangeHosnameOperation(NodeAgentPlugin):
                 pid = pid.strip()
 
                 ret,out,err = run_command(['kill', pid])
+
+                for i in xrange(10):
+                    if not os.path.exists(pid_file):
+                        break
+                    time.sleep(0.5)
 
             ret,out,err = run_command(['dhcpcd','eth0'])
             if ret:
