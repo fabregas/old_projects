@@ -94,7 +94,6 @@ class ChangeHosnameOperation(NodeAgentPlugin):
                 pid = pid.strip()
 
                 ret,out,err = run_command(['kill', pid])
-:
 
             ret,out,err = run_command(['dhcpcd','eth0'])
             if ret:
