@@ -44,14 +44,14 @@ class BootEventSenderThread(threading.Thread):
 
 
     def _set_new_hostname(self, uuid):
-        try:
-            self.__reload_dhcpcd(force_hostname=True)
-
-            ret,out,err = run_command(['hostname'])
-
-            return out.strip()
-        except Exception, err:
-            logger.warning('Dhcpcd with force_hostname is failed! Details: %s'%err)
+        #try:
+        #    self.__reload_dhcpcd(force_hostname=True)
+        #
+        #    ret,out,err = run_command(['hostname'])
+        #
+        #    return out.strip()
+        #except Exception, err:
+        #    logger.warning('Dhcpcd with force_hostname is failed! Details: %s'%err)
 
         logger.info('Setting defaut hostname')
 
