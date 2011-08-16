@@ -8,6 +8,9 @@ depend() {
 
 start() {
 	[ -d /var/run/boot_manager ] || mkdir -m 777 /var/run/boot_manager
+
+    glusterfs /opt/blik/diskless
+
 	ebegin "Starting BlikCloud boot events listener"
 	start-stop-daemon --start --quiet --background \
 		--exec bootEventListener.py \

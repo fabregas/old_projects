@@ -94,10 +94,7 @@ class ChangeHosnameOperation(NodeAgentPlugin):
                 pid = pid.strip()
 
                 ret,out,err = run_command(['kill', pid])
-
-                if ret:
-                    raise Exception('dhcpcd process is not killed! Details: %s'%err)
-
+:
 
             ret,out,err = run_command(['dhcpcd','eth0'])
             if ret:
