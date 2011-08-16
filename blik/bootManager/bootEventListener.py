@@ -93,25 +93,24 @@ class BootEventListener(FriServer):
                                     WHERE node_uuid=%s", (hostname, login, password, mac_address, ip_address, hw_info, NCS_UP, uuid))
 
 
-            old_hostname = rows[0][0]
-            if hostname == old_hostname:
-                return
-
-            logger.info('Changing hostname from %s to %s automatically'%(hostname, old_hostname))
             caller = self.__get_operation_caller()
             if caller:
+                logger.info('Synchronize %s node parameters'%hostname)
+                ret_code, ret_message = caller.call_nodes_operation(ADMIN, [hostname], SYNC_OPER, {})
+                logger.debug('call SYNC operation result: [%s] %s'%(ret_code, ret_message))
+
+
+                old_hostname = rows[0][0]
+                if hostname == old_hostname:
+                    return
+
+                logger.info('Changing hostname from %s to %s automatically'%(hostname, old_hostname))
+
                 ret_code, ret_message = caller.call_nodes_operation(ADMIN, [hostname], MOD_HOST_OPER, {'hostname':old_hostname})
 
-                logger.info('call MOD_HOSTNAME operation result: [%s] %s'%(ret_code, ret_message))
+                logger.debug('call MOD_HOSTNAME operation result: [%s] %s'%(ret_code, ret_message))
 
 
-                if ret_code == 0:
-                    hostname = old_hostname
-
-                logger.info('Synchronize %s node parameters'%old_hostname)
-                ret_code, ret_message = caller.call_nodes_operation(ADMIN, [hostname], SYNC_OPER, {})
-
-                logger.info('call SYNC operation result: [%s] %s'%(ret_code, ret_message))
 
     def __get_operation_caller(self):
         #try import nodes manager caller

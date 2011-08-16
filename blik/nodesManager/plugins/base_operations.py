@@ -98,9 +98,6 @@ class ModHostnameOperation(OperationPlugin):
 
 
     def onCallResults(self, operation, session_id, status, ret_parameters):
-        if status != OperationPlugin.OS_COMPLETED:
-            return
-
         try:
             if len(ret_parameters) != 1:
                 raise Exception('Received parameters is not valid! Expected hostname parameter from node.')

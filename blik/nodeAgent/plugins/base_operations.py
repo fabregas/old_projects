@@ -1,6 +1,7 @@
 
 from blik.nodeAgent.agentPlugin import NodeAgentPlugin
 from blik.utils.exec_command import run_command
+import os
 
 CONFIG_FILE = '/home/node_agent/.node_config'
 
