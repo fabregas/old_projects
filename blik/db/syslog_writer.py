@@ -25,7 +25,8 @@ def writer_loop():
         host, facility, priority, level, tag, program, isodate, msg = in_line.split('[-]')
 
         dbconn.modify("INSERT INTO logs (host, facility, priority, level, tag, program, log_timestamp, msg) \
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)", ( host, facility, priority, level, tag, program, isodate, msg))
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)", ( host.strip(), facility.strip(), priority.strip(),
+                            level.strip(), tag.strip(), program.strip(), isodate.strip(), msg.strip()))
 
 
 

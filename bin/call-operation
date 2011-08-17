@@ -86,6 +86,8 @@ if __name__ == '__main__':
             print ('Operation call failed!\nDetails: %s'%ret_message)
             sys.exit(3)
 
+        print ('Operation %s is called in asynchronous mode!'%operation)
+
         if not skip_resp:
             print ('Waiting operation finishing...')
             client.wait_response()

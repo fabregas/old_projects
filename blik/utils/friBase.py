@@ -151,7 +151,7 @@ class ProcessConnectionsThread(threading.Thread):
                     if len(received) < BUF_SIZE:
                         break
 
-                logger.debug('%s receive:\n%s'%(self.getName(),data))
+                logger.debug('%s receive: %s'%(self.getName(),data))
 
                 if not data:
                     raise Exception('empty data block')

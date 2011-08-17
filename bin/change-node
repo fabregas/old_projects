@@ -36,6 +36,7 @@ def change_node_in_database(uuid, type_sid, arch):
     rows = dbconn.select("SELECT mac_address, architecture, node_type FROM nm_node WHERE node_uuid=%s",(uuid,))
     if not rows:
         raise Exception('Node with UUID "%s" is not found in database'%uuid)
+    rows = rows[0]
 
     mac_address = rows[0]
 

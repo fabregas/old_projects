@@ -52,6 +52,7 @@ class BootEventSenderThread(threading.Thread):
         if ret:
             raise Exception('dhcpcd eth0 error: %s'%err)
 
+        run_command(['/etc/init.d/syslog-ng', 'reload'])
         run_command(['/etc/init.d/ntp-client', 'restart'])
 
         return hostname
