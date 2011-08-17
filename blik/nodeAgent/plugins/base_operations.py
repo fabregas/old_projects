@@ -5,6 +5,7 @@ import os
 import time
 
 CONFIG_FILE = '/home/node_agent/.node_config'
+DHCP_PID_FILE = '/var/run/dhcpcd-eth0.pid'
 
 class SynchronizeOperation(NodeAgentPlugin):
     def process(self, parameters):
@@ -88,16 +89,14 @@ class ChangeHosnameOperation(NodeAgentPlugin):
 
             code, cout, cerr = run_command(['hostname',hostname])
 
-
-            pid_file = '/var/run/dhcpcd-eth0.pid'
-            if os.path.exists(pid_file):
-                pid = open(pid_file).read()
+            if os.path.exists(DHCP_PID_FILE):
+                pid = open(DHCP_PID_FILE).read()
                 pid = pid.strip()
 
                 ret,out,err = run_command(['kill', pid])
 
                 for i in xrange(10):
-                    if not os.path.exists(pid_file):
+                    if not os.path.exists(DHCP_PID_FILE):
                         break
                     time.sleep(0.5)
 

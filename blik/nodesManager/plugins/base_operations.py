@@ -28,7 +28,7 @@ class SynchronizeOperation(OperationPlugin):
 
         node = call_object.object_value[0]
 
-        rows = self.dbConn.select('SELECT N.id, N.logic_name, N.architecture, NT.name, \
+        rows = self.dbConn.select('SELECT N.id, N.logic_name, N.architecture, NT.type_sid, \
                     C.cluster_sid FROM nm_node N, nm_node_type NT, nm_cluster C\
                     WHERE C.id=N.cluster_id AND NT.id=N.node_type AND N.hostname=%s', (node,))
 
@@ -115,4 +115,5 @@ class ModHostnameOperation(OperationPlugin):
                                 (hostname, session_id))
         except Exception, err:
             logger.error('Changing node hostname (in database) failed. Details: %s'%err)
+            return 1
 

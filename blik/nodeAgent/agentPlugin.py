@@ -38,6 +38,7 @@ class NodeAgentPlugin:
         @ret_message (string) - description of operation progress
         @ret_params (dict {param_name: param_value}) - return parameters
         '''
+
         fri_caller = FriCaller()
 
         packet = {  'id': self.__session_id,

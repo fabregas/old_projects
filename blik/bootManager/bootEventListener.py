@@ -93,7 +93,7 @@ class BootEventListener(FriServer):
                                     WHERE node_uuid=%s", (hostname, login, password, mac_address, ip_address, hw_info, NCS_UP, uuid))
 
 
-            caller = self.__get_operation_caller()
+            caller = self._get_operation_caller()
             if caller:
                 old_hostname = rows[0][0]
                 if hostname != old_hostname:
@@ -112,7 +112,7 @@ class BootEventListener(FriServer):
 
 
 
-    def __get_operation_caller(self):
+    def _get_operation_caller(self):
         #try import nodes manager caller
         try:
             from blik.nodesManager.dbusClient import DBUSInterfaceClient

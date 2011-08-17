@@ -14,8 +14,8 @@ TEST_SET="
 ./tests/nodeAgent/nodeAgent_test.py
 ./tests/bootManager/bootEventListener_test.py
 ./tests/nodeAgent/bootEventSender_test.py
-"
-
+./tests/nodeAgent/base_operations.py
+./tests/nodesManager/base_operations.py"
 
 
 for PY in $TEST_SET ; do

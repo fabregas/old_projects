@@ -17,7 +17,7 @@ Use INT signal for stoping service
 
 import sys
 import dbus, dbus.glib, dbus.service
-from blik.nodesManager.operationsPluginManager import OperationsPluginManager
+from blik.nodesManager.operationsPluginManager import OperationsPluginManager, CallObject
 from blik.nodesManager.operationsEngine import OperationsEngine
 from blik.nodesManager.nodesMonitor import NodesMonitor
 from blik.utils.logger import logger
@@ -28,13 +28,6 @@ import traceback
 NODES_MANAGER_INTERFACE = 'com.blik.nodesManager'
 
 OPER_STATUSES = {0: 'INPROGRESS', 1: 'COMPLETED', 2: 'TIMEOUTED'}
-
-class CallObject:
-    CLUSTER = 1
-    NODES = 2
-    def __init__(self, obj, obj_val):
-        self.object = obj
-        self.object_value = obj_val
 
 
 class NodesManagerService(dbus.service.Object):

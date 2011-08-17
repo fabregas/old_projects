@@ -21,6 +21,7 @@ class BootEventListenerTestCase(unittest.TestCase):
         global LISTENER
 
         LISTENER = BootEventListener()
+        LISTENER._get_operation_caller = lambda : None
 
         def start_server(node):
             node.start()

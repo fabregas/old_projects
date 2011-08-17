@@ -21,6 +21,13 @@ from operationsPlugin import OperationPlugin
 
 RC_OK = 0
 
+class CallObject:
+    CLUSTER = 1
+    NODES = 2
+    def __init__(self, obj, obj_val):
+        self.object = obj
+        self.object_value = obj_val
+
 
 class OperationsPluginManager:
     def __init__(self, operationsEngine):
