@@ -38,6 +38,9 @@ src_install() {
 
     insinto /etc/syslog-ng
     newins config/node-syslog-ng.conf syslog-ng.conf
+
+    insinto /etc/conf.d
+    newins config/ntp-client ntp-client
 }
 
 pkg_postinst() {

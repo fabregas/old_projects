@@ -108,6 +108,9 @@ if __name__ == '__main__':
     if uuid is None:
         usage('Node UUID is not specified')
 
+    if node_type is None:
+        usage('Node type is not specified')
+
     if hostname is not None:
         if not re.match('[a-zA-Z][a-zA-Z0-9\-]+$', hostname):
             print('ERROR! Hostname is invalid. Allowed characters are: a-z, A-Z, 0-9 and "-"')
