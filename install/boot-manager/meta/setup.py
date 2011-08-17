@@ -12,7 +12,7 @@ setup(
     scripts = ['bin/configureBootManager.py',
                 'bin/node-type-installer',
                 'bin/node-image-updater',
-                'bin/change-node-type',
+                'bin/change-node',
                 'blik/bootManager/bootEventListener.py',
                 'blik/db/syslog_writer.py'],
     license = 'GPLv3',

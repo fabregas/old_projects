@@ -16,6 +16,5 @@ from base_operations import *
 
 OPERATIONS_PLUGINS = {
                         'SYNC':     (SynchronizeOperation,),
-                        'REBOOT':   (RebootOperation,),
-                        'MOD_HOSTNAME': (ModHostnameOperation,)
+                        'REBOOT':   (RebootOperation,)
                      }

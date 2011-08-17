@@ -5,7 +5,6 @@ import os
 import time
 
 CONFIG_FILE = '/home/node_agent/.node_config'
-DHCP_PID_FILE = '/var/run/dhcpcd-eth0.pid'
 
 class SynchronizeOperation(NodeAgentPlugin):
     def process(self, parameters):
@@ -79,36 +78,4 @@ class GetNodeInfoOperation(NodeAgentPlugin):
         except Exception, err:
             self.updateOperationProgress(70, ret_message='Getting node info failed: %s'%err, ret_code=1)
 
-
-class ChangeHosnameOperation(NodeAgentPlugin):
-    def process(self, parameters):
-        try:
-            hostname = parameters.get('hostname', None)
-            if not hostname:
-                raise Exception('Hostname parameter expected, but received: %s!'%parameters)
-
-            code, cout, cerr = run_command(['hostname',hostname])
-
-            if os.path.exists(DHCP_PID_FILE):
-                pid = open(DHCP_PID_FILE).read()
-                pid = pid.strip()
-
-                ret,out,err = run_command(['kill', pid])
-
-                for i in xrange(10):
-                    if not os.path.exists(DHCP_PID_FILE):
-                        break
-                    time.sleep(0.5)
-
-            ret,out,err = run_command(['dhcpcd','eth0'])
-            if ret:
-                raise Exception('dhcpcd eth0 error: %s'%err)
-
-            ret,out,err = run_command(['/etc/init.d/syslog-ng','reload'])
-            if ret:
-                raise Exception('syslog restart error: %s'%err)
-
-            self.updateOperationProgress(100, ret_message='Node hostname is changed to %s'%hostname, ret_params={'hostname':hostname})
-        except Exception, err:
-            self.updateOperationProgress(50, ret_message='Error occured: %s'%err, ret_code=1)
 

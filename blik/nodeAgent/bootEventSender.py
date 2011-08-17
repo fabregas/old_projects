@@ -25,48 +25,32 @@ class BootEventSenderThread(threading.Thread):
         os.system('umount /dev/shm')
         os.system('mount -av')
 
-    def __reload_dhcpcd(self, force_hostname=False):
-        pid_file = '/var/run/dhcpcd-eth0.pid'
-        if os.path.exists(pid_file):
-            pid = open(pid_file).read()
-            pid = pid.strip()
+    def __get_cmdline_hostname(self):
+        params = open('/proc/cmdline').read().split()
 
-            run_command(['kill', pid])
+        for param in params:
+            key,value = param.split('=')
+            if key == 'hostname':
+                return value.strip()
 
-            for i in xrange(10):
-                if not os.path.exists(pid_file):
-                    break
-                time.sleep(0.5)
-
-        if force_hostname:
-            params = ['dhcpcd','-e force_hostname=YES','eth0']
-        else:
-            params = ['dhcpcd','eth0']
-
-        ret,out,err = run_command(params)
-        if ret:
-            raise Exception('dhcpcd eth0 error: %s'%err)
-
+        return None
 
     def _set_new_hostname(self, uuid):
-        try:
-            self.__reload_dhcpcd(force_hostname=True)
+        hostname = self.__get_cmdline_hostname()
 
-            ret,out,err = run_command(['hostname'])
+        if hostname is None:
+            logger.info('Setting defaut hostname')
+            hostname = 'NODE-%s' % uuid.split('-')[-1]
+        else:
+            logger.info('Hostname specified by kernel command line: %s'%hostname)
 
-            hostname = out.strip()
-
-            if hostname != 'localhost':
-                return out.strip()
-        except Exception, err:
-            logger.warning('Dhcpcd with force_hostname is failed! Details: %s'%err)
-
-        logger.info('Setting defaut hostname')
-
-        hostname = 'NODE-%s' % uuid.split('-')[-1]
         run_command(['hostname',hostname])
 
-        self.__reload_dhcpcd()
+        run_command(['dhcpcd','--release', 'eth0'])
+
+        ret,out,err = run_command(['dhcpcd','eth0'])
+        if ret:
+            raise Exception('dhcpcd eth0 error: %s'%err)
 
         return hostname
 

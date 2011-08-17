@@ -15,7 +15,7 @@ config/farnsworth-syslog-ng.conf
 bin/configureBootManager.py
 bin/node-type-installer
 bin/node-image-updater
-bin/change-node-type
+bin/change-node
 blik/db/cloud_db_schema.sql
 blik/db/logs_schema.sql
 blik/db/syslog_writer.py

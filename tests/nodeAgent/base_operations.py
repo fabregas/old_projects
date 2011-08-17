@@ -23,13 +23,6 @@ class GetNodeInfoOperationUT(base_operations.GetNodeInfoOperation):
         self.ret_message = ret_message
         self.ret_params = ret_params
 
-class ChangeHosnameOperationUT(base_operations.ChangeHosnameOperation):
-    def updateOperationProgress(self, progress_percent, ret_message='', ret_code=0, ret_params={}):
-        self.ret_code = ret_code
-        self.progress_percent = progress_percent
-        self.ret_message = ret_message
-        self.ret_params = ret_params
-
 
 
 ##########################################
@@ -82,24 +75,6 @@ class BootEventSenderThreadTestCase(unittest.TestCase):
 
         self.assertEqual(len(gio.ret_params) > 10, True)
 
-    def test04_changehost_operation(self):
-        cho = ChangeHosnameOperationUT(66, 'test_node')
-        cho.process({})
-        self.assertNotEqual(cho.ret_code, 0)
-
-        base_operations.DHCP_PID_FILE = '/test/fake/file/path'
-        base_operations.run_command = lambda a: (0,'ok','')
-        cho.process({'hostname': 'test-node-name-01'})
-        self.assertEqual(cho.ret_code, 0)
-        self.assertEqual(cho.progress_percent, 100)
-        self.assertEqual(cho.ret_params.has_key('hostname'),True )
-        self.assertEqual(cho.ret_params['hostname'], 'test-node-name-01')
-
-        base_operations.run_command = lambda a: (132,'','fail')
-        cho.process({'hostname': 'test-node-name-01'})
-        self.assertNotEqual(cho.ret_code, 0)
-        self.assertNotEqual(cho.progress_percent, 100)
-        self.assertEqual(cho.ret_params, {} )
 
 
 if __name__ == '__main__':

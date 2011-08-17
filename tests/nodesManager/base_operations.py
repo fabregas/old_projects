@@ -10,7 +10,6 @@ dbconn = DatabaseConnection()
 
 base_operations.SynchronizeOperation.dbConn = dbconn
 base_operations.RebootOperation.dbConn = dbconn
-base_operations.ModHostnameOperation.dbConn = dbconn
 
 class BaseClusterOperationsTestCase(unittest.TestCase):
     def test01_sync_operation(self):
@@ -71,56 +70,6 @@ class BaseClusterOperationsTestCase(unittest.TestCase):
             raise Exception('should be exception in this case')
 
         dbconn.modify('UPDATE nm_operation_instance SET status=1')
-
-    def test03_modhost_operation(self):
-        mod_host_op = base_operations.ModHostnameOperation()
-
-        call_object = CallObject(CallObject.CLUSTER, 'TEST_CLUSTER')
-        try:
-            mod_host_op.beforeCall('MOD_HOSTNAME', call_object, {})
-        except Exception, err:
-            print ('Expected exception: %s'%err)
-        else:
-            raise Exception('should be exception in this case')
-
-        call_object = CallObject(CallObject.NODES, ['node-01', 'node-02'])
-        try:
-            mod_host_op.beforeCall('MOD_HOSTNAME', call_object, {})
-        except Exception, err:
-            print ('Expected exception: %s'%err)
-        else:
-            raise Exception('should be exception in this case')
-
-
-        call_object = CallObject(CallObject.NODES, ['127.0.0.1'])
-        try:
-            mod_host_op.beforeCall('MOD_HOSTNAME', call_object, {})
-        except Exception, err:
-            print ('Expected exception: %s'%err)
-        else:
-            raise Exception('should be exception in this case')
-
-
-        call_object = CallObject(CallObject.NODES, ['127.0.0.1'])
-        try:
-            mod_host_op.beforeCall('MOD_HOSTNAME', call_object, {'hostname':'test_bad_hostname'})
-        except Exception, err:
-            print ('Expected exception: %s'%err)
-        else:
-            raise Exception('should be exception in this case')
-
-        call_object = CallObject(CallObject.NODES, ['127.0.0.1'])
-        ret = mod_host_op.beforeCall('MOD_HOSTNAME', call_object, {'hostname':'test-hostname'})
-        self.assertEqual(ret, None)
-
-
-        #on receive
-
-        ret = mod_host_op.onCallResults('MOD_HOSTNAME', 666, 1, {})
-        self.assertEqual(ret, 1)
-
-        ret = mod_host_op.onCallResults('MOD_HOSTNAME', 666, 1, {'test-node':{'hostname':'test-node-01'}})
-        self.assertEqual(ret, None)
 
 
 if __name__ == '__main__':

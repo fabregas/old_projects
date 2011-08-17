@@ -11,7 +11,6 @@ This module contains the implementation of basic nodes operations
 """
 from blik.nodesManager.operationsPlugin import OperationPlugin, CLUSTER
 from blik.utils.logger import logger
-import re
 
 #config objects types
 CLUSTER_CONFIG_TYPE  = 1
@@ -66,54 +65,6 @@ class RebootOperation(OperationPlugin):
         operations = self.checkRunnedOperations(call_object)
 
         if operations:
-            raise Exception('Reboot is not runned, found inprogress operations in cluster! \
-                            Wait operations finish and try again.')
+            raise Exception('Reboot is not runned, found inprogress operations in cluster! Wait operations finish and try again.')
 
-
-############## MOD_HOSTNAME ##############################################
-
-class ModHostnameOperation(OperationPlugin):
-    def beforeCall(self, operation, call_object, parameters):
-        if call_object.object == CLUSTER:
-            raise Exception('Modifying hostname operation should be runned on one node only!')
-
-        if len(call_object.object_value) > 1:
-            raise Exception('Modifying hostname operation should be runned on one node only!')
-
-
-        if not parameters.has_key('hostname'):
-            raise Exception('Mandatory parameter "hostname" is not found!')
-
-        hostname = parameters['hostname'].strip()
-
-        if len(hostname) == 0:
-            raise Exception('Hostname is empty!')
-
-        if not re.match('[a-zA-Z][a-zA-Z0-9\-]+$', hostname):
-            raise Exception('Hostname is invalid. Allowed characters are: a-z, A-Z, 0-9 and "-"')
-
-        #check already exists hostname in DB
-        rows = self.dbConn.select('SELECT id FROM nm_node WHERE hostname=%s', (hostname,))
-
-        if rows:
-            raise Exception('Hostname %s is already used by another node!' % hostname)
-
-
-    def onCallResults(self, operation, session_id, status, ret_parameters):
-        try:
-            if len(ret_parameters) != 1:
-                raise Exception('Received parameters is not valid! Expected hostname parameter from node.')
-
-            params = ret_parameters.values()[0]
-            if not params.has_key('hostname'):
-                raise Exception('Expected hostname parameter from node. But received: %s'%params)
-
-            hostname = params['hostname']
-
-            self.dbConn.modify('UPDATE nm_node SET hostname=%s WHERE id = \
-                                (SELECT node_id FROM nm_operation_progress WHERE instance_id=%s)',
-                                (hostname, session_id))
-        except Exception, err:
-            logger.error('Changing node hostname (in database) failed. Details: %s'%err)
-            return 1
 

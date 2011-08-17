@@ -11,6 +11,5 @@ from blik.nodeAgent.plugins.base_operations import *
 OPERATIONS_PLUGINS = {
         'SYNC': SynchronizeOperation,
         'REBOOT': RebootOperation,
-        'GET_NODE_INFO': GetNodeInfoOperation,
-        'MOD_HOSTNAME': ChangeHosnameOperation
+        'GET_NODE_INFO': GetNodeInfoOperation
         }
