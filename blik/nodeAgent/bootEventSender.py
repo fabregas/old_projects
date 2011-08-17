@@ -33,6 +33,11 @@ class BootEventSenderThread(threading.Thread):
 
             run_command(['kill', pid])
 
+            for i in xrange(10):
+                if not os.path.exists(pid_file):
+                    break
+                time.sleep(0.5)
+
         if force_hostname:
             params = ['dhcpcd','-e force_hostname=YES','eth0']
         else:

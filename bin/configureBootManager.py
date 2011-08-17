@@ -28,14 +28,15 @@ os.system('/etc/init.d/named restart')
 os.system('/etc/init.d/in.tftpd restart')
 os.system('/etc/init.d/glusterfsd start')
 os.system('/etc/init.d/boot-event-listener stop')
+os.system('/etc/init.d/syslog-ng stop')
 os.system('/etc/init.d/postgresql-9.0 restart')
+os.system('/etc/init.d/syslog-ng start')
 os.system('/etc/init.d/boot-event-listener start')
 
 ####################################
 # Glusterfs share mounting
 ####################################
-
-run_command(['glusterfs', DISKLESS_HOME])
+#run_command(['glusterfs', DISKLESS_HOME])
 
 ####################################
 #database configuration
