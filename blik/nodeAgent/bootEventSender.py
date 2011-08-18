@@ -46,9 +46,7 @@ class BootEventSenderThread(threading.Thread):
 
         run_command(['hostname',hostname])
 
-        run_command(['dhcpcd','--release', 'eth0'])
-
-        ret,out,err = run_command(['dhcpcd','eth0'])
+        ret,out,err = run_command(['dhcpcd','--rebind', '--waitip', 'eth0'])
         if ret:
             raise Exception('dhcpcd eth0 error: %s'%err)
 

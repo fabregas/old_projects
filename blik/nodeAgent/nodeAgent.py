@@ -74,13 +74,16 @@ class NodeAgent(FriServer):
     def onDataReceive( self, json_object ):
         #get session_id
         session_id = json_object.get('id', None)
-        if not session_id:
+        if session_id is None:
             raise Exception('Element <id> is not found in FRI packet!')
 
         try:
             session_id = int(session_id)
         except:
             raise Exception('Session is should be integer! But: %s'%session_id)
+
+        if session_id == 0: #LIVE packet
+            return
 
 
         #get node

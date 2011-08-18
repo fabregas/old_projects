@@ -1,7 +1,8 @@
 
 CREATE TABLE logs (
 	id serial NOT NULL, 
-    host varchar(64) default NULL,
+    node_id bigint default NULL,
+    host varchar(64) NOT NULL,
     facility varchar(10) default NULL,
     priority varchar(10) default NULL,
     level varchar(10) default NULL,
@@ -11,3 +12,6 @@ CREATE TABLE logs (
     msg text,
     PRIMARY KEY (id)
 );
+
+ALTER TABLE logs ADD CONSTRAINT FK_LOGS_NODE_ID
+	FOREIGN KEY (node_id) REFERENCES NM_NODE (id);

@@ -178,7 +178,7 @@ class OperationsEngine:
                                         WHERE C.id = N.cluster_id AND C.cluster_sid=%s AND N.admin_status<>%s\
                                         AND N.current_state=%s",(cluster_name, NAS_NOTACTIVE, NCS_UP))
             if not rows:
-                raise Exception('No nodes found for cluster with name %s' % cluster_name)
+                raise Exception('No active nodes found for cluster with name %s' % cluster_name)
 
             nodes = self.__form_nodes(rows, node_type_id)
             if not nodes:
@@ -227,7 +227,7 @@ class OperationsEngine:
                                         (','.join(["'%s'"%n for n in nodes_list]), NCS_UP))
 
             if not rows:
-                raise Exception('No nodes found with hostnames %s in database' % nodes_list)
+                raise Exception('No active nodes found with hostnames %s in database' % nodes_list)
 
             nodes = self.__form_nodes(rows, node_type_id)
             if not nodes:
