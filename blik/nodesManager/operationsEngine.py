@@ -222,14 +222,19 @@ class OperationsEngine:
             operation_id, node_type_id, timeout = self.__get_operation_info(operation_name)
 
             #select all ACTIVE nodes
-            rows = self._dbconn.select("SELECT id, hostname, node_type FROM NM_NODE \
-                                        WHERE hostname IN (%s) AND current_state=%s" %
-                                        (','.join(["'%s'"%n for n in nodes_list]), NCS_UP))
+            nodes_rows = []
+            for node in nodes_list:
+                rows = self._dbconn.select("SELECT id, hostname, node_type FROM NM_NODE \
+                                            WHERE hostname = %s AND current_state=%s",
+                                            (node, NCS_UP))
 
-            if not rows:
-                raise Exception('No active nodes found with hostnames %s in database' % nodes_list)
+                if rows:
+                    nodes_rows.append(rows[0])
 
-            nodes = self.__form_nodes(rows, node_type_id)
+            if not nodes_rows:
+                raise Exception('No active nodes found for execution this operation!')
+
+            nodes = self.__form_nodes(nodes_rows, node_type_id)
             if not nodes:
                 raise Exception('Not found nodes for operation %s.'%(operation_name,))
 
