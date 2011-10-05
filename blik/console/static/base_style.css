@@ -3,7 +3,13 @@
 
 body {
     font: normal 14px verdana,helvetica,arial;
-    margin: 10px;
+    margin: 0px;
+    padding: 0px;
+}
+
+#container {
+    margin-left: 1%;
+    width: 98%;
 }
 
 #base_content {

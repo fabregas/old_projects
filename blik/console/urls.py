@@ -10,5 +10,6 @@ import django.conf.urls.i18n
 urlpatterns = patterns('',
      (r'^$', index),
      (r'^static/(.+)$', get_media),
+     (r'^get_menu_items/$', get_menu_items),
 #     (r'^auth$', authenticate_user),
 )

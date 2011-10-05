@@ -1,24 +1,25 @@
 <html>
  <head>
       <title>{% block title %}{% endblock %}</title>
-
       <link rel="stylesheet" type="text/css" href="/static/base_style.css">
+	  <link rel="stylesheet" href="static/menu.css" type="text/css" media="screen" charset="utf-8" />
       <script  src="/static/jquery-min.js"></script>
       <script  src="/static/base.js"></script>
 
-      <link rel="SHORTCUT ICON" href="/static/logo.png"/>
-      
       {% block custom_head %}
       {% endblock %}
+
+      <link rel="SHORTCUT ICON" href="/static/logo.png"/>
  </head>
 
 
 <body>
+    <div id="container">
  	{% block banner %}
 	{% endblock %}
 
-    {% block menu %}
-    {% endblock %}
+    <div id="menu">
+    </div>
 
     <div id="base_content">
     <div id="history_line"> 
@@ -37,6 +38,7 @@
 	       	     </tr>
 		</table>
 	</div>
+    </div>
 </body>
 
 
