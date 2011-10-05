@@ -95,7 +95,7 @@ class BootEventListener(FriServer):
 
             caller = self._get_operation_caller()
             if caller:
-                logger.info('Synchronize %s node parameters'%hostname)
+                logger.debug('Synchronize %s node parameters'%hostname)
                 ret_code, ret_message = caller.call_nodes_operation(ADMIN, [hostname], SYNC_OPER, {})
                 logger.debug('call SYNC operation result: [%s] %s'%(ret_code, ret_message))
 

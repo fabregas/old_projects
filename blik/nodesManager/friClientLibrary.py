@@ -106,8 +106,9 @@ class FriClient:
             logger.debug('FriClient: [%s] FRI packet: %s' % (session_id,packet))
 
             for node in nodes_list:
-                packet['node'] = node
-                self.__async_packets.put((node, packet))
+                n_packet = packet.copy()
+                n_packet['node'] = node
+                self.__async_packets.put((node, n_packet))
 
             return (RC_OK, '')
         except Exception, err:
