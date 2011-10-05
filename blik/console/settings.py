@@ -23,6 +23,7 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 
 
 STATIC_PATH= os.path.join(SITE_PATH, 'static')
+MENU_DIR = os.path.join(SITE_PATH, 'menu')
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
