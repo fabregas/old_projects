@@ -1,0 +1,44 @@
+<html>
+ <head>
+      <title>{% block title %}{% endblock %}</title>
+
+      <link rel="stylesheet" type="text/css" href="/static/base_style.css">
+      <script  src="/static/jquery-min.js"></script>
+      <script  src="/static/base.js"></script>
+
+      <link rel="SHORTCUT ICON" href="/static/logo.png"/>
+      
+      {% block custom_head %}
+      {% endblock %}
+ </head>
+
+
+<body>
+ 	{% block banner %}
+	{% endblock %}
+
+    {% block menu %}
+    {% endblock %}
+
+    <div id="base_content">
+    <div id="history_line"> 
+        {% block history %}
+        {% endblock %}
+    </div>
+        {% block base_content %}
+        {% endblock %}
+    </div>
+
+	<div id="footer">
+		<table width="100%" border="0">
+		     <tr>
+			<td>&copy;2011-2012 <a href="mailto:blikproject@gmail.com">blikproject@gmail.com<a></td>
+			<td align="right">Powered by <a href="http://djangoproject.com">Django</a> 1.2</td>
+	       	     </tr>
+		</table>
+	</div>
+</body>
+
+
+ </html>
+

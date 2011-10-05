@@ -1,0 +1,92 @@
+
+/* BASE INTEMS */
+
+body {
+    font: normal 14px verdana,helvetica,arial;
+    margin: 10px;
+}
+
+#base_content {
+    background-color: #DEEDCE;
+    border-right: 1px solid #96D68D;
+}
+
+#history_line { 
+    border-bottom: 1px solid #96D68D;
+    background-color: #DEEDCE;
+    margin: 0;
+    padding: 0 14px;
+    height: 24px;
+    color: #457855;
+}
+
+#history_line a {
+    text-decoration : none;
+    color: #457855;
+}
+
+#history_line a:hover {
+    color : #1A5105;
+}
+
+#footer {
+    clear: both;
+    background-color: #E4F5E1;
+    vertical-align: baseline;
+    display: block;
+    border: 1px solid #96D68D;
+}
+
+#footer table td {
+    color :#5F6D73;
+    font-size: 12px;
+}
+
+ul.errorlist {
+    margin: 0;
+    padding: 0;
+}
+
+.errorlist li {
+    color: #FF655D;
+    display: block;
+    font-size: 15px;
+    margin: 0;
+    padding: 4px 5px;
+}
+
+.error {
+    color: #FF655D;
+    display: block;
+    font-size: 15px;
+    margin: 0px;
+    padding: 4px 5px;
+}
+
+p.centered_element {
+    text-align: center;
+    font-size: 16px; 
+    color: #2A4A34;
+    font-weight: bold;
+}
+
+a.link {
+    color: #4E944A;
+    display: normal;
+    text-decoration:none;
+}
+a.link:hover {
+    color: #174002;
+}
+
+.label { 
+    color: #174002;
+}
+
+.hint_message {
+    margin: 20px;
+    color: #778760;
+}
+
+
+/*  END BASE INTEMS */
