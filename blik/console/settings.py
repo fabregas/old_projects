@@ -21,6 +21,8 @@ DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
 
 STATIC_PATH= os.path.join(SITE_PATH, 'static')
 MENU_DIR = os.path.join(SITE_PATH, 'menu')
