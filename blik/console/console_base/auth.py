@@ -5,31 +5,22 @@ from django.http import HttpResponseRedirect
 import hashlib
 from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import ugettext as _
-
-from blik.utils.databaseConnection import DatabaseConnection
-
-class User:
-    def __init__(self, login, md5_pwd, roles=[]):
-        self.username = username
-        self.md5_password = md5_pwd
-        self.roles = roles
+from models import NmUser, NmUserRole
 
 
 SESSION_KEY = '_auth_user_id'
 
-USERS_CACHE = {} #key=user login, value=object of User class
+USERS_CACHE = {} #key=user login, value=object of NmUser class
 
-def update_user_cache(user_id):
+def update_user_cache(user):
     global USERS_CACHE
 
-    user = dbconn.select("SELECT id, name, password_hash FROM nm_user WHERE id=%s", (user_id,))
+    roles = NmUserRole.objects.filter(user=user)
 
-    user_id, user_name, user_pwd = user
-    roles = dbconn.select("SELECT R.role_sid FROM nm_role R, nm_user_role UR \
-                            WHERE UR.role_id=R.id AND UR.user_id=%s", (user_id,))
-    roles = [r[0] for r in roles]
+    user.roles = [r.role_sid for r in roles]
 
-    USERS_CACHE[user_name] = User(user_name, user_pwd, roles)
+    USERS_CACHE[user.name] = user
+
 
 def cache_users():
     '''
@@ -38,17 +29,10 @@ def cache_users():
     global USERS_CACHE
     USERS_CACHE = {}
 
-    dbconn = DatabaseConnection()
-    users = dbconn.select("SELECT id, name, password_hash FROM nm_user")
+    users = NmUser.objects.all()
 
     for user in users:
-        user_id, user_name, user_pwd = user
-
-        roles = dbconn.select("SELECT R.role_sid FROM nm_role R, nm_user_role UR \
-                                WHERE UR.role_id=R.id AND UR.user_id=%s", (user_id,))
-        roles = [r[0] for r in roles]
-
-        USERS_CACHE[user_name] = User(user_name, user_pwd, roles)
+        update_user_cache(user)
 
 
 def authenticate(username, password):
@@ -61,7 +45,7 @@ def authenticate(username, password):
     if not user:
         raise Exception('User with login "%s" is not found!'%username)
 
-    if user.md5_password != passwd:
+    if user.password_hash != passwd:
         raise Exception('Password is invalid!')
 
     return user
