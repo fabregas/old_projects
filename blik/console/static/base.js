@@ -1,10 +1,10 @@
 function process_menu_item(item) {
     var items = [];
 
-    items.push('<li id="' + item.id + '">');
+    items.push('<li id="' + item.sid + '">');
     items.push('<a href="' + item.url + '">' + item.label + '</a>');
     if (item.subitems && item.subitems.length > 0) {
-        $.each(item.subitems, function(i,subitem) {
+        $.each(item.children, function(i,subitem) {
            var subitems = process_menu_item(subitem); 
            items.push('<ul class="subnav">');
            items = items.concat(subitems);
