@@ -50,3 +50,15 @@ class MenuTest(TestCase):
         user.save()
         auth.update_user_cache(user)
 
+    def test_02_read_auth(self):
+        #get auth page
+        resp = self.client.get('/auth/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('auth_form') > 0, True)
+
+        #try authenticate
+        resp = self.client.post( '/auth/', {'username':'fabregas','passwd':'blik'}, follow=True)
+        self.assertEqual(resp.status_code, 200)
+
+        #must redirect to /
+        self.assertEqual(resp.content.find('auth_form') > 0, False)

@@ -2,6 +2,7 @@ from django.conf.urls.defaults import *
 from console_base.views import *
 from utils import get_media
 import django.conf.urls.i18n
+from console_base.auth import authenticate_user
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -11,5 +12,5 @@ urlpatterns = patterns('',
      (r'^$', index),
      (r'^static/(.+)$', get_media),
      (r'^get_menu_items/$', get_menu_items),
-#     (r'^auth$', authenticate_user),
+     (r'^auth/$', authenticate_user),
 )

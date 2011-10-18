@@ -6,6 +6,7 @@ import hashlib
 from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import ugettext as _
 from models import NmUser, NmUserRole
+from forms import AuthForm
 
 
 SESSION_KEY = '_auth_user_id'
@@ -71,7 +72,7 @@ def login(request, user):
     have to reauthenticate on every request.
     """
 
-    request.session[SESSION_KEY] = user.username
+    request.session[SESSION_KEY] = user.name
 
 
 def logout(request):
@@ -93,5 +94,30 @@ def get_current_user(request):
         return None
 
     return USERS_CACHE[user_login]
+
+
+#--------------------------------------------------------------------------------------------------
+# AUTH views
+#--------------------------------------------------------------------------------------------------
+
+def authenticate_user(request):
+    user = None
+    if request.method == 'POST':
+        form = AuthForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            passwd = form.cleaned_data['passwd']
+
+            try:
+                user = authenticate(username=username, password=passwd)
+            except Exception, err:
+                form.error = err
+            else:
+                login(request, user)
+                return HttpResponseRedirect('/')
+    else:
+        form = AuthForm()
+
+    return render_to_response('auth.html',{'form':form})
 
 

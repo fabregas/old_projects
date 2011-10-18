@@ -39,7 +39,7 @@ function make_menu() {
 }
 
 function load_menu() {
-    $.getJSON('get_menu_items', function(data) {
+    $.getJSON('/get_menu_items', function(data) {
         var menu_html = "";
 
         $.each(data, function(i, item) {
@@ -66,7 +66,6 @@ function fix_console_height() {
 }
 
 $(document).ready(function(){
-    load_menu();
     fix_console_height();
 });
 

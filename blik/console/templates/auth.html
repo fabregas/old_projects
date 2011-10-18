@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block menu %}
+{% endblock %}
+
+{% block base_content %}
+
+<div id="auth_form">
+     <form action="." method="POST">
+        <div id="welcome">
+            Welcome to Blik Cloud Manager console
+        </div>
+             <table>
+                {{ form.as_table }}
+             </table>
+         {% if form.error %}
+            <p class="error">{{form.error}}</p>
+         {% endif %}
+             <p><input type="submit" value="Login"></p>
+    </form>
+</div>
+
+
+{% endblock %}
+
