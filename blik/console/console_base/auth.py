@@ -118,6 +118,6 @@ def authenticate_user(request):
     else:
         form = AuthForm()
 
-    return render_to_response('auth.html',{'form':form})
+    return render_to_response('auth.html', {'form':form})
 
 

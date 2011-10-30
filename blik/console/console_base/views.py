@@ -1,5 +1,5 @@
 from django.shortcuts import render_to_response
-from django.http import HttpResponse,HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from console_base.menu import get_menu
 from console_base.auth import get_current_user
 from copy import copy
@@ -16,7 +16,7 @@ def _select_user_menu(menu, user):
 
         item = copy(item)
         if item.children:
-            children = select_user_menu(item.children, user)
+            children = _select_user_menu(item.children, user)
             item.children = children
 
         ret_menu.append(item)

@@ -77,24 +77,24 @@ def get_menu():
     '''
     menu = _load_menu_files()
 
-    for key,value in menu.items():
+    for key, value in menu.items():
         _validate_menu_item(key, value)
 
-    for key,value in menu.items():
+    for key, value in menu.items():
         if value[MF_PARENT_ID] is None:
             continue
 
         parent_id = value[MF_PARENT_ID]
-        menu[parent_id][MF_CHILDREN].append((key,value))
+        menu[parent_id][MF_CHILDREN].append((key, value))
 
-    for key,value in menu.items():
+    for key, value in menu.items():
         if not value[MF_CHILDREN]:
             continue
 
-        value[MF_CHILDREN].sort(lambda a,b: cmp(a[0],b[0]))
+        value[MF_CHILDREN].sort(lambda a, b: cmp(a[0], b[0]))
         value[MF_CHILDREN] = [i[1] for i in value[MF_CHILDREN]]
 
     items = menu.items()
-    items.sort(lambda a,b: cmp(a[0],b[0]))
+    items.sort(lambda a, b: cmp(a[0], b[0]))
     return [i[1] for i in items]
 
