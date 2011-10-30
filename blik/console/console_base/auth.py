@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import ugettext as _
 from models import NmUser, NmUserRole
 from forms import AuthForm
+from console_base.library import inform_message
 
 
 SESSION_KEY = '_auth_user_id'
@@ -120,4 +121,26 @@ def authenticate_user(request):
 
     return render_to_response('auth.html', {'form':form})
 
+
+#--------------------------------------------------------------------------------------------------
+# AUTH decorators
+#--------------------------------------------------------------------------------------------------
+def authorize(perm):
+    '''
+    decorator for view authorization
+    '''
+    def wraper(func):
+         def dec_func(request, *args, **kvargs):
+             if not is_authenticated(request):
+                 return HttpResponseRedirect('/auth')
+
+             if not is_authorize(request, perm):
+                 return inform_message('You are not permissed for this action!')
+
+             ret =  func(request, *args, **kvargs)
+
+             return ret
+
+         return dec_func
+    return wraper
 
