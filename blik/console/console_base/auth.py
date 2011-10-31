@@ -19,7 +19,7 @@ def update_user_cache(user):
 
     roles = NmUserRole.objects.filter(user=user)
 
-    user.roles = [r.role_sid for r in roles]
+    user.roles = [r.role.role_sid for r in roles]
 
     USERS_CACHE[user.name] = user
 
@@ -52,7 +52,7 @@ def authenticate(username, password):
 
     return user
 
-def is_authorize(request, role_sid):
+def is_authorize(request, requested_roles):
     user_login = request.session.get(SESSION_KEY, None)
 
     if not user_login:
@@ -60,8 +60,9 @@ def is_authorize(request, role_sid):
 
     user = USERS_CACHE[user_login]
 
-    if str(role_sid) in user.roles:
-        return True
+    for role_sid in requested_roles:
+        if str(role_sid) in user.roles:
+            return True
 
     return False
 
@@ -125,7 +126,7 @@ def authenticate_user(request):
 #--------------------------------------------------------------------------------------------------
 # AUTH decorators
 #--------------------------------------------------------------------------------------------------
-def authorize(perm):
+def authorize(*perm):
     '''
     decorator for view authorization
     '''
@@ -134,7 +135,7 @@ def authorize(perm):
              if not is_authenticated(request):
                  return HttpResponseRedirect('/auth')
 
-             if not is_authorize(request, perm):
+             if not is_authorize(request, *perm):
                  return inform_message('You are not permissed for this action!')
 
              ret =  func(request, *args, **kvargs)
@@ -144,3 +145,9 @@ def authorize(perm):
          return dec_func
     return wraper
 
+
+###################################################################################################
+# --------- cache users ---------------------------------------------------------------------------
+###################################################################################################
+cache_users()
+###################################################################################################
