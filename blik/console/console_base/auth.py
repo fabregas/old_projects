@@ -52,7 +52,7 @@ def authenticate(username, password):
 
     return user
 
-def is_authorize(request, requested_roles):
+def is_authorize(request, *requested_roles):
     user_login = request.session.get(SESSION_KEY, None)
 
     if not user_login:
@@ -61,6 +61,7 @@ def is_authorize(request, requested_roles):
     user = USERS_CACHE[user_login]
 
     for role_sid in requested_roles:
+
         if str(role_sid) in user.roles:
             return True
 

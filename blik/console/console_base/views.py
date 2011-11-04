@@ -2,6 +2,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from console_base.menu import get_menu
 from console_base.auth import get_current_user, authorize
+from console_base.models import *
 from console_base.library import  inform_message
 from copy import copy
 import json
@@ -58,3 +59,9 @@ def get_menu_items(request):
 
     return HttpResponse(json.dumps(user_menu), mimetype="application/json")
 
+
+@authorize('clusters_ro')
+def get_clusters_list(request):
+    clusters = NmCluster.objects.all().order_by('id')
+
+    return render_to_response('clusters_list.html', {'clusters':clusters})

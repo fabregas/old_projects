@@ -13,4 +13,5 @@ urlpatterns = patterns('',
      (r'^static/(.+)$', get_media),
      (r'^get_menu_items/$', get_menu_items),
      (r'^auth/$', authenticate_user),
+     (r'^clusters_list/$', get_clusters_list),
 )

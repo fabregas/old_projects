@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block base_content %}
+
+<script type="text/javascript">
+    function on_new_cluster() {
+        document.location.href = '/new_cluster';
+    }
+
+    function check_cluster_id(base_url) {
+        var cluster_id = $('.trSelected').attr('id');
+        if (cluster_id) {
+            document.location.href = base_url + cluster_id;
+        } else {
+            alert('Please, select cluster!');
+        }
+    }
+
+    function on_delete_cluster() {
+        check_cluster_id('/delete_cluster/');
+    }
+    function on_cluster_nodes() {
+        check_cluster_id('/cluster_nodes/');
+    }
+    function on_cluster_config() {
+        check_cluster_id('/cluster_config/');
+    }
+
+
+    $(function() {
+        $('.clusters_list_table').flexigrid({'height': 200, 'buttons' : [
+            {name: 'New cluster', bclass: 'add', onpress : on_new_cluster},
+            {separator: true},
+            {name: 'Delete cluster', bclass: 'delete', onpress : on_delete_cluster},
+            {separator: true},
+            {separator: true},
+            {name: 'Cluster nodes', bclass: 'nodes', onpress : on_cluster_nodes},
+            {separator: true},
+            {name: 'Configuration', bclass: 'config', onpress : on_cluster_config},
+            {separator: true}
+            ],
+            'title': 'Clusters list',
+            singleSelect: true});
+    });
+</script>
+
+<table class="clusters_list_table" width="100%">
+    <thead>
+    <tr>
+        <th width="200">Cluster SID</th>
+        <th width="250">Cluster name</th>
+        <th width="150">Cluster type</th>
+        <th width="400">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for cluster in clusters %}
+        <tr id="{{cluster.id}}">
+            <td>{{cluster.cluster_sid}}</td>
+            <td>{{cluster.cluster_name}}</td>
+            <td>{{cluster.cluster_type.type_sid}}</td>
+            <td>{{cluster.description}}</td>
+        </tr>
+
+    {% endfor %}
+</table>
+
+{% endblock %}

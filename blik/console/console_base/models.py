@@ -41,13 +41,13 @@ class NmCluster(models.Model):
     id = models.AutoField(primary_key=True)
     cluster_sid = models.CharField(unique=True, max_length=50)
     cluster_type = models.ForeignKey(NmClusterType, db_column='cluster_type')
-    cluster_name = models.CharField(max_length=255)
-    description = models.CharField(max_length=1024)
-    organization = models.CharField(max_length=100)
+    cluster_name = models.CharField(max_length=255, null=True)
+    description = models.CharField(max_length=1024, null=True)
+    organization = models.CharField(max_length=100, null=True)
     status = models.SmallIntegerField()
     last_modifier_id = models.BigIntegerField()
-    dc = models.DateTimeField()
-    dm = models.DateTimeField()
+    dc = models.DateTimeField(null=True)
+    dm = models.DateTimeField(null=True)
     class Meta:
         db_table = u'nm_cluster'
 
