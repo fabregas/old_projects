@@ -1,8 +1,13 @@
 from django.test import TestCase
 from console_base.menu import get_menu
 from console_base import auth, models
+from console_base.library import *
+
 
 class MenuTest(TestCase):
+    CLUSTER_ID = None
+    USER = None
+
     def setUp(self):
         user = models.NmUser(name='fabregas', password_hash='26c01dbc175433723c0f3ad4d5812948', email_address='blikporject@gmail.com', additional_info='')
         user.save()
@@ -18,6 +23,24 @@ class MenuTest(TestCase):
         cluster.save()
 
         auth.cache_users()
+
+
+        #setup test cluster configuration
+        int_val = models.NmConfigSpec(config_object=OT_CLUSTER, object_type_id=cl_type.id,  parameter_name='Test integer', parameter_type=PT_INTEGER, posible_values_list='', default_value='')
+        int_val.save()
+        int_list = models.NmConfigSpec(config_object=OT_CLUSTER, object_type_id=cl_type.id, parameter_name='Test integer list', parameter_type=PT_INTEGER, posible_values_list='0|1|2|3|4|5|6|7|8|9', default_value='5')
+        int_list.save()
+        str_val = models.NmConfigSpec(config_object=OT_CLUSTER, object_type_id=cl_type.id, parameter_name='String value', parameter_type=PT_STRING, posible_values_list='', default_value='')
+        str_val.save()
+        str_list = models.NmConfigSpec(config_object=OT_CLUSTER, object_type_id=cl_type.id, parameter_name='String list', parameter_type=PT_STRING, posible_values_list='Value #1|Value #2', default_value='')
+        str_list.save()
+        hidden_val = models.NmConfigSpec(config_object=OT_CLUSTER, object_type_id=cl_type.id, parameter_name='Hidden string', parameter_type=PT_HIDDEN_STRING, posible_values_list='', default_value='')
+        hidden_val.save()
+
+        models.NmConfig(object_id=cluster.id, parameter=int_val, parameter_value=4, last_modifier=user).save()
+
+        MenuTest.CLUSTER_ID = cluster.id
+        MenuTest.USER = user
 
 
     def test_menu_load(self):
@@ -91,13 +114,57 @@ class MenuTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content.find('clusters_list_table') > 0, False)
 
-        #get empty list of clusters
+        #get list of clusters
         status = self.authenticate()
         self.assertEqual(status, 200)
-        resp = self.client.get('/clusters_list', {'username':'fabregas','passwd':'blik'}, follow=True)
+        resp = self.client.get('/clusters_list', follow=True)
 
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content.find('clusters_list_table') > 0, True)
         self.assertEqual(resp.content.find('UT_CLUSTER_01') > 0, True)
         self.assertEqual(resp.content.find('common') > 0, True)
 
+    def test_04_view_cluster_parameters(self):
+        #should be redirected to /auth page
+        resp = self.client.get('/cluster_config/%s'%MenuTest.CLUSTER_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('cluster_params_table') > 0, False)
+
+        #get list of cluster's parameters
+        status = self.authenticate()
+        self.assertEqual(status, 200)
+        resp = self.client.get('/cluster_config/%s'%MenuTest.CLUSTER_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('cluster_params_table') > 0, True)
+        self.assertEqual(resp.content.find('clusterName') > 0, True)
+        self.assertEqual(resp.content.find('clusterDescr') > 0, True)
+        self.assertEqual(resp.content.count('int_value'), 1)
+        self.assertEqual(resp.content.count('option') > 10, True)
+
+    def test_05_change_cluster_parameters(self):
+        resp = self.client.get('/change_cluster_parameters/%s'%MenuTest.CLUSTER_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('cluster_params_table') > 0, False)
+
+        #user is not autorized for this action
+        resp = self.client.post('/change_cluster_parameters/%s'%MenuTest.CLUSTER_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('cluster_params_table') > 0, False)
+
+        role = models.NmRole(role_sid='clusters_rw', role_name='Clusters writer role')
+        role.save()
+        models.NmUserRole(user=MenuTest.USER, role=role).save()
+        auth.cache_users()
+
+        specs = models.NmConfigSpec.objects.all()
+        params = {}
+        for spec in specs:
+            params[spec.id] = 'test value'
+
+        status = self.authenticate()
+        resp = self.client.post('/change_cluster_parameters/%s'%MenuTest.CLUSTER_ID, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('cluster_params_table') > 0, True)
+
+        for item in models.NmConfig.objects.all():
+            self.assertEqual(item.parameter_value, 'test value')

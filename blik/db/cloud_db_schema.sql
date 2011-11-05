@@ -34,7 +34,7 @@ CREATE TABLE NM_CONFIG (
 	object_id bigint NOT NULL,
 	parameter_id bigint NOT NULL,
 	parameter_value varchar(1024) NOT NULL,
-	last_midifier_id bigint,
+	last_modifier_id bigint,
 	DC timestamp,
 	DM timestamp
 )

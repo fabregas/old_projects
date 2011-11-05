@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block base_content %}
+
+<script type="text/javascript">
+    function on_save() { 
+         $('#change_cluster_params_form').submit();
+    }
+    function on_cancel() {
+        document.location.href = '/clusters_list';
+    }
+
+    $(function() {
+        $('.cluster_params_table').flexigrid({'height': 500, 'buttons' : [
+            {name: 'Save', bclass: 'save', onpress : on_save},
+            {separator: true},
+            {name: 'Cancel', bclass: 'cancel', onpress : on_cancel}
+            ],
+            'title': 'Parameters of cluster "{{cluster.cluster_name}}"',
+            singleSelect: true});
+    });
+</script>
+
+<form action="/change_cluster_parameters/{{cluster.id}}" id="change_cluster_params_form" method="POST">
+<table class="cluster_params_table" width="100%">
+    <thead>
+    <tr>
+        <th width="200">Parameter name</th>
+        <th width="400">Value</th>
+        <th width="500">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for config_param in config %}
+        <tr id="{{config_param.id}}">
+
+            <td>{{config_param.parameter_name}}</td>
+
+            {% if config_param.is_list %}
+                <td>
+                    <select name="{{config_param.id}}">
+                        {% for item in config_param.value %}
+                            <option value="{{item}}">{{item}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            {% else %}
+                <td><input {% if config_param.is_integer %}class="int_value" {% endif %} name="{{config_param.id}}" 
+                    {% if config_param.is_hidden_string %}type="password" {% else %}type="edit" {% endif %} 
+                        value="{{config_param.value}}"></input>
+                </td>
+            {% endif %}
+
+
+            <td>{{config_param.description}}</td>
+        </tr>
+
+    {% endfor %}
+</table>
+</form>
+
+{% endblock %}

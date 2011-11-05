@@ -101,9 +101,9 @@ class NmConfig(models.Model):
     object_id = models.BigIntegerField()
     parameter = models.ForeignKey(NmConfigSpec)
     parameter_value = models.CharField(max_length=1024)
-    last_midifier = models.ForeignKey(NmUser)
-    dc = models.DateTimeField()
-    dm = models.DateTimeField()
+    last_modifier = models.ForeignKey(NmUser)
+    dc = models.DateTimeField(null=True)
+    dm = models.DateTimeField(null=True)
     class Meta:
         db_table = u'nm_config'
 
