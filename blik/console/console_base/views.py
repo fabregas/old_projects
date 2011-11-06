@@ -174,7 +174,7 @@ def create_new_cluster(request):
     cluster_types = NmClusterType.objects.all()
     return render_to_response('new_cluster.html', {'cluster_types':cluster_types})
 
-#@authorize('clusters_rw')
+@authorize('clusters_rw')
 def delete_cluster(request, cluster_id):
     cluster = NmCluster.objects.get(id=cluster_id)
 
