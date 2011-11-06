@@ -44,7 +44,7 @@ class NmCluster(models.Model):
     cluster_name = models.CharField(max_length=255, null=True)
     description = models.CharField(max_length=1024, null=True)
     organization = models.CharField(max_length=100, null=True)
-    status = models.SmallIntegerField()
+    status = models.SmallIntegerField(default=1)
     last_modifier_id = models.BigIntegerField()
     dc = models.DateTimeField(null=True)
     dm = models.DateTimeField(null=True)

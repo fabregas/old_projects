@@ -90,6 +90,14 @@ class MenuTest(TestCase):
         resp = self.client.post( '/auth/', {'username':'fabregas','passwd':'blik'}, follow=True)
         return resp.status_code
 
+    def switch_to_megaadmin(self):
+        #create write roles
+        role = models.NmRole(role_sid='clusters_rw', role_name='Clusters writer role')
+        role.save()
+
+        models.NmUserRole(user=MenuTest.USER, role=role).save()
+        auth.cache_users()
+
     def test_02_read_auth(self):
         #try getting / page, should be redirected to /auth 
         resp = self.client.get('/', follow=True)
@@ -151,10 +159,7 @@ class MenuTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content.find('cluster_params_table') > 0, False)
 
-        role = models.NmRole(role_sid='clusters_rw', role_name='Clusters writer role')
-        role.save()
-        models.NmUserRole(user=MenuTest.USER, role=role).save()
-        auth.cache_users()
+        self.switch_to_megaadmin()
 
         specs = models.NmConfigSpec.objects.all()
         params = {}
@@ -162,9 +167,46 @@ class MenuTest(TestCase):
             params[spec.id] = 'test value'
 
         status = self.authenticate()
+        self.assertEqual(status, 200)
         resp = self.client.post('/change_cluster_parameters/%s'%MenuTest.CLUSTER_ID, params, follow=True)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content.find('cluster_params_table') > 0, True)
 
         for item in models.NmConfig.objects.all():
             self.assertEqual(item.parameter_value, 'test value')
+
+    def test_06_new_cluster(self):
+        resp = self.client.get('/new_cluster/', follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('new_cluster_form') > 0, False)
+
+        self.switch_to_megaadmin()
+        status = self.authenticate()
+        self.assertEqual(status, 200)
+
+        resp = self.client.get('/new_cluster/', follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('new_cluster_form') > 0, True)
+        self.assertEqual(resp.content.find('symbolID') > 0, True)
+        self.assertEqual(resp.content.find('clusterTypeID') > 0, True)
+        self.assertEqual(resp.content.find('clusterName') > 0, True)
+        self.assertEqual(resp.content.find('description') > 0, True)
+
+        cluster_type_id = models.NmClusterType.objects.all()[0].id
+        params = {'symbolID': 'UT_cluster_01', 'clusterTypeID':cluster_type_id, 'clusterName':'test #1', 'description': 'test description'}
+        resp = self.client.post('/new_cluster/', params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('inform_area') > 0, True)
+
+        new_cluster = models.NmCluster.objects.get(cluster_sid='UT_cluster_01')
+        self.assertEqual(new_cluster.cluster_name, 'test #1')
+        self.assertEqual(new_cluster.description, 'test description')
+        self.assertEqual(new_cluster.cluster_type_id, cluster_type_id)
+
+        #try delete created cluster
+        resp = self.client.get('/delete_cluster/%s'%new_cluster.id, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('deleted!') > 0, True)
+        deleted_cluster = models.NmCluster.objects.filter(cluster_sid='UT_cluster_01')
+        self.assertEqual(len(deleted_cluster), 0)
+

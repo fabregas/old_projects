@@ -16,4 +16,6 @@ urlpatterns = patterns('',
      (r'^clusters_list/$', get_clusters_list),
      (r'^cluster_config/(\d+)$', configure_cluster),
      (r'^change_cluster_parameters/(\d+)$', change_cluster_params),
+     (r'^new_cluster/$', create_new_cluster),
+     (r'^delete_cluster/(\d+)$', delete_cluster),
 )

@@ -149,4 +149,43 @@ def change_cluster_params(request, cluster_id):
 
     return HttpResponseRedirect('/cluster_config/%s'%cluster_id)
 
+@authorize('clusters_rw')
+def create_new_cluster(request):
+    if request.method == 'POST':
+        symbol_id = request.POST['symbolID']
+        cluster_type_id = request.POST['clusterTypeID']
+        cluster_name = request.POST['clusterName']
+        description = request.POST['description']
 
+        if not symbol_id:
+            return inform_message('Symbol ID should be not empty!', '/new_cluster')
+        if not cluster_type_id:
+            return inform_message('Cluster type should be selected!', '/new_cluster')
+
+        if NmCluster.objects.filter(cluster_sid=symbol_id):
+            return inform_message('Cluster with SID "%s" is already exists!'%symbol_id, '/new_cluster')
+
+        cluster = NmCluster(cluster_sid=symbol_id, cluster_type=NmClusterType.objects.get(id=cluster_type_id),
+                    cluster_name=cluster_name, description=description, last_modifier_id=get_current_user(request).id)
+        cluster.save()
+
+        return inform_message('Cluster with SID "%s" is created!'%symbol_id, '/cluster_config/%s'%cluster.id)
+
+    cluster_types = NmClusterType.objects.all()
+    return render_to_response('new_cluster.html', {'cluster_types':cluster_types})
+
+#@authorize('clusters_rw')
+def delete_cluster(request, cluster_id):
+    cluster = NmCluster.objects.get(id=cluster_id)
+
+    nodes = NmNode.objects.filter(cluster=cluster)
+
+    if nodes:
+        return inform_message('Cluster with SID "%s" contain %s nodes!'%(cluster.cluster_sid, len(nodes)), '/clusters_list')
+
+    config_params = NmConfigSpec.objects.filter(config_object=OT_CLUSTER, object_type_id=cluster.cluster_type.id)
+    NmConfig.objects.filter(object_id=cluster.id, parameter__in=config_params).delete()
+    symbol_id = cluster.cluster_sid
+    cluster.delete()
+
+    return inform_message('Cluster with SID "%s" is deleted!'%symbol_id, '/clusters_list/')
