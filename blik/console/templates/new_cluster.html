@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block base_content %}
+
+<script type="text/javascript">
+    function on_save() { 
+         $('#new_cluster_form').submit();
+    }
+    function on_cancel() {
+        document.location.href = '/clusters_list';
+    }
+
+    $(function() {
+        $('.new_cluster_table').flexigrid({'height': 300, 'buttons' : [
+            {name: 'Save', bclass: 'save', onpress : on_save},
+            {separator: true},
+            {name: 'Cancel', bclass: 'cancel', onpress : on_cancel}
+            ],
+            'title': 'New cluster parameters"',
+            singleSelect: true});
+    });
+</script>
+
+<form action="/new_cluster/" id="new_cluster_form" method="POST">
+<table class="new_cluster_table" width="100%">
+    <tbody>
+    <tr>
+        <td width="300">Symbol identifier</td>
+        <td width="700"><input name="symbolID" type="edit" value=""/></td>
+    </tr>
+    <tr>
+        <td>Cluster type</td>
+        <td>
+            <select name="clusterTypeID">
+                {% for item in cluster_types %}
+                    <option value="{{item.id}}">{{item.type_sid}}</option>
+                {% endfor %}
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Name</td>
+        <td><input name="clusterName" type="edit" value=""/></td>
+    </tr>
+    <tr>
+        <td>Description</td>
+        <td><input name="description" type="edit" value=""/></td>
+    </tr>
+</table>
+</form>
+
+{% endblock %}
