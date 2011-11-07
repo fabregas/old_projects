@@ -4,7 +4,7 @@ Copyright (C) 2011 Konstantin Andrusenko
     See the documentation for further information on copyrights,
     or contact the author. All Rights Reserved.
 
-@package blik.nodesManager.dbusAgent
+@package blik.nodesManager.dbusClient
 @author Konstantin Andrusenko
 @date August 8, 2011
 

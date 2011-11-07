@@ -18,4 +18,8 @@ urlpatterns = patterns('',
      (r'^change_cluster_parameters/(\d+)$', change_cluster_params),
      (r'^new_cluster/$', create_new_cluster),
      (r'^delete_cluster/(\d+)$', delete_cluster),
+     (r'^cluster_nodes/(\d+)$', get_cluster_nodes),
+     (r'^configure_node/(\d+)$', configure_node),
+     (r'^change_node_parameters/(\d+)$', change_node_params),
+     (r'^change_base_node_params/(\d+)$', change_base_node_params),
 )

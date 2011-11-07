@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block base_content %}
+
+<script type="text/javascript">
+    function check_node_id(base_url, ask_text) {
+        var node_id = $('.trSelected').attr('id');
+        if (node_id) {
+            if (ask_text) {
+                var agree = confirm("Do you really want " + ask_text +" selected node?");
+                
+                if (agree) {
+                    document.location.href = base_url + node_id;
+                }
+            } else {
+                document.location.href = base_url + node_id;
+            }
+        } else {
+            alert('Please, select node!');
+        }
+    }
+
+    function on_delete_node() {
+        check_node_id('/delete_node/', 'delete');
+    }
+    function on_node_config() {
+        check_node_id('/configure_node/', '');
+    }
+    function on_reboot_node() {
+        check_node_id('/reboot_node/', 'reboot');
+    }
+    function on_sync_node() {
+        check_node_id('/sync_node/', 'synchronize');
+    }
+
+
+    $(function() {
+        $('.nodes_list_table').flexigrid({'height': 500, 'buttons' : [
+            {name: 'Configure node', bclass: 'config', onpress : on_node_config},
+            {separator: true},
+            {name: 'Reboot node', bclass: 'reboot', onpress : on_reboot_node},
+            {name: 'Synchronize node', bclass: 'sync', onpress : on_sync_node},
+            {separator: true},
+            {separator: true},
+            {name: 'Delete node', bclass: 'delete', onpress : on_delete_node}
+            ],
+            'title': 'Nodes list of cluster with symbol ID "{{cluster.cluster_sid}}"',
+            singleSelect: true});
+    });
+</script>
+
+<table class="nodes_list_table" width="100%">
+    <thead>
+    <tr>
+        <th width="150">Hostname</th>
+        <th width="200">Logic name</th>
+        <th width="100">Node type</th>
+        <th width="100">Architecture</th>
+        <th width="100">Admin status</th>
+        <th width="100">Current status</th>
+        <th width="150">MAC address</th>
+        <th width="200">SID</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for node in nodes %}
+        <tr id="{{node.id}}">
+            <td>{{node.hostname}}</td>
+            <td>{{node.logic_name}}</td>
+            <td>{{node.node_type.type_sid}}</td>
+            <td>{{node.architecture}}</td>
+            <td>{{node.admin_status}}</td>
+            <td>{{node.current_state}}</td>
+            <td>{{node.mac_address}}</td>
+            <td>{{node.node_uuid}}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

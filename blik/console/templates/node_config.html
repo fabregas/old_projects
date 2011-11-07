@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block base_content %}
+
+<script type="text/javascript">
+    function on_save() { 
+         $('#change_node_params_form').submit();
+    }
+    function on_base_save() { 
+        var agree = confirm("Do you really want apply base node parameters?\nNode will be rebooted for apply this parameters");
+                
+        if (agree) {
+             $('#change_base_node_params_form').submit();
+        }
+    }
+    function on_cancel() {
+        document.location.href = '/cluster_nodes/{{node.cluster.id}}';
+    }
+
+    $(function() {
+        $('.node_params_table').flexigrid({'height': 250, 'buttons' : [
+            {name: 'Save', bclass: 'save', onpress : on_save},
+            {separator: true},
+            {name: 'Cancel', bclass: 'cancel', onpress : on_cancel}
+            ],
+            'title': 'Custom node parameters',
+            singleSelect: true});
+
+        $('.node_base_params_table').flexigrid({'height': 200, 'buttons' : [
+            {name: 'Save', bclass: 'save', onpress : on_base_save},
+            {separator: true},
+            {name: 'Cancel', bclass: 'cancel', onpress : on_cancel}
+            ],
+            'title': 'Base node parameters',
+            singleSelect: true});
+    });
+</script>
+
+<form action="/change_base_node_params/{{node.id}}" id="change_base_node_params_form" method="POST">
+<table class="node_base_params_table" width="100%">
+    <tbody>
+        <tr>
+            <td>UUID</td>
+            <td>{{node.node_uuid}}</td>
+        </tr>
+        <tr>
+            <td>MAC address</td>
+            <td>{{node.mac_address}}</td>
+        </tr>
+        <tr>
+            <td>Hostname</td>
+            <td><input name="hostname" type="edit" value="{{node.hostname}}"/></td>
+        </tr>
+        <tr>
+            <td>Architecture</td>
+            <td>
+                <select name="architecture">
+                    {% for item in node.architectures %}
+                        <option {% if item.is_current_arch %}selected{% endif %} value="{{item.name}}">{{item.name}}</option>
+                    {% endfor %}
+                </select> 
+            </td>
+        </tr>
+        <tr>
+            <td>Node type</td>
+            <td>
+                <select name="nodeType">
+                    {% for item in node.nodes_types %}
+                        <option {% if item.is_current_type %}selected{% endif %} value="{{item.id}}">{{item.type_sid}}</option>
+                    {% endfor %}
+                </select> 
+            </td>
+        </tr>
+    </tbody>
+</table>
+</form>
+
+<form action="/change_node_parameters/{{node.id}}" id="change_node_params_form" method="POST">
+<table class="node_params_table" width="100%">
+    <thead>
+    <tr>
+        <th width="200">Parameter name</th>
+        <th width="400">Value</th>
+        <th width="500">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for config_param in config %}
+        <tr id="{{config_param.id}}">
+
+            <td>{{config_param.parameter_name}}</td>
+
+            {% if config_param.is_list %}
+                <td>
+                    <select name="{{config_param.id}}">
+                        {% for item in config_param.value %}
+                            <option value="{{item}}">{{item}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            {% else %}
+                <td><input {% if config_param.is_integer %}class="int_value" {% endif %} name="{{config_param.id}}" 
+                    {% if config_param.is_hidden_string %}type="password" {% else %}type="edit" {% endif %} 
+                        value="{{config_param.value}}"></input>
+                </td>
+            {% endif %}
+
+
+            <td>{{config_param.description}}</td>
+        </tr>
+
+    {% endfor %}
+</table>
+</form>
+
+{% endblock %}
