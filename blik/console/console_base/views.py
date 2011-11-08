@@ -294,6 +294,12 @@ def reboot_node(hostname, user_name):
 
    return client.call_nodes_operation(user_name, [hostname], 'REBOOT', [])
 
+def synchronize_node(hostname, user_name):
+   client = DBUSInterfaceClient()
+
+   return client.call_nodes_operation(user_name, [hostname], 'SYNC', [])
+
+
 @authorize('nodes_rw')
 def change_base_node_params(request, node_id):
     if request.method != 'POST':
@@ -353,4 +359,54 @@ def change_base_node_params(request, node_id):
         ret_message += 'Node is not rebooted because NodesManager is not supported in Console!'
 
     return inform_message(ret_message, url)
+
+
+@authorize('nodes_rw')
+def delete_node(request, node_id):
+    node = NmNode.objects.get(id=node_id)
+
+    config_params = NmConfigSpec.objects.filter(config_object=OT_NODE, object_type_id=node.node_type.id)
+    NmConfig.objects.filter(object_id=node.id, parameter__in=config_params).delete()
+    hostname = node.hostname
+    cluster_id = node.cluster.id
+    node.delete()
+
+    return inform_message('Node with hostname "%s" is deleted from database!'%hostname, '/cluster_nodes/%s'%cluster_id)
+
+
+@authorize('nodes_rw')
+def reboot_node(request, node_id):
+    node = NmNode.objects.get(id=node_id)
+    url = '/cluster_nodes/%s'%node.cluster.id
+
+    if NODES_NAMAGER_SUPPORT:
+        cur_user = get_current_user(request)
+
+        #reboot node
+        ret_code, msg = reboot_node(node.hostname, cur_user.name)
+        if ret_code:
+            return inform_message('Node is not rebooted! Details: %s'%msg, url)
+
+    else:
+        return inform_message('Node is not rebooted because NodesManager is not supported in Console!', url)
+
+    return inform_message('Node is rebooting now!', url)
+
+@authorize('nodes_rw')
+def sync_node(request, node_id):
+    node = NmNode.objects.get(id=node_id)
+    url = '/cluster_nodes/%s'%node.cluster.id
+
+    if NODES_NAMAGER_SUPPORT:
+        cur_user = get_current_user(request)
+
+        #synchronize node
+        ret_code, msg = synchronize_node(node.hostname, cur_user.name)
+        if ret_code:
+            return inform_message('Node is not synchronized! Details: %s'%msg, url)
+
+    else:
+        return inform_message('Node is not synchronized because NodesManager is not supported in Console!', url)
+
+    return inform_message('Node parameters are synchronized!', url)
 

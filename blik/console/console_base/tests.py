@@ -295,6 +295,7 @@ class MenuTest(TestCase):
         self.assertEqual(resp.content.find('node_base_params_table') > 0, False)
 
         status = self.authenticate()
+        self.assertEqual(resp.status_code, 200)
         #user is not autorized for this action
         resp = self.client.post('/change_base_node_params/%s'%MenuTest.NODE_ID, follow=True)
         self.assertEqual(resp.status_code, 200)
@@ -310,7 +311,6 @@ class MenuTest(TestCase):
         params['architecture'] = 'x86'
 
         resp = self.client.post('/change_base_node_params/%s'%MenuTest.NODE_ID, params, follow=True)
-        self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content.find('Parameters are installed for node!') > 0, True)
 
         node = models.NmNode.objects.get(id=MenuTest.NODE_ID)
@@ -329,3 +329,40 @@ class MenuTest(TestCase):
         self.assertEqual(node.node_type.id, node_type_id)
         self.assertEqual(node.architecture, 'x86')
 
+    def test_10_delete_node(self):
+        resp = self.client.get('/delete_node/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('is deleted') > 0, False)
+
+        self.switch_to_megaadmin()
+        status = self.authenticate()
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.get('/delete_node/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('is deleted') > 0, True)
+
+        nodes = models.NmNode.objects.filter(id=MenuTest.NODE_ID)
+        self.assertEqual(len(nodes), 0)
+
+    def test_11_base_nodes_operations(self):
+        #TODO: this testcase should mock operations backend
+        resp = self.client.get('/reboot_node/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('is not supported') > 0, False)
+
+        resp = self.client.get('/sync_node/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('is not supported') > 0, False)
+
+        self.switch_to_megaadmin()
+        status = self.authenticate()
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.get('/reboot_node/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('is not supported') > 0, True)
+
+        resp = self.client.get('/sync_node/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('is not supported') > 0, True)

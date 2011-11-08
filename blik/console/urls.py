@@ -22,4 +22,7 @@ urlpatterns = patterns('',
      (r'^configure_node/(\d+)$', configure_node),
      (r'^change_node_parameters/(\d+)$', change_node_params),
      (r'^change_base_node_params/(\d+)$', change_base_node_params),
+     (r'^delete_node/(\d+)$', delete_node),
+     (r'^reboot_node/(\d+)$', reboot_node),
+     (r'^sync_node/(\d+)$', sync_node),
 )
