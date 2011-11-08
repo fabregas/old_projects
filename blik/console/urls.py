@@ -25,4 +25,6 @@ urlpatterns = patterns('',
      (r'^delete_node/(\d+)$', delete_node),
      (r'^reboot_node/(\d+)$', reboot_node),
      (r'^sync_node/(\d+)$', sync_node),
+     (r'^unregistered_nodes/$', unregistered_nodes),
+     (r'^register_node/(\d+)$', register_node),
 )

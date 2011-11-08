@@ -7,6 +7,7 @@ from console_base.library import *
 class MenuTest(TestCase):
     CLUSTER_ID = None
     NODE_ID = None
+    NEW_NODE_ID = None
     USER = None
 
     def setUp(self):
@@ -31,6 +32,10 @@ class MenuTest(TestCase):
         node = models.NmNode(node_uuid='some_uuid', cluster=cluster, node_type=nd_type, hostname='UT-NODE-01', logic_name='Test node #1', login='', password='', last_modifier_id=user.id, mac_address='00:00:00:33:44:55', ip_address='192.22.44.1', architecture='x86_64')
         node.save()
 
+        #crete unregistered node
+        new_node = models.NmNode(node_uuid='unregistered_node_uuid', node_type=nd_type, hostname='UNREGISTERED-NODE', logic_name='Test node #2', login='', password='', last_modifier_id=user.id, mac_address='00:00:22:33:44:55', ip_address='192.22.44.2', architecture='x86', admin_status=NEW_NODE)
+        new_node.save()
+
         auth.cache_users()
 
         #setup test cluster configuration
@@ -49,6 +54,7 @@ class MenuTest(TestCase):
 
         MenuTest.CLUSTER_ID = cluster.id
         MenuTest.NODE_ID = node.id
+        MenuTest.NEW_NODE_ID = new_node.id
         MenuTest.USER = user
 
 
@@ -329,6 +335,18 @@ class MenuTest(TestCase):
         self.assertEqual(node.node_type.id, node_type_id)
         self.assertEqual(node.architecture, 'x86')
 
+        #put optional parameters (for node registration)
+        params['hostname'] = 'registered-node'
+        params['clusterId'] = MenuTest.CLUSTER_ID
+        params['logicName'] = 'test node'
+        resp = self.client.post('/change_base_node_params/%s'%MenuTest.NODE_ID, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('Parameters are installed for node!') > 0, True)
+        node = models.NmNode.objects.get(id=MenuTest.NODE_ID)
+        self.assertEqual(node.hostname, 'registered-node')
+        self.assertEqual(node.cluster.id, MenuTest.CLUSTER_ID)
+        self.assertEqual(node.logic_name, 'test node')
+
     def test_10_delete_node(self):
         resp = self.client.get('/delete_node/%s'%MenuTest.NODE_ID, follow=True)
         self.assertEqual(resp.status_code, 200)
@@ -366,3 +384,36 @@ class MenuTest(TestCase):
         resp = self.client.get('/sync_node/%s'%MenuTest.NODE_ID, follow=True)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content.find('is not supported') > 0, True)
+
+    def test_12_unregister_nodes_list(self):
+        resp = self.client.get('/unregistered_nodes', follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('nodes_list_table') > 0, False)
+
+        status = self.authenticate()
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.get('/unregistered_nodes', follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('nodes_list_table') > 0, True)
+        self.assertEqual(resp.content.find('UNREGISTERED-NODE') > 0, True)
+
+    def test_13_register_node_form(self):
+        resp = self.client.get('/register_node/%s'%MenuTest.NEW_NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('node_base_params_table') > 0, False)
+
+        self.switch_to_megaadmin()
+        status = self.authenticate()
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.get('/register_node/%s'%MenuTest.NEW_NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertEqual(resp.content.find('node_base_params_table') > 0, True)
+        self.assertEqual(resp.content.find('clusterId') > 0, True)
+        self.assertEqual(resp.content.find('logicName') > 0, True)
+
+        resp = self.client.get('/register_node/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('already registered!') > 0, True)

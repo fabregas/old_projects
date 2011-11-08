@@ -16,6 +16,11 @@ BOOL_VALS = {True: 'on', False: 'off'}
 #splitter symbol for predefined values list
 LIST_PARAMETER_SPLITTER = '|'
 
+#nodes admin states
+NEW_NODE        = 0
+ACTIVE_NODE     = 1
+INACTIVE_NODE   = 2
+
 def inform_message(message, redirect_link='/', yes_no=None):
     return render_to_response('inform_message.html',{'message':message, 'redirect_link':redirect_link, 'yes_no':yes_no})
 

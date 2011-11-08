@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block base_content %}
+
+<script type="text/javascript">
+    function check_node_id(base_url, ask_text) {
+        var node_id = $('.trSelected').attr('id');
+        if (node_id) {
+            if (ask_text) {
+                var agree = confirm("Do you really want " + ask_text +" selected node?");
+                
+                if (agree) {
+                    document.location.href = base_url + node_id;
+                }
+            } else {
+                document.location.href = base_url + node_id;
+            }
+        } else {
+            alert('Please, select node!');
+        }
+    }
+
+    function on_delete_node() {
+        check_node_id('/delete_node/', 'delete');
+    }
+    function on_node_register() {
+        check_node_id('/register_node/', 'register');
+    }
+
+
+    $(function() {
+        $('.nodes_list_table').flexigrid({'height': 500, 'buttons' : [
+            {name: 'Register node', bclass: 'config', onpress : on_node_register},
+            {separator: true},
+            {name: 'Delete node', bclass: 'delete', onpress : on_delete_node}
+            ],
+            'title': 'Unregistered nodes list',
+            singleSelect: true});
+    });
+</script>
+
+<table class="nodes_list_table" width="100%">
+    <thead>
+    <tr>
+        <th width="250">Hostname</th>
+        <th width="250">MAC address</th>
+        <th width="300">UUID</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for node in nodes %}
+        <tr id="{{node.id}}">
+            <td>{{node.hostname}}</td>
+            <td>{{node.mac_address}}</td>
+            <td>{{node.node_uuid}}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

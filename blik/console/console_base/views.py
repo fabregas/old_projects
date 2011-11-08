@@ -336,6 +336,14 @@ def change_base_node_params(request, node_id):
     if node.architecture != arch:
         node.architecture = arch
 
+    #set optional parameters (used for node registration)
+    if request.POST.has_key('clusterId'):
+        cluster = NmCluster.objects.get(id=request.POST['clusterId'])
+        node.cluster = cluster
+
+    if request.POST.has_key('logicName'):
+        node.logic_name = request.POST['logicName']
+
     node.last_modifier_id = cur_user.id
     node.save()
 
@@ -368,10 +376,14 @@ def delete_node(request, node_id):
     config_params = NmConfigSpec.objects.filter(config_object=OT_NODE, object_type_id=node.node_type.id)
     NmConfig.objects.filter(object_id=node.id, parameter__in=config_params).delete()
     hostname = node.hostname
-    cluster_id = node.cluster.id
+    if node.cluster:
+        url = '/cluster_nodes/%s'%node.cluster.id
+    else:
+        url = '/unregistered_nodes'
+
     node.delete()
 
-    return inform_message('Node with hostname "%s" is deleted from database!'%hostname, '/cluster_nodes/%s'%cluster_id)
+    return inform_message('Node with hostname "%s" is deleted from database!'%hostname, url)
 
 
 @authorize('nodes_rw')
@@ -409,4 +421,27 @@ def sync_node(request, node_id):
         return inform_message('Node is not synchronized because NodesManager is not supported in Console!', url)
 
     return inform_message('Node parameters are synchronized!', url)
+
+
+@authorize('nodes_ro')
+def unregistered_nodes(request):
+    nodes = NmNode.objects.filter(admin_status=NEW_NODE)
+    return render_to_response('unregistered_nodes.html', {'nodes':nodes})
+
+
+@authorize('nodes_rw')
+def register_node(request, node_id):
+    node = NmNode.objects.get(id=node_id)
+
+    if node.admin_status != NEW_NODE:
+        return inform_message('Node with hostname %s is already registered!'%node.hostname, '/unregistered_nodes')
+
+    node.nodes_types = NmNodeType.objects.all()
+
+    #FIXME: Arch should be saved in database!
+    node.architectures = [Arch('x86'), Arch('x86_64')]
+
+    node.all_clusters = NmCluster.objects.all()
+
+    return render_to_response('register_node.html', {'node':node})
 

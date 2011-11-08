@@ -61,7 +61,7 @@ class NmNodeType(models.Model):
 class NmNode(models.Model):
     id = models.AutoField(primary_key=True)
     node_uuid = models.CharField(unique=True, max_length=50)
-    cluster = models.ForeignKey(NmCluster)
+    cluster = models.ForeignKey(NmCluster, null=True)
     node_type = models.ForeignKey(NmNodeType, db_column='node_type')
     hostname = models.CharField(unique=True, max_length=50)
     logic_name = models.CharField(max_length=128)
