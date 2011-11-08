@@ -6,6 +6,7 @@ from console_base.library import *
 
 class MenuTest(TestCase):
     CLUSTER_ID = None
+    NODE_ID = None
     USER = None
 
     def setUp(self):
@@ -14,7 +15,10 @@ class MenuTest(TestCase):
 
         role = models.NmRole(role_sid='clusters_ro', role_name='Clusters viewer role')
         role.save()
+        models.NmUserRole(user=user, role=role).save()
 
+        role = models.NmRole(role_sid='nodes_ro', role_name='Nodes viewer role')
+        role.save()
         models.NmUserRole(user=user, role=role).save()
 
         cl_type = models.NmClusterType(type_sid='common', description='test')
@@ -22,8 +26,12 @@ class MenuTest(TestCase):
         cluster = models.NmCluster(cluster_sid='UT_CLUSTER_01', cluster_type=cl_type, cluster_name='Test cluster', description='', status=1, last_modifier_id=1)
         cluster.save()
 
-        auth.cache_users()
+        nd_type = models.NmNodeType(type_sid='common', description='common node')
+        nd_type.save()
+        node = models.NmNode(node_uuid='some_uuid', cluster=cluster, node_type=nd_type, hostname='UT-NODE-01', logic_name='Test node #1', login='', password='', last_modifier_id=user.id, mac_address='00:00:00:33:44:55', ip_address='192.22.44.1', architecture='x86_64')
+        node.save()
 
+        auth.cache_users()
 
         #setup test cluster configuration
         int_val = models.NmConfigSpec(config_object=OT_CLUSTER, object_type_id=cl_type.id,  parameter_name='Test integer', parameter_type=PT_INTEGER, posible_values_list='', default_value='')
@@ -40,6 +48,7 @@ class MenuTest(TestCase):
         models.NmConfig(object_id=cluster.id, parameter=int_val, parameter_value=4, last_modifier=user).save()
 
         MenuTest.CLUSTER_ID = cluster.id
+        MenuTest.NODE_ID = node.id
         MenuTest.USER = user
 
 
@@ -94,8 +103,12 @@ class MenuTest(TestCase):
         #create write roles
         role = models.NmRole(role_sid='clusters_rw', role_name='Clusters writer role')
         role.save()
-
         models.NmUserRole(user=MenuTest.USER, role=role).save()
+
+        role = models.NmRole(role_sid='nodes_rw', role_name='Nodes writer role')
+        role.save()
+        models.NmUserRole(user=MenuTest.USER, role=role).save()
+
         auth.cache_users()
 
     def test_02_read_auth(self):
@@ -165,6 +178,8 @@ class MenuTest(TestCase):
         params = {}
         for spec in specs:
             params[spec.id] = 'test value'
+        params['clusterName'] = 'new_cluster_name'
+        params['clusterDescr'] = 'new_description'
 
         status = self.authenticate()
         self.assertEqual(status, 200)
@@ -174,6 +189,10 @@ class MenuTest(TestCase):
 
         for item in models.NmConfig.objects.all():
             self.assertEqual(item.parameter_value, 'test value')
+
+        cluster = models.NmCluster.objects.get(id=MenuTest.CLUSTER_ID)
+        self.assertEqual(cluster.cluster_name, 'new_cluster_name')
+        self.assertEqual(cluster.description, 'new_description')
 
     def test_06_new_cluster(self):
         resp = self.client.get('/new_cluster/', follow=True)
@@ -209,4 +228,104 @@ class MenuTest(TestCase):
         self.assertEqual(resp.content.find('deleted!') > 0, True)
         deleted_cluster = models.NmCluster.objects.filter(cluster_sid='UT_cluster_01')
         self.assertEqual(len(deleted_cluster), 0)
+
+    def test_07_nodes_list(self):
+        #should be redirected to /auth page
+        resp = self.client.get('/cluster_nodes/%s'%MenuTest.CLUSTER_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('nodes_list_table') > 0, False)
+
+        #get list of nodes
+        status = self.authenticate()
+        self.assertEqual(status, 200)
+        resp = self.client.get('/cluster_nodes/%s'%MenuTest.CLUSTER_ID, follow=True)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('nodes_list_table') > 0, True)
+        self.assertEqual(resp.content.find('UT-NODE-01') > 0, True)
+        self.assertEqual(resp.content.find('00:00:00:33:44:55') > 0, True)
+
+    def test_08_configure_node_page(self):
+        #should be redirected to /auth page
+        resp = self.client.get('/configure_node/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('node_params_table') > 0, False)
+
+        #get list of node's parameters
+        status = self.authenticate()
+        self.assertEqual(status, 200)
+        resp = self.client.get('/configure_node/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('node_params_table') > 0, True)
+        self.assertEqual(resp.content.find('node_base_params_table') > 0, True)
+
+    def test_09_change_node_parameters(self):
+        resp = self.client.get('/change_node_parameters/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('node_params_table') > 0, False)
+
+        status = self.authenticate()
+        self.assertEqual(status, 200)
+        #user is not autorized for this action
+        resp = self.client.post('/change_node_parameters/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('node_params_table') > 0, False)
+
+        self.switch_to_megaadmin()
+
+        specs = models.NmConfigSpec.objects.all()
+        params = {}
+        for spec in specs:
+            params[spec.id] = 'test value'
+        params['logicalName'] = 'changed'
+
+        resp = self.client.post('/change_node_parameters/%s'%MenuTest.NODE_ID, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('node_params_table') > 0, True)
+
+        for item in models.NmConfig.objects.filter(object_id=MenuTest.NODE_ID):
+            self.assertEqual(item.parameter_value, 'test value')
+
+        node = models.NmNode.objects.get(id=MenuTest.NODE_ID)
+        self.assertEqual(node.logic_name, 'changed')
+
+    def test_09_change_base_node_parameters(self):
+        resp = self.client.get('/change_base_node_params/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('node_base_params_table') > 0, False)
+
+        status = self.authenticate()
+        #user is not autorized for this action
+        resp = self.client.post('/change_base_node_params/%s'%MenuTest.NODE_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('node_params_table') > 0, False)
+
+        self.switch_to_megaadmin()
+
+        node = models.NmNode.objects.get(id=MenuTest.NODE_ID)
+        node_type_id = node.node_type.id
+        params = dict()
+        params['hostname'] = 'NEW-HOSTNAME'
+        params['nodeType'] = node_type_id
+        params['architecture'] = 'x86'
+
+        resp = self.client.post('/change_base_node_params/%s'%MenuTest.NODE_ID, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('Parameters are installed for node!') > 0, True)
+
+        node = models.NmNode.objects.get(id=MenuTest.NODE_ID)
+        self.assertEqual(node.hostname, 'NEW-HOSTNAME')
+        self.assertEqual(node.node_type.id, node_type_id)
+        self.assertEqual(node.architecture, 'x86')
+
+        #try change hostname to 'bad hostname'
+        params['hostname'] = 'BAD_HOSTNAME'
+        resp = self.client.post('/change_base_node_params/%s'%MenuTest.NODE_ID, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('Hostname is invalid') > 0, True)
+
+        node = models.NmNode.objects.get(id=MenuTest.NODE_ID)
+        self.assertEqual(node.hostname, 'NEW-HOSTNAME')
+        self.assertEqual(node.node_type.id, node_type_id)
+        self.assertEqual(node.architecture, 'x86')
 

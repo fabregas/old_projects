@@ -209,7 +209,7 @@ def delete_cluster(request, cluster_id):
 # --------------------------  Nodes Management  ------------------------------------------------
 #-----------------------------------------------------------------------------------------------
 
-#@authorize('nodes_ro')
+@authorize('nodes_ro')
 def get_cluster_nodes(request, cluster_id):
     cluster = NmCluster.objects.get(id=cluster_id)
 
@@ -251,7 +251,7 @@ def configure_node(request, node_id):
             node_type.is_current_type = True
     node.nodes_types = nodes_types
 
-    #FIXME: may be Arch should be saved in database!
+    #FIXME: Arch should be saved in database!
     node.architectures = [Arch('x86'), Arch('x86_64')]
     for arch in node.architectures:
         if arch.name == node.architecture:
