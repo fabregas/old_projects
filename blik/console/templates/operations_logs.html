@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block base_content %}
+
+<script type="text/javascript">
+    function on_refresh() {
+        $(".operations_logs_table").flexReload();
+    }
+
+    function on_view_details() {
+        var instance_id = $('.trSelected td div:first').html();
+        if (instance_id) {
+            document.location.href = '/operation_details/' + instance_id;
+        } else {
+            alert('Please, select operation instance!');
+        }
+    }
+
+    $(function() {
+        $('.logs_filter_table').flexigrid({'height': 150, 
+            'title': 'Logs filter',
+            'buttons' : [
+                {name: 'Apply filter', bclass: 'apply', onpress : on_refresh},
+                {separator: true},
+            ],
+
+            showTableToggleBtn: true,
+            singleSelect: true});
+    });
+
+    $(function() {
+        $(".operations_logs_table").flexigrid({
+            url: '/get_operlogs_data/',
+            dataType: 'json',
+            colModel : [
+                {display: 'Instance ID', name : 'instance_id', width : 50, sortable : false, align: 'center', hide: true},
+                {display: 'Operation', name : 'operation', width : 100, sortable : false, align: 'center'},
+                {display: 'Status', name : 'status', width : 100, sortable : false, align: 'center'},
+                {display: 'Date start', name : 'start_datetime', width : 150, sortable : true, align: 'center'},
+                {display: 'Last response', name : 'last_response', width : 300, sortable : false, align: 'left'}
+                ],
+            'buttons' : [
+                {name: 'View details', bclass: 'view', onpress : on_view_details},
+                {separator: true},
+            ],
+            usepager: true,
+            sortname: "start_datetime",
+            sortorder: "desc",
+            title: 'Operations log',
+            useRp: true,
+            rp: 50,
+            onSubmit: function() {
+                $('.operations_logs_table').flexOptions({params: [{name:'cluster_id', value:'{{cluster.id}}'}].concat($('#fmFilter').serializeArray())});
+                return true;
+            },
+            singleSelect: true,
+            height: 300
+        });   
+    });
+</script>
+
+<form id="fmFilter"> 
+<table class="logs_filter_table" width="100%">
+    <tbody>
+
+    <tr>
+    <td>Operation</td>
+    <td><select name="operation">
+            <option value=""></option>
+        {% for oper in operations %}
+            <option value="{{oper.id}}">{{oper.name}}</option>
+        {% endfor %}
+    </select></td>
+    </tr>
+    <tr>
+    <td>Node</td>
+    <td><select name="node">
+            <option value=""></option>
+        {% for node in nodes %}
+            <option value="{{node.id}}">{{node.hostname}}</option>
+        {% endfor %}
+    </select></td>
+    </tr>
+    <tr>
+    <td>Operation status</td>
+    <td><select name="oper_status">
+        <option value=""></option>
+        <option value="0">In progress</option>
+        <option value="1">Complete</option>
+        <option value="2">Error</option>
+    </select></td>
+    </tr>
+    <tr>
+    <td>Date region</td>
+    <td>
+    Start date<input name="start_dt" type="text" /> 
+    End date<input name="end_dt" type="text" /> 
+    </td></tr>
+</table>
+</form> 
+<table class="operations_logs_table" width="100%">
+</table>
+
+{% endblock %}

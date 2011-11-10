@@ -27,4 +27,6 @@ urlpatterns = patterns('',
      (r'^sync_node/(\d+)$', sync_node),
      (r'^unregistered_nodes/$', unregistered_nodes),
      (r'^register_node/(\d+)$', register_node),
+     (r'^operations_log/(\d+)$', get_operations_logs),
+     (r'^get_operlogs_data/$', get_operlog_data),
 )

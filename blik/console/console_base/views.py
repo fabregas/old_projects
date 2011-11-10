@@ -1,5 +1,6 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
+from django.db import connection, transaction
 from console_base.menu import get_menu
 from console_base.auth import get_current_user, authorize
 from console_base.models import *
@@ -445,3 +446,93 @@ def register_node(request, node_id):
 
     return render_to_response('register_node.html', {'node':node})
 
+
+#-----------------------------------------------------------------------------------------------
+# ---------------------------  Logs Management  ------------------------------------------------
+#-----------------------------------------------------------------------------------------------
+
+
+#@authorize('logs_viewer')
+def get_operations_logs(request, cluster_id):
+    cluster = NmCluster.objects.get(id=cluster_id)
+    nodes = NmNode.objects.filter(cluster=cluster)
+    operations = NmOperation.objects.all()
+
+    return render_to_response('operations_logs.html', locals())
+
+#@authorize('logs_viewer')
+def get_operlog_data(request):
+    if request.method != 'POST':
+        raise Exception('get_operlog_data expect POST request')
+
+    data = request.POST
+    sortfield = data['sortname']
+    sortorder = data['sortorder']
+    cluster_id = data['cluster_id']
+    operation_id = data['operation']
+    node_id = data['node']
+    oper_status = data['oper_status']
+    start_dt = data['start_dt']
+    end_dt = data['end_dt']
+    page = int(data['page'])
+    rows_count = int(data['rp'])
+
+
+    data_header = """
+    SELECT inst.id, oper.name, inst.status, inst.start_datetime,
+        (SELECT ret_message FROM nm_operation_progress WHERE instance_id=inst.id ORDER BY end_datetime DESC LIMIT 1) last_response
+    """
+    count_header = "SELECT count (*) "
+    base_query = """
+    FROM nm_operation_instance inst, nm_operation_progress prog, nm_operation oper
+    WHERE inst.operation_id = oper.id
+        AND prog.instance_id = inst.id
+        AND prog.node_id IN (SELECT id FROM nm_node WHERE cluster_id=%s)
+    """
+
+    params = [cluster_id]
+    if operation_id:
+        base_query += ' AND inst.operation_id = %s'
+        params.append(operation_id)
+    if node_id:
+        base_query += ' AND prog.node_id = %s'
+        params.append(node_id)
+    if oper_status:
+        base_query += ' AND inst.status = %s'
+        params.append(oper_status)
+    if start_dt:
+        base_query += ' AND inst.start_datetime >= %s'
+        params.append(start_dt)
+    if end_dt:
+        base_query += ' AND inst.end_datetime <= %s'
+        params.append(end_dt)
+
+    cursor = connection.cursor()
+    cursor.execute(count_header+base_query, params)
+    count = cursor.fetchone()[0]
+
+    if sortfield != 'undefined':
+        base_query += ' ORDER BY inst.%s %s'%(sortfield, sortorder)
+
+    base_query += ' OFFSET %s LIMIT %s'
+    params.append((page-1)*rows_count)
+    params.append(rows_count)
+
+    cursor = connection.cursor()
+    cursor.execute(data_header+base_query, params)
+    rows = cursor.fetchall()
+
+    ret_list = []
+    for i,row in enumerate(rows):
+        ret = dict()
+        ret['id'] = i
+        ret['cell'] = (row[0], row[1], OPER_STATUS_MAP[int(row[2])], str(row[3]), row[4])
+
+        ret_list.append(ret)
+
+    ret_map = dict()
+    ret_map['page'] = page
+    ret_map['total'] = count
+    ret_map['rows'] = ret_list
+
+    return HttpResponse(json.dumps(ret_map), mimetype="application/json")

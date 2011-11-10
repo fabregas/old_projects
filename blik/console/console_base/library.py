@@ -21,6 +21,9 @@ NEW_NODE        = 0
 ACTIVE_NODE     = 1
 INACTIVE_NODE   = 2
 
+#operation statuses map (id: name)
+OPER_STATUS_MAP = {0: 'In progress', 1: 'Complete', 2: 'Error'}
+
 def inform_message(message, redirect_link='/', yes_no=None):
     return render_to_response('inform_message.html',{'message':message, 'redirect_link':redirect_link, 'yes_no':yes_no})
 
