@@ -452,7 +452,7 @@ def register_node(request, node_id):
 #-----------------------------------------------------------------------------------------------
 
 
-#@authorize('logs_viewer')
+@authorize('operlogs_viewer')
 def get_operations_logs(request, cluster_id):
     cluster = NmCluster.objects.get(id=cluster_id)
     nodes = NmNode.objects.filter(cluster=cluster)
@@ -460,7 +460,7 @@ def get_operations_logs(request, cluster_id):
 
     return render_to_response('operations_logs.html', locals())
 
-#@authorize('logs_viewer')
+@authorize('operlogs_viewer')
 def get_operlog_data(request):
     if request.method != 'POST':
         raise Exception('get_operlog_data expect POST request')
@@ -469,11 +469,11 @@ def get_operlog_data(request):
     sortfield = data['sortname']
     sortorder = data['sortorder']
     cluster_id = data['cluster_id']
-    operation_id = data['operation']
-    node_id = data['node']
-    oper_status = data['oper_status']
-    start_dt = data['start_dt']
-    end_dt = data['end_dt']
+    operation_id = data.get('operation','')
+    node_id = data.get('node','')
+    oper_status = data.get('oper_status', '')
+    start_dt = data.get('start_dt','')
+    end_dt = data.get('end_dt','')
     page = int(data['page'])
     rows_count = int(data['rp'])
 

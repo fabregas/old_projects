@@ -2,6 +2,7 @@ from django.test import TestCase
 from console_base.menu import get_menu
 from console_base import auth, models
 from console_base.library import *
+import json
 
 
 class MenuTest(TestCase):
@@ -19,6 +20,10 @@ class MenuTest(TestCase):
         models.NmUserRole(user=user, role=role).save()
 
         role = models.NmRole(role_sid='nodes_ro', role_name='Nodes viewer role')
+        role.save()
+        models.NmUserRole(user=user, role=role).save()
+
+        role = models.NmRole(role_sid='operlogs_viewer', role_name='Operations logs viewer role')
         role.save()
         models.NmUserRole(user=user, role=role).save()
 
@@ -417,3 +422,23 @@ class MenuTest(TestCase):
         resp = self.client.get('/register_node/%s'%MenuTest.NODE_ID, follow=True)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content.find('already registered!') > 0, True)
+
+    def test_14_operations_logs(self):
+        resp = self.client.get('/operations_log/%s'%MenuTest.CLUSTER_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('operations_logs_table') > 0, False)
+
+        status = self.authenticate()
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get('/operations_log/%s'%MenuTest.CLUSTER_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('operations_logs_table') > 0, True)
+
+        params = {'sortname': 'undefined', 'sortorder': 'desc', 'cluster_id':MenuTest.CLUSTER_ID, 'node':MenuTest.NODE_ID, 'page':1, 'rp':10}
+        resp = self.client.post('/get_operlogs_data/', params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp._headers['content-type'][1], 'application/json')
+        data = json.loads(resp.content)
+        self.assertEqual(data.has_key('rows'), True)
+        self.assertEqual(data.has_key('total'), True)
+        self.assertEqual(data.has_key('page'), True)
