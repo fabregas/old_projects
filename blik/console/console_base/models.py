@@ -138,3 +138,18 @@ class NmOperationProgress(models.Model):
     class Meta:
         db_table = u'nm_operation_progress'
 
+
+class SystemLog(models.Model):
+    id = models.IntegerField(primary_key=True)
+    node_id = models.IntegerField(null=True)
+    host = models.CharField(max_length=64)
+    facility = models.CharField(max_length=10)
+    priority = models.CharField(max_length=10)
+    level = models.CharField(max_length=10)
+    tag = models.CharField(max_length=10)
+    log_timestamp = models.DateTimeField()
+    program = models.CharField(max_length=64)
+    msg = models.TextField()
+    class Meta:
+        db_table = u'logs'
+

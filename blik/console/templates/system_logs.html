@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block base_content %}
+
+<script type="text/javascript">
+    function on_refresh() {
+        $(".system_logs_table").flexReload();
+    }
+
+    $(function() {
+        $('.logs_filter_table').flexigrid({'height': 150, 
+            'title': 'Logs filter',
+            'buttons' : [
+                {name: 'Apply filter', bclass: 'apply', onpress : on_refresh},
+                {separator: true},
+            ],
+
+            showTableToggleBtn: true,
+            singleSelect: true});
+    });
+
+    $(function() {
+        $(".system_logs_table").flexigrid({
+            url: '/get_syslog_data/',
+            dataType: 'json',
+            colModel : [
+                {display: 'Log ID', name : 'log_id', width : 50, sortable : false, align: 'center', hide: true},
+                {display: 'Datetime', name : 'log_timestamp', width : 150, sortable : true, align: 'center'},
+                {display: 'Node', name : 'node', width : 100, sortable : false, align: 'center'},
+                {display: 'Facility', name : 'facility', width : 100, sortable : false, align: 'center'},
+                {display: 'Priority', name : 'priority', width : 100, sortable : false, align: 'center'},
+                {display: 'Level', name : 'level', width : 100, sortable : false, align: 'center'},
+                {display: 'Tag', name : 'tag', width : 100, sortable : false, align: 'center'},
+                {display: 'Program', name : 'program', width : 100, sortable : false, align: 'center'},
+                {display: 'Message', name : 'message', width : 300, sortable : false, align: 'left'}
+                ],
+            usepager: true,
+            sortname: "log_timestamp",
+            sortorder: "desc",
+            title: 'System log',
+            useRp: true,
+            rp: 50,
+            onSubmit: function() {
+                $('.system_logs_table').flexOptions({params: [{name:'cluster_id', value:'{{cluster.id}}'}].concat($('#fmFilter').serializeArray())});
+                return true;
+            },
+            singleSelect: true,
+            height: 300
+        });   
+    });
+</script>
+
+<form id="fmFilter"> 
+<table class="logs_filter_table" width="100%">
+    <tbody>
+    <tr>
+    <td>Node</td>
+    <td><select name="node">
+            <option value=""></option>
+        {% for node in nodes %}
+            <option value="{{node.id}}">{{node.hostname}}</option>
+        {% endfor %}
+    </select></td>
+    </tr>
+    <tr>
+    <td>Facility</td>
+        <td>
+            <input name="facility" type="text" /> 
+        </td>
+    </tr>
+    <tr>
+    <td>Priority</td>
+        <td>
+            <input name="priority" type="text" /> 
+        </td>
+    </tr>
+    <tr>
+    <td>Level</td>
+        <td>
+            <input name="level" type="text" /> 
+        </td>
+    </tr>
+    <tr>
+    <td>Program</td>
+        <td>
+            <input name="program" type="text" /> 
+        </td>
+    </tr>
+    <tr>
+    <td>Datetime region</td>
+    <td>
+    Start date<input name="start_dt" type="text" /> 
+    End date<input name="end_dt" type="text" /> 
+    </td></tr>
+    <td>Message</td>
+        <td>
+            <input name="message" type="text" /> 
+        </td>
+    </tr>
+</table>
+</form> 
+<table class="system_logs_table" width="100%">
+</table>
+
+{% endblock %}

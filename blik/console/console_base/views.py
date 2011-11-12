@@ -536,3 +536,75 @@ def get_operlog_data(request):
     ret_map['rows'] = ret_list
 
     return HttpResponse(json.dumps(ret_map), mimetype="application/json")
+
+
+@authorize('syslogs_viewer')
+def get_system_logs(request, cluster_id):
+    cluster = NmCluster.objects.get(id=cluster_id)
+    nodes = NmNode.objects.filter(cluster=cluster)
+
+    return render_to_response('system_logs.html', locals())
+
+@authorize('syslogs_viewer')
+def get_syslog_data(request):
+    if request.method != 'POST':
+        raise Exception('get_operlog_data expect POST request')
+
+    data = request.POST
+    sortfield = data['sortname']
+    sortorder = data['sortorder']
+    cluster_id = data['cluster_id']
+    node_id = data.get('node','')
+    facility = data.get('facility', '').strip()
+    priority = data.get('priority','').strip()
+    level = data.get('level','').strip()
+    program = data.get('program','').strip()
+    message = data.get('message','').strip()
+    start_dt = data.get('start_dt','')
+    end_dt = data.get('end_dt','')
+    page = int(data['page'])
+    rows_count = int(data['rp'])
+
+    nodes = NmNode.objects.filter(cluster=cluster_id)
+    syslog_data = SystemLog.objects.filter(node_id__in=nodes)
+
+    if node_id:
+        syslog_data = syslog_data.filter(node_id=node_id)
+    if facility:
+        syslog_data = syslog_data.filter(facility=facility)
+    if priority:
+        syslog_data = syslog_data.filter(priority=priority)
+    if level:
+        syslog_data = syslog_data.filter(level=level)
+    if program:
+        syslog_data = syslog_data.filter(program=program)
+    if start_dt:
+        syslog_data = syslog_data.filter(log_timestamp__gte=start_dt)
+    if end_dt:
+        syslog_data = syslog_data.filter(log_timestamp__lt=end_dt)
+    if message:
+        syslog_data = syslog_data.filter(msg__contains= message )
+
+    if sortfield and sortfield != 'undefined':
+        if sortorder == 'desk':
+            sortfield == '-%s'%sortfield
+
+        syslog_data = syslog_data.order_by(sortfield)
+
+    count = len(syslog_data)
+    syslog_data = syslog_data[rows_count*(page-1) : rows_count*page]
+
+    ret_list = []
+    for i,row in enumerate(syslog_data):
+        ret = dict()
+        ret['id'] = i
+        ret['cell'] = (row.id, row.log_timestamp, NmNode.objects.get(id=row.node_id).hostname, row.facility, row.priority, row.level, row.tag, row.program, row.msg)
+
+        ret_list.append(ret)
+
+    ret_map = dict()
+    ret_map['page'] = page
+    ret_map['total'] = count
+    ret_map['rows'] = ret_list
+
+    return HttpResponse(json.dumps(ret_map), mimetype="application/json")

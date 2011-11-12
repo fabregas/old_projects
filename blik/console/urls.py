@@ -29,4 +29,6 @@ urlpatterns = patterns('',
      (r'^register_node/(\d+)$', register_node),
      (r'^operations_log/(\d+)$', get_operations_logs),
      (r'^get_operlogs_data/$', get_operlog_data),
+     (r'^system_log/(\d+)$', get_system_logs),
+     (r'^get_syslog_data/$', get_syslog_data),
 )

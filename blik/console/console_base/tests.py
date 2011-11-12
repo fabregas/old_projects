@@ -27,6 +27,10 @@ class MenuTest(TestCase):
         role.save()
         models.NmUserRole(user=user, role=role).save()
 
+        role = models.NmRole(role_sid='syslogs_viewer', role_name='Operations logs viewer role')
+        role.save()
+        models.NmUserRole(user=user, role=role).save()
+
         cl_type = models.NmClusterType(type_sid='common', description='test')
         cl_type.save()
         cluster = models.NmCluster(cluster_sid='UT_CLUSTER_01', cluster_type=cl_type, cluster_name='Test cluster', description='', status=1, last_modifier_id=1)
@@ -436,6 +440,26 @@ class MenuTest(TestCase):
 
         params = {'sortname': 'undefined', 'sortorder': 'desc', 'cluster_id':MenuTest.CLUSTER_ID, 'node':MenuTest.NODE_ID, 'page':1, 'rp':10}
         resp = self.client.post('/get_operlogs_data/', params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp._headers['content-type'][1], 'application/json')
+        data = json.loads(resp.content)
+        self.assertEqual(data.has_key('rows'), True)
+        self.assertEqual(data.has_key('total'), True)
+        self.assertEqual(data.has_key('page'), True)
+
+    def test_15_system_logs(self):
+        resp = self.client.get('/system_log/%s'%MenuTest.CLUSTER_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('system_logs_table') > 0, False)
+
+        status = self.authenticate()
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get('/system_log/%s'%MenuTest.CLUSTER_ID, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('system_logs_table') > 0, True)
+
+        params = {'sortname': 'undefined', 'sortorder': 'desc', 'cluster_id':MenuTest.CLUSTER_ID, 'node':MenuTest.NODE_ID, 'message':'a', 'page':1, 'rp':10}
+        resp = self.client.post('/get_syslog_data/', params, follow=True)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp._headers['content-type'][1], 'application/json')
         data = json.loads(resp.content)
