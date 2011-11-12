@@ -2,12 +2,13 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import connection, transaction
 from console_base.menu import get_menu
-from console_base.auth import get_current_user, authorize
+from console_base.auth import get_current_user, authorize, is_authorize, cache_users
 from console_base.models import *
 from console_base.library import *
 from copy import copy
 import json
 import re
+import hashlib
 
 try:
     from blik.nodesManager.dbusClient import DBUSInterfaceClient
@@ -608,3 +609,130 @@ def get_syslog_data(request):
     ret_map['rows'] = ret_list
 
     return HttpResponse(json.dumps(ret_map), mimetype="application/json")
+
+
+#-----------------------------------------------------------------------------------------------
+# ---------------------------  Users Management  -----------------------------------------------
+#-----------------------------------------------------------------------------------------------
+
+def get_users_list(request):
+    users = NmUser.objects.all()
+    return render_to_response('users_list.html', locals())
+
+
+def validate_email(email):
+    if len(email) > 7:
+        if re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", email) != None:
+            return 1
+    return 0
+
+#@authorize('users_admin')
+def create_new_user(request):
+    if request.method == 'POST':
+        #check username
+        user_name = request.POST['user_name'].strip()
+        if not user_name:
+            return inform_message('User name should be not empty!', '/create_new_user')
+        if NmUser.objects.filter(name=user_name):
+            return inform_message('User with login "%s" is already exists in database!\nPlease, select another user login', '/create_new_user')
+
+        #check password
+        password = request.POST['password'].strip()
+        re_password = request.POST['re_password'].strip()
+        if not password:
+            return inform_message('Password should be not empty!', '/create_new_user')
+        if password != re_password:
+            return inform_message('Typed passwords are not equal!', '/create_new_user')
+        md5 = hashlib.md5()
+        md5.update(password.encode('utf8'))
+        passwd = md5.hexdigest()
+
+        #check email
+        email = request.POST['email'].strip()
+        if email and not validate_email(email):
+            return inform_message('Email address "%s" is not valid!'%email, '/create_new_user')
+        add_info = request.POST['addinfo']
+
+        user = NmUser(name=user_name, password_hash=passwd, email_address=email, additional_info=add_info)
+        user.save()
+
+        cache_users()
+
+        return inform_message('User with login "%s" is created!'%user_name, '/edit_user_roles/%s'%user.id)
+
+    return render_to_response('new_user.html', locals())
+
+
+def edit_user(request, user_id):
+    is_auth = is_authorize(request, 'users_admin')
+    if not is_auth and (get_current_user(request).id != int(user_id)):
+        return inform_message('Your permissions allows you change only your account!', '/users_list')
+
+    user = NmUser.objects.get(id=user_id)
+
+    if request.method == 'POST':
+        password = request.POST['password'].strip()
+        re_password = request.POST['re_password'].strip()
+        if password and password != re_password:
+            return inform_message('Typed passwords are not equal!', '/edit_user/%s'%user.id)
+        if password:
+            md5 = hashlib.md5()
+            md5.update(password.encode('utf8'))
+            passwd = md5.hexdigest()
+            user.password_hash = passwd
+
+        #check email
+        email = request.POST['email'].strip()
+        if email and not validate_email(email):
+            return inform_message('Email address "%s" is not valid!'%email, '/edit_user/%s'%user.id)
+
+        user.email_address = email
+        user.additional_info = request.POST['addinfo']
+        user.save()
+        return inform_message('User with login "%s" is updated!'%user.name, '/users_list')
+
+    return render_to_response('edit_user.html', locals())
+
+
+@authorize('users_admin')
+def edit_user_roles(request, user_id):
+    user = NmUser.objects.get(id=user_id)
+
+    if request.method == 'POST':
+        method = request.POST['method'].strip()
+        value = request.POST['value'].strip()
+
+        role = NmRole.objects.get(id=value)
+
+        if method == 'push':
+            #bind role to user (if already not binded)
+            if not NmUserRole.objects.filter(user=user, role=role):
+                NmUserRole(user=user, role=role).save()
+        elif method == 'pop':
+            #unbind role from user 
+            if role.role_sid != 'users_admin':
+                NmUserRole.objects.filter(user=user, role=role).delete()
+        else:
+            raise Exception('Edit user roles method "%s" is not valid!'%method)
+
+        cache_users()
+        return HttpResponse('ok')
+
+    all_roles = NmRole.objects.all()
+    user_roles = NmUserRole.objects.filter(user=int(user_id))
+
+    return render_to_response('edit_user_roles.html', locals())
+
+@authorize('users_admin')
+def delete_user(request, user_id):
+    if int(user_id) == get_current_user(request).id:
+        return inform_message('You can not delete itself!', '/users_list')
+
+    NmUserRole.objects.filter(user=int(user_id)).delete()
+    user = NmUser.objects.get(id=user_id)
+    user_name = user.name
+    user.delete()
+
+    cache_users()
+
+    return inform_message('User with login "%s" is deleted!'%user_name, '/users_list')
