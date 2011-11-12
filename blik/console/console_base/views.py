@@ -2,7 +2,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import connection, transaction
 from console_base.menu import get_menu
-from console_base.auth import get_current_user, authorize, is_authorize, cache_users
+from console_base.auth import get_current_user, authorize, is_authorize, cache_users, is_authenticated
 from console_base.models import *
 from console_base.library import *
 from copy import copy
@@ -664,6 +664,9 @@ def create_new_user(request):
 
 
 def edit_user(request, user_id):
+    if not is_authenticated(request):
+        return HttpResponseRedirect('/auth')
+
     is_auth = is_authorize(request, 'users_admin')
     if not is_auth and (get_current_user(request).id != int(user_id)):
         return inform_message('Your permissions allows you change only your account!', '/users_list')

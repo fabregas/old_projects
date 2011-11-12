@@ -31,6 +31,10 @@ class MenuTest(TestCase):
         role.save()
         models.NmUserRole(user=user, role=role).save()
 
+        role = models.NmRole(role_sid='users_admin', role_name='Users administrator role')
+        role.save()
+        models.NmUserRole(user=user, role=role).save()
+
         cl_type = models.NmClusterType(type_sid='common', description='test')
         cl_type.save()
         cluster = models.NmCluster(cluster_sid='UT_CLUSTER_01', cluster_type=cl_type, cluster_name='Test cluster', description='', status=1, last_modifier_id=1)
@@ -310,7 +314,7 @@ class MenuTest(TestCase):
         self.assertEqual(resp.content.find('node_base_params_table') > 0, False)
 
         status = self.authenticate()
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(status, 200)
         #user is not autorized for this action
         resp = self.client.post('/change_base_node_params/%s'%MenuTest.NODE_ID, follow=True)
         self.assertEqual(resp.status_code, 200)
@@ -363,7 +367,7 @@ class MenuTest(TestCase):
 
         self.switch_to_megaadmin()
         status = self.authenticate()
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(status, 200)
 
         resp = self.client.get('/delete_node/%s'%MenuTest.NODE_ID, follow=True)
         self.assertEqual(resp.status_code, 200)
@@ -384,7 +388,7 @@ class MenuTest(TestCase):
 
         self.switch_to_megaadmin()
         status = self.authenticate()
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(status, 200)
 
         resp = self.client.get('/reboot_node/%s'%MenuTest.NODE_ID, follow=True)
         self.assertEqual(resp.status_code, 200)
@@ -400,7 +404,7 @@ class MenuTest(TestCase):
         self.assertEqual(resp.content.find('nodes_list_table') > 0, False)
 
         status = self.authenticate()
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(status, 200)
 
         resp = self.client.get('/unregistered_nodes', follow=True)
         self.assertEqual(resp.status_code, 200)
@@ -414,7 +418,7 @@ class MenuTest(TestCase):
 
         self.switch_to_megaadmin()
         status = self.authenticate()
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(status, 200)
 
         resp = self.client.get('/register_node/%s'%MenuTest.NEW_NODE_ID, follow=True)
         self.assertEqual(resp.status_code, 200)
@@ -433,7 +437,7 @@ class MenuTest(TestCase):
         self.assertEqual(resp.content.find('operations_logs_table') > 0, False)
 
         status = self.authenticate()
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(status, 200)
         resp = self.client.get('/operations_log/%s'%MenuTest.CLUSTER_ID, follow=True)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content.find('operations_logs_table') > 0, True)
@@ -453,7 +457,7 @@ class MenuTest(TestCase):
         self.assertEqual(resp.content.find('system_logs_table') > 0, False)
 
         status = self.authenticate()
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(status, 200)
         resp = self.client.get('/system_log/%s'%MenuTest.CLUSTER_ID, follow=True)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content.find('system_logs_table') > 0, True)
@@ -466,3 +470,136 @@ class MenuTest(TestCase):
         self.assertEqual(data.has_key('rows'), True)
         self.assertEqual(data.has_key('total'), True)
         self.assertEqual(data.has_key('page'), True)
+
+    def test_16_users_management_auth(self):
+        resp = self.client.get('/users_list/', follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('users_list_table') > 0, True)
+        self.assertEqual(resp.content.find('fabregas') > 0, True)
+
+        resp = self.client.get('/edit_user/666', follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('auth_form') > 0, True)
+
+        resp = self.client.get('/edit_user_roles/666', follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('auth_form') > 0, True)
+
+        resp = self.client.get('/delete_user/666', follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('auth_form') > 0, True)
+
+
+    def create_user(self):
+        resp = self.client.get('/create_new_user/', follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('new_user_table') > 0, True)
+
+        #create new user...
+        params = {'user_name': 'new_user', 'password':'1', 're_password':'1', 'email':'test@domain.com', 'addinfo':'---'}
+        resp = self.client.post('/create_new_user/', params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('created!') > 0, True)
+        user = models.NmUser.objects.get(name='new_user')
+        self.assertEqual(user.email_address, 'test@domain.com')
+        self.assertEqual(user.additional_info, '---')
+
+        params['user_name'] = ''
+        resp = self.client.post('/create_new_user/', params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('should be not empty!') > 0, True)
+
+        params['user_name'] = 'new_user2'
+        params['email'] = 'fail'
+        resp = self.client.post('/create_new_user/', params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('is not valid!') > 0, True)
+
+        params['email'] = 'test@domain.com'
+        params['re_password'] = ''
+        resp = self.client.post('/create_new_user/', params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('are not equal!') > 0, True)
+
+        return user.id
+
+    def edit_user(self, user_id):
+        resp = self.client.get('/edit_user/%s'%user_id, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('edit_user_table') > 0, True)
+
+        params = {'email':'new@domain.com', 'addinfo':'', 'password':'', 're_password':''}
+        resp = self.client.post('/edit_user/%s'%user_id, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('updated!') > 0, True)
+
+        user = models.NmUser.objects.get(id=user_id)
+        self.assertEqual(user.email_address, 'new@domain.com')
+        self.assertEqual(user.additional_info, '')
+        passwd = user.password_hash
+
+        params = {'email':'new@domain.com', 'addinfo':'', 'password':'123', 're_password':'123'}
+        resp = self.client.post('/edit_user/%s'%user_id, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('updated!') > 0, True)
+        user = models.NmUser.objects.get(id=user_id)
+        self.assertNotEqual(user.password_hash, passwd)
+
+        params['password'] = '321'
+        resp = self.client.post('/edit_user/%s'%user_id, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('are not equal!') > 0, True)
+
+        params['password'] = '123'
+        params['email'] = 'fail'
+        resp = self.client.post('/edit_user/%s'%user_id, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('is not valid!') > 0, True)
+
+    def edit_user_roles(self, user_id):
+        resp = self.client.get('/edit_user_roles/%s'%user_id, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('all_roles_list_table') > 0, True)
+        self.assertEqual(resp.content.find('user_roles_list_table') > 0, True)
+
+        role = models.NmRole.objects.all()[0]
+        user = models.NmUser.objects.get(id=user_id)
+        params = {'method':'push', 'value':role.id}
+        resp = self.client.post('/edit_user_roles/%s'%user_id, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('ok') >= 0, True)
+        ur = models.NmUserRole.objects.filter(role=role, user=user)
+        self.assertEqual(len(ur), 1)
+
+        resp = self.client.post('/edit_user_roles/%s'%user_id, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('ok') >= 0, True)
+        ur = models.NmUserRole.objects.filter(role=role, user=user)
+        self.assertEqual(len(ur), 1)
+
+        params['method'] = 'pop'
+        resp = self.client.post('/edit_user_roles/%s'%user_id, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('ok') >= 0, True)
+        ur = models.NmUserRole.objects.filter(role=role, user=user)
+        self.assertEqual(len(ur), 0)
+
+        resp = self.client.post('/edit_user_roles/%s'%user_id, params, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('ok') >= 0, True)
+
+    def delete_user(self, user_id):
+        resp = self.client.get('/delete_user/%s'%user_id, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content.find('deleted!') > 0, True)
+        user = models.NmUser.objects.filter(id=user_id)
+        self.assertEqual(len(user), 0)
+
+    def test_17_users_management(self):
+        status = self.authenticate()
+        self.assertEqual(status, 200)
+
+        user_id = self.create_user()
+        self.edit_user(user_id)
+        self.edit_user_roles(user_id)
+        self.delete_user(user_id)
