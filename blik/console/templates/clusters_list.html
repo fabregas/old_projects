@@ -28,6 +28,7 @@
 
 
     $(function() {
+        fix_columns_width('.clusters_list_table');
         $('.clusters_list_table').flexigrid({'height': calc_height('.clusters_list_table'), 'buttons' : [
             {name: 'New cluster', bclass: 'add', onpress : on_new_cluster},
             {separator: true},
@@ -48,10 +49,10 @@
 <table class="clusters_list_table" width="100%">
     <thead>
     <tr>
-        <th width="200">Cluster SID</th>
-        <th width="250">Cluster name</th>
-        <th width="150">Cluster type</th>
-        <th width="400">Description</th>
+        <th width="20%">Cluster SID</th>
+        <th width="20%">Cluster name</th>
+        <th width="15%">Cluster type</th>
+        <th width="45%">Description</th>
     </tr>
     </thead>
     <tbody>

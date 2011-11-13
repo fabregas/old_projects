@@ -11,6 +11,7 @@
     }
 
     $(function() {
+        fix_columns_width('.edit_user_table');
         $('.edit_user_table').flexigrid({'height': calc_height('.edit_user_table'), 'buttons' : [
             {name: 'Save', bclass: 'save', onpress : on_base_save},
             {separator: true},
@@ -24,6 +25,12 @@
 
 <form action="/edit_user/{{user.id}}" id="edit_user_form" method="POST">
 <table class="edit_user_table" width="100%">
+    <thead>
+    <tr style="visibility:hidden;">
+        <th width="40%"></th>
+        <th width="60%"></th>
+    </tr>
+    </thead>
     <tbody>
         <tr>
             <td>Password</td>

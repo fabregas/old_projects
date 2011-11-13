@@ -18,6 +18,8 @@
     }
 
     $(function() {
+        fix_columns_width('.node_params_table');
+        fix_columns_width('.node_base_params_table');
         $('.node_params_table').flexigrid({'height': calc_height('.node_params_table'), 'buttons' : [
             {name: 'Save', bclass: 'save', onpress : on_save},
             {separator: true},
@@ -40,6 +42,12 @@
 
 <form action="/change_base_node_params/{{node.id}}" id="change_base_node_params_form" method="POST">
 <table class="node_base_params_table" width="100%">
+    <thead>
+    <tr style="visibility:hidden;">
+        <th width="40%"></th>
+        <th width="60%"></th>
+    </tr>
+    </thead>
     <tbody>
         <tr>
             <td>UUID</td>
@@ -81,9 +89,9 @@
 <table class="node_params_table" width="100%">
     <thead>
     <tr>
-        <th width="200">Parameter name</th>
-        <th width="400">Value</th>
-        <th width="500">Description</th>
+        <th width="25%">Parameter name</th>
+        <th width="30%">Value</th>
+        <th width="45%">Description</th>
     </tr>
     </thead>
     <tbody>

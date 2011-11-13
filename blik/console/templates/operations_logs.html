@@ -30,6 +30,7 @@
     });
 
     $(function() {
+        fix_columns_width('.operations_logs_table');
         $(".operations_logs_table").flexigrid({
             url: '/get_operlogs_data/',
             dataType: 'json',
@@ -63,6 +64,12 @@
 
 <form id="fmFilter"> 
 <table class="logs_filter_table" width="100%">
+    <thead>
+    <tr style="visibility:hidden;">
+        <th width="40%"></th>
+        <th width="60%"></th>
+    </tr>
+    </thead>
     <tbody>
 
     <tr>

@@ -35,6 +35,7 @@
 
 
     $(function() {
+        fix_columns_width('.nodes_list_table');
         $('.nodes_list_table').flexigrid({'height': calc_height('.nodes_list_table'), 'buttons' : [
             {name: 'Configure node', bclass: 'config', onpress : on_node_config},
             {separator: true},
@@ -53,14 +54,14 @@
 <table class="nodes_list_table" width="100%">
     <thead>
     <tr>
-        <th width="150">Hostname</th>
-        <th width="200">Logic name</th>
-        <th width="100">Node type</th>
-        <th width="100">Architecture</th>
-        <th width="100">Admin status</th>
-        <th width="100">Current status</th>
-        <th width="150">MAC address</th>
-        <th width="200">SID</th>
+        <th width="15%">Hostname</th>
+        <th width="10%">Logic name</th>
+        <th width="10%">Node type</th>
+        <th width="10%">Architecture</th>
+        <th width="10%">Admin status</th>
+        <th width="10%">Current status</th>
+        <th width="10%">MAC address</th>
+        <th width="15%">SID</th>
     </tr>
     </thead>
     <tbody>

@@ -11,6 +11,7 @@
     }
 
     $(function() {
+        fix_columns_width('.new_cluster_table');
         $('.new_cluster_table').flexigrid({'height':calc_height('.new_cluster_table'), 'buttons' : [
             {name: 'Save', bclass: 'save', onpress : on_save},
             {separator: true},
@@ -24,10 +25,16 @@
 
 <form action="/new_cluster/" id="new_cluster_form" method="POST">
 <table class="new_cluster_table" width="100%">
+    <thead>
+    <tr style="visibility:hidden;">
+        <th width="40%"></th>
+        <th width="60%"></th>
+    </tr>
+    </thead>
     <tbody>
     <tr>
-        <td width="300">Symbol identifier</td>
-        <td width="700"><input name="symbolID" type="edit" value=""/></td>
+        <td>Symbol identifier</td>
+        <td><input name="symbolID" type="edit" value=""/></td>
     </tr>
     <tr>
         <td>Cluster type</td>

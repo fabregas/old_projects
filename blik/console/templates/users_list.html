@@ -36,7 +36,9 @@
 
 
     $(function() {
-        $('.users_list_table').flexigrid({'height': calc_height('.users_list_table'), 'buttons' : [
+        fix_columns_width('.users_list_table');
+        $('.users_list_table').flexigrid({'height': calc_height('.users_list_table'),         
+        'buttons' : [
             {name: 'New user', bclass: 'add', onpress : on_new_user},
             {separator: true},
             {name: 'Delete user', bclass: 'delete', onpress : on_delete_user},
@@ -56,9 +58,9 @@
 <table class="users_list_table" width="100%">
     <thead>
     <tr>
-        <th width="200">User name</th>
-        <th width="250">e-mail address</th>
-        <th width="400">Additional information</th>
+        <th width="20%">User name</th>
+        <th width="20%">e-mail address</th>
+        <th width="60%">Additional information</th>
     </tr>
     </thead>
     <tbody>

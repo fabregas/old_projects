@@ -5,6 +5,7 @@ body {
     font: normal 14px verdana,helvetica,arial;
     margin: 0px;
     padding: 0px;
+    background-color: #E6E6E6 ;
 }
 
 #container {
@@ -13,35 +14,21 @@ body {
     min-width: 600px;
 }
 
+#banner {
+    margin-top: 5px;
+}
+
 #base_content {
-    background-color: #DEEDCE;
-    border-right: 1px solid #96D68D;
-}
-
-#history_line { 
-    border-bottom: 1px solid #96D68D;
-    background-color: #DEEDCE;
-    margin: 0;
-    padding: 0 14px;
-    height: 24px;
-    color: #457855;
-}
-
-#history_line a {
-    text-decoration : none;
-    color: #457855;
-}
-
-#history_line a:hover {
-    color : #1A5105;
+    background-color: #FAFAFA;
+    border-right: 1px solid #CCC;
 }
 
 #footer {
     clear: both;
-    background-color: #E4F5E1;
+    background-color: #FAFAFA;
     vertical-align: baseline;
     display: block;
-    border: 1px solid #96D68D;
+    border: 1px solid #CCC;
 }
 
 #footer table td {

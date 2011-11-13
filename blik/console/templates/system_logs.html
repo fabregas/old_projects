@@ -21,6 +21,7 @@
     });
 
     $(function() {
+        fix_columns_width('.system_logs_table');
         $(".system_logs_table").flexigrid({
             url: '/get_syslog_data/',
             dataType: 'json',
@@ -54,6 +55,12 @@
 
 <form id="fmFilter"> 
 <table class="logs_filter_table" width="100%">
+    <thead>
+    <tr style="visibility:hidden;">
+        <th width="40%"></th>
+        <th width="60%"></th>
+    </tr>
+    </thead>
     <tbody>
     <tr>
     <td>Node</td>

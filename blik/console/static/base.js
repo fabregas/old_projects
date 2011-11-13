@@ -58,9 +58,9 @@ function load_menu() {
 }
 
 function fix_console_height() { 
-    var min_height = 600;
+    var min_height = 500;
     var b_h = $("#base_content").height();
-    var screen_height = $(window).height() - 70;
+    var screen_height = $(window).height() - 120;
 
     if (b_h < screen_height) b_h = screen_height;
     if (b_h < min_height) b_h = min_height;
@@ -68,9 +68,20 @@ function fix_console_height() {
 }
 
 function calc_height(element_id) {
-    var h = $('#base_content').position().top + $('#base_content').height() - $(element_id).position().top - 80;
+    var h = $('#base_content').offset().top + $('#base_content').height() - $(element_id).offset().top - 80;
 
     return h;
+}
+
+function fix_columns_width(element_id) {
+    var tbl_width = $('#container').width();
+    tbl_width = tbl_width - 40;
+
+    $.each($(element_id+' th'), function(index, item) {
+        if (item.width.substr(-1) == "%") {
+            item.width = parseFloat(item.width.substr(0,item.width.length-1)) * tbl_width/100;
+        }
+    });
 }
 
 $(document).ready(function(){

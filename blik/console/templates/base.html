@@ -18,6 +18,9 @@
 <body>
     <div id="container">
  	{% block banner %}
+        <div id="banner">
+            <img alt="BANNER IMAGE" src="/static/banner.png" width=100% height=50px/>
+        </div>
 	{% endblock %}
 
     {% block menu %}
@@ -32,10 +35,6 @@
     {% endblock %}
 
     <div id="base_content">
-    <div id="history_line"> 
-        {% block history %}
-        {% endblock %}
-    </div>
         {% block base_content %}
         {% endblock %}
     </div>

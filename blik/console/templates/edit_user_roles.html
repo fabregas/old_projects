@@ -21,6 +21,8 @@
     }
 
     $(function() {
+        fix_columns_width('.all_roles_list_table');
+        fix_columns_width('.user_roles_list_table');
         $('.all_roles_list_table').flexigrid({'height': calc_height('.all_roles_list_table'), 'buttons' : [
             {name: "Add to user’s roles ", bclass: 'add', onpress : on_role_add},
             {separator: true},
@@ -43,8 +45,8 @@
 <table class="user_roles_list_table" width="100%">
     <thead>
     <tr>
-        <th width="200">Role SID</th>
-        <th width="600">Description</th>
+        <th width="30%">Role SID</th>
+        <th width="70%">Description</th>
     </tr>
     </thead>
     <tbody>
@@ -61,8 +63,8 @@
 <table class="all_roles_list_table" width="100%">
     <thead>
     <tr>
-        <th width="200">Role SID</th>
-        <th width="600">Description</th>
+        <th width="30%">Role SID</th>
+        <th width="70%">Description</th>
     </tr>
     </thead>
     <tbody>

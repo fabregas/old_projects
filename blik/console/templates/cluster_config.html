@@ -11,6 +11,7 @@
     }
 
     $(function() {
+        fix_columns_width('.cluster_params_table');
         $('.cluster_params_table').flexigrid({'height': calc_height('.cluster_params_table'), 'buttons' : [
             {name: 'Save', bclass: 'save', onpress : on_save},
             {separator: true},
@@ -26,9 +27,9 @@
 <table class="cluster_params_table" width="100%">
     <thead>
     <tr>
-        <th width="200">Parameter name</th>
-        <th width="400">Value</th>
-        <th width="500">Description</th>
+        <th width="25%">Parameter name</th>
+        <th width="25%">Value</th>
+        <th width="50%">Description</th>
     </tr>
     </thead>
     <tbody>

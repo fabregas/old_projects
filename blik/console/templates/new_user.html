@@ -11,6 +11,7 @@
     }
 
     $(function() {
+        fix_columns_width('.new_user_table');
         $('.new_user_table').flexigrid({'height': calc_height('.new_user_table'), 'buttons' : [
             {name: 'Save', bclass: 'save', onpress : on_base_save},
             {separator: true},
@@ -24,6 +25,12 @@
 
 <form action="/create_new_user/" id="new_user_form" method="POST">
 <table class="new_user_table" width="100%">
+    <thead>
+    <tr style="visibility:hidden;">
+        <th width="40%"></th>
+        <th width="60%"></th>
+    </tr>
+    </thead>
     <tbody>
         <tr>
             <td>User login</td>
