@@ -25,13 +25,13 @@ def index(request):
 def _select_user_menu(menu, user):
     ret_menu = []
     for item in menu:
-        if item['role'] not in user.roles:
-            continue
+        #if item['role'] not in user.roles:
+        #    continue
 
         item = copy(item)
-        if item.children:
-            children = _select_user_menu(item.children, user)
-            item.children = children
+        if item['children']:
+            children = _select_user_menu(item['children'], user)
+            item['children'] = children
 
         ret_menu.append(item)
 

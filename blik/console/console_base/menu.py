@@ -94,7 +94,11 @@ def get_menu():
         value[MF_CHILDREN].sort(lambda a, b: cmp(a[0], b[0]))
         value[MF_CHILDREN] = [i[1] for i in value[MF_CHILDREN]]
 
-    items = menu.items()
-    items.sort(lambda a, b: cmp(a[0], b[0]))
-    return [i[1] for i in items]
+    ret_menu = []
+    for key, value in menu.items():
+        if value[MF_PARENT_ID] is None:
+            ret_menu.append((key,value))
+
+    ret_menu.sort(lambda a, b: cmp(a[0], b[0]))
+    return [i[1] for i in ret_menu]
 

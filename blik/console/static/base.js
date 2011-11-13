@@ -1,41 +1,38 @@
-function process_menu_item(item) {
+function process_menu_item(item, skip_li) {
     var items = [];
 
-    items.push('<li id="' + item.sid + '">');
+    if (skip_li == 0) {
+        items.push('<li id="' + item.sid + '">');
+    }
     items.push('<a href="' + item.url + '">' + item.label + '</a>');
-    if (item.subitems && item.subitems.length > 0) {
+
+    if (item.children && item.children.length > 0) {
         $.each(item.children, function(i,subitem) {
-           var subitems = process_menu_item(subitem); 
-           items.push('<ul class="subnav">');
+           var subitems = process_menu_item(subitem, 1); 
+           items.push('<span>');
            items = items.concat(subitems);
-           items.push('</ul>');
+           items.push('</span>');
         });
     }
-    items.push('</li>');
+    if (skip_li == 0) {
+        items.push('</li>');
+    }
 
     return items
 }
 
 
-function make_menu() {
-        $("ul.subnav").parent().append("<span></span>"); //Only shows drop down trigger when js is enabled (Adds empty span tag after ul.subnav*)
+function make_menu_script() {
 
-	    $("ul.topnav li span").click(function() { //When trigger is clicked...
+	$("ul#topnav li").hover(function() {
+        $(this).find("span").css('z-index', 100);
+		$(this).css({ 'background' : '#1376c9 url(topnav_active.gif) repeat-x'});
+		$(this).find("span").show();
+	} , function() { //on hover out...
+		$(this).css({ 'background' : 'none'});
+		$(this).find("span").hide();
+	});
 
-		    //Following events are applied to the subnav itself (moving subnav up and down)
-		    $(this).parent().find("ul.subnav").slideDown('fast').show(); //Drop down the subnav on click
-
-		    $(this).parent().hover(function() {
-		        }, function(){
-			        $(this).parent().find("ul.subnav").slideUp('slow'); //When the mouse hovers out of the subnav, move it back up
-		        });
-
-		    //Following events are applied to the trigger (Hover events for the trigger)
-		}).hover(function() {
-			$(this).addClass("subhover"); //On hover over, add class "subhover"
-		    }, function(){	//On Hover Out
-			    $(this).removeClass("subhover"); //On hover out, remove class "subhover"
-	        });
 }
 
 function load_menu() {
@@ -43,17 +40,16 @@ function load_menu() {
         var menu_html = "";
 
         $.each(data, function(i, item) {
-            var items = process_menu_item(item);
+            var items = process_menu_item(item, 0);
             menu_html = menu_html + items.join('');
         });
 
         $('<ul/>', {
-            'class': 'topnav',
+            'id': 'topnav',
             html: menu_html
         }).appendTo('#menu');
     
-        make_menu();
-
+        make_menu_script();
     });
 }
 
