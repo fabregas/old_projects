@@ -36,7 +36,7 @@
 
 
     $(function() {
-        $('.users_list_table').flexigrid({'height': 200, 'buttons' : [
+        $('.users_list_table').flexigrid({'height': calc_height('.users_list_table'), 'buttons' : [
             {name: 'New user', bclass: 'add', onpress : on_new_user},
             {separator: true},
             {name: 'Delete user', bclass: 'delete', onpress : on_delete_user},
@@ -48,6 +48,7 @@
             {separator: true}
             ],
             'title': 'Users list',
+            resizable: false,
             singleSelect: true});
     });
 </script>

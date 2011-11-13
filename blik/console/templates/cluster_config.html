@@ -11,12 +11,13 @@
     }
 
     $(function() {
-        $('.cluster_params_table').flexigrid({'height': 500, 'buttons' : [
+        $('.cluster_params_table').flexigrid({'height': calc_height('.cluster_params_table'), 'buttons' : [
             {name: 'Save', bclass: 'save', onpress : on_save},
             {separator: true},
             {name: 'Cancel', bclass: 'cancel', onpress : on_cancel}
             ],
             'title': 'Parameters of cluster "{{cluster.cluster_name}}"',
+            resizable: false,
             singleSelect: true});
     });
 </script>

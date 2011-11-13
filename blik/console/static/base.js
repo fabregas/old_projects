@@ -58,11 +58,19 @@ function load_menu() {
 }
 
 function fix_console_height() { 
-    b_h = $("#base_content").height();
-    screen_height = $('body').height() - 100;
+    var min_height = 600;
+    var b_h = $("#base_content").height();
+    var screen_height = $(window).height() - 70;
 
     if (b_h < screen_height) b_h = screen_height;
+    if (b_h < min_height) b_h = min_height;
     $("#base_content").height(b_h);
+}
+
+function calc_height(element_id) {
+    var h = $('#base_content').position().top + $('#base_content').height() - $(element_id).position().top - 80;
+
+    return h;
 }
 
 $(document).ready(function(){

@@ -11,12 +11,13 @@
     }
 
     $(function() {
-        $('.edit_user_table').flexigrid({'height': 200, 'buttons' : [
+        $('.edit_user_table').flexigrid({'height': calc_height('.edit_user_table'), 'buttons' : [
             {name: 'Save', bclass: 'save', onpress : on_base_save},
             {separator: true},
             {name: 'Cancel', bclass: 'cancel', onpress : on_cancel}
             ],
             'title': 'Edit user parameters',
+            resizable: false,
             singleSelect: true});
     });
 </script>

@@ -18,12 +18,13 @@
     }
 
     $(function() {
-        $('.node_params_table').flexigrid({'height': 250, 'buttons' : [
+        $('.node_params_table').flexigrid({'height': calc_height('.node_params_table'), 'buttons' : [
             {name: 'Save', bclass: 'save', onpress : on_save},
             {separator: true},
             {name: 'Cancel', bclass: 'cancel', onpress : on_cancel}
             ],
             'title': 'Custom node parameters',
+            resizable: false,
             singleSelect: true});
 
         $('.node_base_params_table').flexigrid({'height': 200, 'buttons' : [
@@ -32,6 +33,7 @@
             {name: 'Cancel', bclass: 'cancel', onpress : on_cancel}
             ],
             'title': 'Base node parameters',
+            resizable: false,
             singleSelect: true});
     });
 </script>

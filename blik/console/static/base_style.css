@@ -10,6 +10,7 @@ body {
 #container {
     margin-left: 1%;
     width: 98%;
+    min-width: 600px;
 }
 
 #base_content {

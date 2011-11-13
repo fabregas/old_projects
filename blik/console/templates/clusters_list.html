@@ -28,7 +28,7 @@
 
 
     $(function() {
-        $('.clusters_list_table').flexigrid({'height': 200, 'buttons' : [
+        $('.clusters_list_table').flexigrid({'height': calc_height('.clusters_list_table'), 'buttons' : [
             {name: 'New cluster', bclass: 'add', onpress : on_new_cluster},
             {separator: true},
             {name: 'Delete cluster', bclass: 'delete', onpress : on_delete_cluster},
@@ -40,6 +40,7 @@
             {separator: true}
             ],
             'title': 'Clusters list',
+            resizable: false,
             singleSelect: true});
     });
 </script>

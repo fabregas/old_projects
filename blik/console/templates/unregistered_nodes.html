@@ -29,12 +29,13 @@
 
 
     $(function() {
-        $('.nodes_list_table').flexigrid({'height': 500, 'buttons' : [
+        $('.nodes_list_table').flexigrid({'height': calc_height('.nodes_list_table'), 'buttons' : [
             {name: 'Register node', bclass: 'config', onpress : on_node_register},
             {separator: true},
             {name: 'Delete node', bclass: 'delete', onpress : on_delete_node}
             ],
             'title': 'Unregistered nodes list',
+            resizable: false,
             singleSelect: true});
     });
 </script>

@@ -21,11 +21,12 @@
     }
 
     $(function() {
-        $('.all_roles_list_table').flexigrid({'height': 200, 'buttons' : [
+        $('.all_roles_list_table').flexigrid({'height': calc_height('.all_roles_list_table'), 'buttons' : [
             {name: "Add to user’s roles ", bclass: 'add', onpress : on_role_add},
             {separator: true},
             ],
             'title': 'Available system roles',
+            resizable: false,
             singleSelect: true});
 
         $('.user_roles_list_table').flexigrid({'height': 200, 'buttons' : [
@@ -33,10 +34,29 @@
             {separator: true},
             ],
             'title': 'Available system roles',
+            resizable: false,
             singleSelect: true});
     });
 </script>
 
+
+<table class="user_roles_list_table" width="100%">
+    <thead>
+    <tr>
+        <th width="200">Role SID</th>
+        <th width="600">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for role_bind in user_roles %}
+        <tr id="{{role_bind.role.id}}">
+            <td>{{role_bind.role.role_sid}}</td>
+            <td>{{role_bind.role.description}}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<p/>
 
 <table class="all_roles_list_table" width="100%">
     <thead>
@@ -54,21 +74,5 @@
     {% endfor %}
 </table>
 
-<p/>
-<table class="user_roles_list_table" width="100%">
-    <thead>
-    <tr>
-        <th width="200">Role SID</th>
-        <th width="600">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for role_bind in user_roles %}
-        <tr id="{{role_bind.role.id}}">
-            <td>{{role_bind.role.role_sid}}</td>
-            <td>{{role_bind.role.description}}</td>
-        </tr>
-    {% endfor %}
-</table>
 
 {% endblock %}

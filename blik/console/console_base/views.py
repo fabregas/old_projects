@@ -626,7 +626,7 @@ def validate_email(email):
             return 1
     return 0
 
-#@authorize('users_admin')
+@authorize('users_admin')
 def create_new_user(request):
     if request.method == 'POST':
         #check username
