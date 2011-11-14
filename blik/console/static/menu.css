@@ -1,6 +1,5 @@
 
 #menu {
-    font-family: 'normal Arial', Helvetica, sans-serif;
     font-size: 12px;
     font-style: normal;
     font-variant: normal;
@@ -16,7 +15,7 @@ ul#topnav {
 	list-style: none;
 	position: relative;
 	font-size: 1.2em;
-	background: url(topnav_stretch.gif) repeat-x;
+	background: url(/static/topnav_stretch.gif) repeat-x;
 }
 ul#topnav li {
 	float: left;
@@ -29,7 +28,7 @@ ul#topnav li a {
 	color: #f0f0f0;
 	text-decoration: none;
 }
-ul#topnav li:hover { background: #1376c9 url(topnav_active.gif) repeat-x; }
+ul#topnav li:hover { background: #8f987d url(/static/topnav_active.gif) repeat-x; }
  
 ul#topnav li span {
 	float: left;
@@ -38,7 +37,7 @@ ul#topnav li span {
 	left: 0; top:35px;
 	display: none;
 	width: 100%;
-	background: #787878;
+	background: #8f987d;
 	color: #fff;
 	/*--Bottom right rounded corner--*/
 	-moz-border-radius-bottomright: 5px;

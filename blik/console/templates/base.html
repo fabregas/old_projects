@@ -17,36 +17,47 @@
 
 <body>
     <div id="container">
- 	{% block banner %}
-        <div id="banner">
-            <img alt="BANNER IMAGE" src="/static/banner.png" width=100% height=50px/>
-        </div>
-	{% endblock %}
-
-    {% block menu %}
-    <script type="text/javascript">
-        $(document).ready(function(){
-            load_menu();
-        });
-    </script>
-
-    <div id="menu">
-    </div>
-    {% endblock %}
-
-    <div id="base_content">
-        {% block base_content %}
+    <table id="container_table" width="80%" border="0" cellspacing="0" cellpadding="0">
+        <tr><td>
+        {% block banner %}
+            <div id="banner">
+                <div id="big_logo"></div>
+                <div id="banner_text">Cloud Manager Console</div>
+            </div>
         {% endblock %}
-    </div>
+        </td></tr>
 
-	<div id="footer">
-		<table width="100%" border="0">
-		     <tr>
-			<td>&copy;2011-2012 <a href="mailto:blikproject@gmail.com">blikproject@gmail.com<a></td>
-			<td align="right">Powered by <a href="http://djangoproject.com">Django</a> 1.2</td>
-	       	     </tr>
-		</table>
-	</div>
+        <tr><td>
+        {% block menu %}
+        <script type="text/javascript">
+            $(document).ready(function(){
+                load_menu();
+            });
+        </script>
+        
+        <div id="menu">
+        </div>
+        {% endblock %}
+        </td></tr>
+
+        <tr><td>
+        <div id="base_content">
+            {% block base_content %}
+            {% endblock %}
+        </div>
+        </td></tr>
+
+        <tr><td>
+        <div id="footer">
+            <table width="100%" border="0">
+                 <tr>
+                <td>&copy;2011-2012 <a href="mailto:blikproject@gmail.com">blikproject@gmail.com<a></td>
+                <td align="right">Powered by <a href="http://djangoproject.com">Django</a> 1.2</td>
+                     </tr>
+            </table>
+        </div>
+        </td></tr>
+    </table>
     </div>
 </body>
 

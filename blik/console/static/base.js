@@ -26,7 +26,7 @@ function make_menu_script() {
 
 	$("ul#topnav li").hover(function() {
         $(this).find("span").css('z-index', 100);
-		$(this).css({ 'background' : '#1376c9 url(topnav_active.gif) repeat-x'});
+		$(this).css({ 'background' : '#8f987d url(/static/topnav_active.gif) repeat-x'});
 		$(this).find("span").show();
 	} , function() { //on hover out...
 		$(this).css({ 'background' : 'none'});
@@ -64,7 +64,7 @@ function fix_console_height() {
 }
 
 function calc_height(element_id) {
-    var h = $('#base_content').offset().top + $('#base_content').height() - $(element_id).offset().top - 80;
+    var h = $('#base_content').offset().top + $('#base_content').height() - $(element_id).offset().top - 90;
 
     return h;
 }

@@ -1,8 +1,8 @@
 @charset "UTF-8";
 /* CSS Document */
 .flexigrid {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 11px;
+	/*font-family: Arial, Helvetica, sans-serif;*/
+	/*font-size: 11px;*/
 	position: relative;
 	border: 0px solid #eee;
 	overflow: hidden;
@@ -267,13 +267,13 @@
 	overflow: visible;
 	background: none;
 }
-
+/*
 .flexigrid div.iDiv input,.flexigrid div.iDiv select,.flexigrid div.iDiv textarea
 	{
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 11px;
 }
-
+*/
 .flexigrid div.iDiv input.tb {
 	border: 0px;
 	padding: 0px;
@@ -359,8 +359,8 @@
 }
 
 div.colCopy {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 11px;
+	/*font-family: Arial, Helvetica, sans-serif;*/
+	/*font-size: 11px;*/
 	background: #fafafa url(images/fhbg.gif) repeat-x bottom;
 	border: 1px solid #ccc;
 	border-bottom: 0px;
