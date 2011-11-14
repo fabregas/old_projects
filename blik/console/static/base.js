@@ -71,13 +71,20 @@ function calc_height(element_id) {
 
 function fix_columns_width(element_id) {
     var tbl_width = $('#container').width();
-    tbl_width = tbl_width - 40;
+    tbl_width = tbl_width*95/100;
 
     $.each($(element_id+' th'), function(index, item) {
         if (item.width.substr(-1) == "%") {
             item.width = parseFloat(item.width.substr(0,item.width.length-1)) * tbl_width/100;
         }
     });
+}
+
+function get_col_pw(perc) {
+    var tbl_width = $('#container').width();
+    tbl_width = tbl_width*95/100;
+
+    return perc*tbl_width/100;
 }
 
 $(document).ready(function(){

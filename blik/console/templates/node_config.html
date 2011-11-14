@@ -21,15 +21,13 @@
         fix_columns_width('.node_params_table');
         fix_columns_width('.node_base_params_table');
         $('.node_params_table').flexigrid({'height': calc_height('.node_params_table'), 'buttons' : [
-            {name: 'Save', bclass: 'save', onpress : on_save},
-            {separator: true},
-            {name: 'Cancel', bclass: 'cancel', onpress : on_cancel}
+            {name: 'Save', bclass: 'save', onpress : on_save}
             ],
             'title': 'Custom node parameters',
             resizable: false,
             singleSelect: true});
 
-        $('.node_base_params_table').flexigrid({'height': 200, 'buttons' : [
+        $('.node_base_params_table').flexigrid({'height': 180, 'buttons' : [
             {name: 'Save', bclass: 'save', onpress : on_base_save},
             {separator: true},
             {name: 'Cancel', bclass: 'cancel', onpress : on_cancel}

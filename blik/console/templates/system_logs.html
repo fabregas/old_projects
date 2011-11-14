@@ -7,8 +7,12 @@
         $(".system_logs_table").flexReload();
     }
 
+
     $(function() {
-        $('.logs_filter_table').flexigrid({'height': 150, 
+        fix_columns_width('.system_logs_table');
+        fix_columns_width('.logs_filter_table');
+
+        $('.logs_filter_table').flexigrid({'height': 120, 
             'title': 'Logs filter',
             'buttons' : [
                 {name: 'Apply filter', bclass: 'apply', onpress : on_refresh},
@@ -18,23 +22,20 @@
             showTableToggleBtn: true,
             resizable: false,
             singleSelect: true});
-    });
 
-    $(function() {
-        fix_columns_width('.system_logs_table');
         $(".system_logs_table").flexigrid({
             url: '/get_syslog_data/',
             dataType: 'json',
             colModel : [
-                {display: 'Log ID', name : 'log_id', width : 50, sortable : false, align: 'center', hide: true},
-                {display: 'Datetime', name : 'log_timestamp', width : 150, sortable : true, align: 'center'},
-                {display: 'Node', name : 'node', width : 100, sortable : false, align: 'center'},
-                {display: 'Facility', name : 'facility', width : 100, sortable : false, align: 'center'},
-                {display: 'Priority', name : 'priority', width : 100, sortable : false, align: 'center'},
-                {display: 'Level', name : 'level', width : 100, sortable : false, align: 'center'},
-                {display: 'Tag', name : 'tag', width : 100, sortable : false, align: 'center'},
-                {display: 'Program', name : 'program', width : 100, sortable : false, align: 'center'},
-                {display: 'Message', name : 'message', width : 300, sortable : false, align: 'left'}
+                {display: 'Log ID', name : 'log_id', width : get_col_pw(1), sortable : false, align: 'center', hide: true},
+                {display: 'Datetime', name : 'log_timestamp', width : get_col_pw(15), sortable : true, align: 'center'},
+                {display: 'Node', name : 'node', width : get_col_pw(10), sortable : false, align: 'center'},
+                {display: 'Facility', name : 'facility', width : get_col_pw(5), sortable : false, align: 'center'},
+                {display: 'Priority', name : 'priority', width : get_col_pw(5), sortable : false, align: 'center'},
+                {display: 'Level', name : 'level', width : get_col_pw(5), sortable : false, align: 'center'},
+                {display: 'Tag', name : 'tag', width : get_col_pw(5), sortable : false, align: 'center'},
+                {display: 'Program', name : 'program', width : get_col_pw(10), sortable : false, align: 'center'},
+                {display: 'Message', name : 'message', width : get_col_pw(40), sortable : false, align: 'left'}
                 ],
             usepager: true,
             sortname: "log_timestamp",
@@ -96,16 +97,22 @@
         </td>
     </tr>
     <tr>
-    <td>Datetime region</td>
+    <td>Start datetime</td>
     <td>
-    Start date<input name="start_dt" type="text" /> 
-    End date<input name="end_dt" type="text" /> 
+        <input name="start_dt" type="text" /> 
     </td></tr>
-    <td>Message</td>
+    <tr>
+    <td>End datetime</td>
+    <td>
+        <input name="end_dt" type="text" /> 
+    </td></tr>
+    <tr>
+        <td>Message</td>
         <td>
             <input name="message" type="text" /> 
         </td>
     </tr>
+
 </table>
 </form> 
 <table class="system_logs_table" width="100%">

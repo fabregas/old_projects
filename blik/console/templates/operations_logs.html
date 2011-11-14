@@ -16,8 +16,12 @@
         }
     }
 
+
     $(function() {
-        $('.logs_filter_table').flexigrid({'height': 150, 
+        fix_columns_width('.operations_logs_table');
+        fix_columns_width('.logs_filter_table');
+
+        $('.logs_filter_table').flexigrid({'height': 170, 
             'title': 'Logs filter',
             'buttons' : [
                 {name: 'Apply filter', bclass: 'apply', onpress : on_refresh},
@@ -27,19 +31,16 @@
             showTableToggleBtn: true,
             resizable: false,
             singleSelect: true});
-    });
 
-    $(function() {
-        fix_columns_width('.operations_logs_table');
         $(".operations_logs_table").flexigrid({
             url: '/get_operlogs_data/',
             dataType: 'json',
             colModel : [
-                {display: 'Instance ID', name : 'instance_id', width : 50, sortable : false, align: 'center', hide: true},
-                {display: 'Operation', name : 'operation', width : 100, sortable : false, align: 'center'},
-                {display: 'Status', name : 'status', width : 100, sortable : false, align: 'center'},
-                {display: 'Date start', name : 'start_datetime', width : 150, sortable : true, align: 'center'},
-                {display: 'Last response', name : 'last_response', width : 300, sortable : false, align: 'left'}
+                {display: 'Instance ID', name : 'instance_id', width : get_col_pw(1), sortable : false, align: 'center', hide: true},
+                {display: 'Operation', name : 'operation', width : get_col_pw(20), sortable : false, align: 'center'},
+                {display: 'Status', name : 'status', width : get_col_pw(10), sortable : false, align: 'center'},
+                {display: 'Date start', name : 'start_datetime', width : get_col_pw(20), sortable : true, align: 'center'},
+                {display: 'Last response', name : 'last_response', width : get_col_pw(49), sortable : false, align: 'left'}
                 ],
             'buttons' : [
                 {name: 'View details', bclass: 'view', onpress : on_view_details},
@@ -56,8 +57,8 @@
                 return true;
             },
             singleSelect: true,
-            resizable: false,
-            height: calc_height('.operations_logs_table')
+            resizable: true,
+            height: 200
         });   
     });
 </script>
@@ -100,10 +101,14 @@
     </select></td>
     </tr>
     <tr>
-    <td>Date region</td>
+    <td>Start datetime</td>
     <td>
-    Start date<input name="start_dt" type="text" /> 
-    End date<input name="end_dt" type="text" /> 
+        <input name="start_dt" type="text" /> 
+    </td></tr>
+    <tr>
+    <td>End datetime</td>
+    <td>
+        <input name="end_dt" type="text" /> 
     </td></tr>
 </table>
 </form> 

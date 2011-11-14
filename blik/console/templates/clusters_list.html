@@ -16,8 +16,12 @@
         }
     }
 
-    function on_delete_cluster() {
-        check_cluster_id('/delete_cluster/');
+    function on_delete_cluster() { 
+        var agree = confirm("Do you really want delete selected cluster?");
+        
+        if (agree) {
+            check_cluster_id('/delete_cluster/');
+        }
     }
     function on_cluster_nodes() {
         check_cluster_id('/cluster_nodes/');
@@ -35,9 +39,9 @@
             {name: 'Delete cluster', bclass: 'delete', onpress : on_delete_cluster},
             {separator: true},
             {separator: true},
-            {name: 'Cluster nodes', bclass: 'nodes', onpress : on_cluster_nodes},
+            {name: 'Cluster nodes', bclass: 'cont', onpress : on_cluster_nodes},
             {separator: true},
-            {name: 'Configuration', bclass: 'config', onpress : on_cluster_config},
+            {name: 'Configuration', bclass: 'edit', onpress : on_cluster_config},
             {separator: true}
             ],
             'title': 'Clusters list',

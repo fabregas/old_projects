@@ -120,14 +120,40 @@ a.link:hover {
     color: #778760;
 }
 
+form table td input, form table td select {
+    width: 100%;
+}
 
 /*  END BASE INTEMS */
 
 .flexigrid div.fbutton .add {
-    background: url(images/add.png) no-repeat center left;
+    background: url(table/images/add.png) no-repeat center left;
 }
 
 .flexigrid div.fbutton .delete {
-    background: url(images/delete.png) no-repeat center left;
+    background: url(table/images/delete.png) no-repeat center left;
 }
 
+.flexigrid div.fbutton .edit {
+    background: url(table/images/config.png) no-repeat center left;
+}
+
+.flexigrid div.fbutton .save {
+    background: url(table/images/save.png) no-repeat center left;
+}
+
+.flexigrid div.fbutton .cancel {
+    background: url(table/images/cancel.png) no-repeat center left;
+}
+
+.flexigrid div.fbutton .cont {
+    background: url(table/images/cont.png) no-repeat center left;
+}
+
+.flexigrid div.fbutton .warn {
+    background: url(table/images/warn.png) no-repeat center left;
+}
+
+.flexigrid div.fbutton .sync {
+    background: url(table/images/sync.png) no-repeat center left;
+}
