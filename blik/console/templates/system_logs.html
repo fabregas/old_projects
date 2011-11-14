@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+{% block custom_head %}
+	  <link rel="stylesheet" href="/static/timepicker/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" charset="utf-8" />
+	  <link rel="stylesheet" href="/static/timepicker/timepicker.css" type="text/css" media="screen" charset="utf-8" />
+      <script  src="/static/timepicker/jquery-ui-1.8.16.custom.min.js"></script>
+      <script  src="/static/timepicker/jquery-ui-timepicker-addon.js"></script>
+{% endblock %}
+
 {% block base_content %}
 
 <script type="text/javascript">
@@ -51,6 +58,18 @@
             resizable: false,
             height: calc_height('.system_logs_table')
         });   
+
+        $('#start_dt').datetimepicker({onSelect: function (selectedDateTime){
+                var start = $(this).datetimepicker('getDate');
+                $('#end_dt').datetimepicker('option', 'minDate', new Date(start.getTime()) );
+            }
+        });
+        $('#end_dt').datetimepicker({
+            onSelect: function (selectedDateTime){
+                    var end = $(this).datetimepicker('getDate');
+                    $('#start_dt').datetimepicker('option', 'maxDate', new Date(end.getTime()) );
+            }
+        });
     });
 </script>
 
@@ -99,12 +118,12 @@
     <tr>
     <td>Start datetime</td>
     <td>
-        <input name="start_dt" type="text" /> 
+        <input id="start_dt" name="start_dt" type="text" value="" /> 
     </td></tr>
     <tr>
     <td>End datetime</td>
     <td>
-        <input name="end_dt" type="text" /> 
+        <input id="end_dt" name="end_dt" type="text" value="" /> 
     </td></tr>
     <tr>
         <td>Message</td>

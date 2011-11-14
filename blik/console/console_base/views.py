@@ -9,6 +9,9 @@ from copy import copy
 import json
 import re
 import hashlib
+from datetime import datetime
+
+DT_PATTERN = '%m/%d/%Y %H:%M'
 
 try:
     from blik.nodesManager.dbusClient import DBUSInterfaceClient
@@ -473,8 +476,8 @@ def get_operlog_data(request):
     operation_id = data.get('operation','')
     node_id = data.get('node','')
     oper_status = data.get('oper_status', '')
-    start_dt = data.get('start_dt','')
-    end_dt = data.get('end_dt','')
+    start_dt = data.get('start_dt','').strip()
+    end_dt = data.get('end_dt','').strip()
     page = int(data['page'])
     rows_count = int(data['rp'])
 
@@ -503,10 +506,10 @@ def get_operlog_data(request):
         params.append(oper_status)
     if start_dt:
         base_query += ' AND inst.start_datetime >= %s'
-        params.append(start_dt)
+        params.append(datetime.strptime(start_dt,DT_PATTERN))
     if end_dt:
-        base_query += ' AND inst.end_datetime <= %s'
-        params.append(end_dt)
+        base_query += ' AND inst.end_datetime < %s'
+        params.append(datetime.strptime(end_dt,DT_PATTERN))
 
     cursor = connection.cursor()
     cursor.execute(count_header+base_query, params)
@@ -561,8 +564,8 @@ def get_syslog_data(request):
     level = data.get('level','').strip()
     program = data.get('program','').strip()
     message = data.get('message','').strip()
-    start_dt = data.get('start_dt','')
-    end_dt = data.get('end_dt','')
+    start_dt = data.get('start_dt','').strip()
+    end_dt = data.get('end_dt','').strip()
     page = int(data['page'])
     rows_count = int(data['rp'])
 
@@ -580,9 +583,9 @@ def get_syslog_data(request):
     if program:
         syslog_data = syslog_data.filter(program=program)
     if start_dt:
-        syslog_data = syslog_data.filter(log_timestamp__gte=start_dt)
+        syslog_data = syslog_data.filter(log_timestamp__gte=datetime.strptime(start_dt,DT_PATTERN))
     if end_dt:
-        syslog_data = syslog_data.filter(log_timestamp__lt=end_dt)
+        syslog_data = syslog_data.filter(log_timestamp__lt=datetime.strptime(end_dt,DT_PATTERN))
     if message:
         syslog_data = syslog_data.filter(msg__contains= message )
 
