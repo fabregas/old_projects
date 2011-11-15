@@ -28,10 +28,10 @@
         fix_columns_width('.operations_logs_table');
         fix_columns_width('.logs_filter_table');
 
-        $('.logs_filter_table').flexigrid({'height': 170, 
+        $('.logs_filter_table').flexigrid({'height': 'auto', 
             'title': 'Logs filter',
             'buttons' : [
-                {name: 'Apply filter', bclass: 'apply', onpress : on_refresh},
+                {name: 'Apply filter', bclass: 'save', onpress : on_refresh},
                 {separator: true},
             ],
 
@@ -50,7 +50,7 @@
                 {display: 'Last response', name : 'last_response', width : get_col_pw(49), sortable : false, align: 'left'}
                 ],
             'buttons' : [
-                {name: 'View details', bclass: 'view', onpress : on_view_details},
+                {name: 'View details', bclass: 'list', onpress : on_view_details},
                 {separator: true},
             ],
             usepager: true,

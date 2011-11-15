@@ -511,9 +511,15 @@ def get_operlog_data(request):
         base_query += ' AND inst.end_datetime < %s'
         params.append(datetime.strptime(end_dt,DT_PATTERN))
 
+    base_query += ' GROUP BY inst.id, oper.name, inst.status, inst.start_datetime'
+
     cursor = connection.cursor()
     cursor.execute(count_header+base_query, params)
-    count = cursor.fetchone()[0]
+    count = cursor.fetchone()
+    if count:
+        count = count[0]
+    else:
+        count = 0
 
     if sortfield != 'undefined':
         base_query += ' ORDER BY inst.%s %s'%(sortfield, sortorder)
@@ -540,6 +546,29 @@ def get_operlog_data(request):
     ret_map['rows'] = ret_list
 
     return HttpResponse(json.dumps(ret_map), mimetype="application/json")
+
+
+@authorize('operlogs_viewer')
+def get_operlog_details(request, instance_id):
+    oper_instance = NmOperationInstance.objects.get(id=instance_id)
+    oper_progress = NmOperationProgress.objects.filter(instance=oper_instance).order_by('id')
+    nodes_progress = {}
+
+    for progress in oper_progress:
+        node_id = progress.node.id
+        progress_msg = '%s%s - %s'%(progress.progress, '%', progress.ret_message)
+
+        if nodes_progress.has_key(node_id):
+            curr_log = nodes_progress[node_id].progress_log
+            nodes_progress[node_id] = progress
+            nodes_progress[node_id].progress_log = "%s\n%s"%(curr_log, progress_msg)
+        else:
+            nodes_progress[node_id] = progress
+            nodes_progress[node_id].progress_log = "%s"%progress_msg
+
+    nodes_progress = nodes_progress.values()
+
+    return render_to_response('operation_progress.html', locals())
 
 
 @authorize('syslogs_viewer')

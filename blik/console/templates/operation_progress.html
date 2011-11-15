@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block base_content %}
+
+<script type="text/javascript">
+
+    $(function() {
+        fix_columns_width('.oper_info_table');
+        fix_columns_width('.oper_progress_table');
+        $('.oper_info_table').flexigrid({'height': 'auto',
+            'title': 'Operation information',
+            resizable: false,
+            singleSelect: true});
+
+        $('.oper_progress_table').flexigrid({'height': 180,
+            'title': 'Operation progress',
+            resizable: false,
+            singleSelect: true});
+    });
+</script>
+
+<table class="oper_info_table" width="100%">
+    <thead>
+    <tr style="visibility:hidden;">
+        <th width="30%"></th>
+        <th width="40%"></th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Operation</td>
+            <td>{{oper_instance.operation.name}}</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td>{{oper_instance.status}}</td>
+        </tr>
+        <tr>
+            <td>Date start</td>
+            <td>{{oper_instance.start_datetime}}</td>
+        </tr>
+        <tr>
+            <td>Date end</td>
+            <td>{{oper_instance.end_datetime}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<table class="oper_progress_table" width="100%" auto_height>
+    <thead>
+    <tr>
+        <th width="20%">Node</th>
+        <th width="10%">Progress (%)</th>
+        <th width="15%">Last update</th>
+        <th width="5%">Status</th>
+        <th width="50%">Progress log</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for progress in nodes_progress %}
+        <tr>
+            <td>{{ progress.node.hostname }}</td>
+            <td>{{ progress.progress }}</td>
+            <td>{{ progress.end_datetime }}</td>
+            <td>{{ progress.ret_code }}</td>
+            <td>{{ progress.progress_log|escape|linebreaks }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

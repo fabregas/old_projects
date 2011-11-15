@@ -157,3 +157,7 @@ form table td input, form table td select {
 .flexigrid div.fbutton .sync {
     background: url(table/images/sync.png) no-repeat center left;
 }
+
+.flexigrid div.fbutton .list {
+    background: url(table/images/list.png) no-repeat center left;
+}
