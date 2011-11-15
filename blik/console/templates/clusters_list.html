@@ -33,7 +33,7 @@
 
     $(function() {
         fix_columns_width('.clusters_list_table');
-        $('.clusters_list_table').flexigrid({'height': calc_height('.clusters_list_table'), 'buttons' : [
+        $('.clusters_list_table').flexigrid({'height': 200, 'buttons' : [
             {name: 'New cluster', bclass: 'add', onpress : on_new_cluster},
             {separator: true},
             {name: 'Delete cluster', bclass: 'delete', onpress : on_delete_cluster},
@@ -50,7 +50,7 @@
     });
 </script>
 
-<table class="clusters_list_table" width="100%">
+<table class="clusters_list_table" width="100%" auto_height>
     <thead>
     <tr>
         <th width="20%">Cluster SID</th>

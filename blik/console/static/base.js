@@ -64,7 +64,7 @@ function fix_console_height() {
 }
 
 function calc_height(element_id) {
-    var h = $('#base_content').offset().top + $('#base_content').height() - $(element_id).offset().top - 90;
+    var h = $('#base_content').offset().top + $('#base_content').height() - $(element_id).offset().top ;
 
     return h;
 }
@@ -89,5 +89,16 @@ function get_col_pw(perc) {
 
 $(document).ready(function(){
     fix_console_height();
+});
+
+$(window).load(function() {
+        $('table[auto_height]').each(function(i, item) {
+            var table = $(item).parentsUntil('.flexigrid');
+            var h = calc_height(table);
+            if ($(item).attr('has_pager') == '') {
+                h = h-30;
+            }
+            table.height(h);
+        });
 });
 

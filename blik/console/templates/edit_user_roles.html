@@ -23,7 +23,7 @@
     $(function() {
         fix_columns_width('.all_roles_list_table');
         fix_columns_width('.user_roles_list_table');
-        $('.all_roles_list_table').flexigrid({'height': calc_height('.all_roles_list_table'), 'buttons' : [
+        $('.all_roles_list_table').flexigrid({'height': 200, 'buttons' : [
             {name: "Add to user’s roles ", bclass: 'add', onpress : on_role_add},
             {separator: true},
             ],
@@ -35,7 +35,7 @@
             {name: "Delete from user’s roles ", bclass: 'delete', onpress : on_role_delete},
             {separator: true},
             ],
-            'title': 'Available system roles',
+            'title': "User's roles",
             resizable: false,
             singleSelect: true});
     });
@@ -60,7 +60,7 @@
 
 <p/>
 
-<table class="all_roles_list_table" width="100%">
+<table class="all_roles_list_table" width="100%" auto_height>
     <thead>
     <tr>
         <th width="30%">Role SID</th>

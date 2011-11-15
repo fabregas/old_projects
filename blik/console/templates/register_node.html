@@ -16,7 +16,7 @@
 
     $(function() {
         fix_columns_width('.node_base_params_table');
-        $('.node_base_params_table').flexigrid({'height': calc_height('.node_base_params_table'), 'buttons' : [
+        $('.node_base_params_table').flexigrid({'height': 200, 'buttons' : [
             {name: 'Save', bclass: 'save', onpress : on_base_save},
             {separator: true},
             {name: 'Cancel', bclass: 'cancel', onpress : on_cancel}
@@ -28,7 +28,7 @@
 </script>
 
 <form action="/change_base_node_params/{{node.id}}" id="change_base_node_params_form" method="POST">
-<table class="node_base_params_table" width="100%">
+<table class="node_base_params_table" width="100%" auto_height>
     <thead>
     <tr style="visibility:hidden;">
         <th width="40%"></th>

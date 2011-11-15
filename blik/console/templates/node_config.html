@@ -20,7 +20,7 @@
     $(function() {
         fix_columns_width('.node_params_table');
         fix_columns_width('.node_base_params_table');
-        $('.node_params_table').flexigrid({'height': calc_height('.node_params_table'), 'buttons' : [
+        $('.node_params_table').flexigrid({'height': 200, 'buttons' : [
             {name: 'Save', bclass: 'save', onpress : on_save}
             ],
             'title': 'Custom node parameters',
@@ -84,7 +84,7 @@
 </form>
 
 <form action="/change_node_parameters/{{node.id}}" id="change_node_params_form" method="POST">
-<table class="node_params_table" width="100%">
+<table class="node_params_table" width="100%" auto_height>
     <thead>
     <tr>
         <th width="25%">Parameter name</th>

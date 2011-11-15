@@ -56,7 +56,7 @@
             },
             singleSelect: true,
             resizable: false,
-            height: calc_height('.system_logs_table')
+            height: 200
         });   
 
         $('#start_dt').datetimepicker({onSelect: function (selectedDateTime){
@@ -134,7 +134,7 @@
 
 </table>
 </form> 
-<table class="system_logs_table" width="100%">
+<table class="system_logs_table" width="100%" auto_height has_pager>
 </table>
 
 {% endblock %}

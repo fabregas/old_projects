@@ -37,7 +37,7 @@
 
     $(function() {
         fix_columns_width('.users_list_table');
-        $('.users_list_table').flexigrid({'height': calc_height('.users_list_table'),         
+        $('.users_list_table').flexigrid({'height': 200,         
         'buttons' : [
             {name: 'New user', bclass: 'add', onpress : on_new_user},
             {separator: true},
@@ -55,7 +55,7 @@
     });
 </script>
 
-<table class="users_list_table" width="100%">
+<table class="users_list_table" width="100%" auto_height>
     <thead>
     <tr>
         <th width="20%">User name</th>

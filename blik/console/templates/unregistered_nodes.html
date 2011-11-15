@@ -30,7 +30,7 @@
 
     $(function() {
         fix_columns_width('.nodes_list_table');
-        $('.nodes_list_table').flexigrid({'height': calc_height('.nodes_list_table'), 'buttons' : [
+        $('.nodes_list_table').flexigrid({'height': 200, 'buttons' : [
             {name: 'Register node', bclass: 'save', onpress : on_node_register},
             {separator: true},
             {name: 'Delete node', bclass: 'delete', onpress : on_delete_node}
@@ -41,7 +41,7 @@
     });
 </script>
 
-<table class="nodes_list_table" width="100%">
+<table class="nodes_list_table" width="100%" auto_height>
     <thead>
     <tr>
         <th width="30%">Hostname</th>
