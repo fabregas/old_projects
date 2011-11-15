@@ -29,6 +29,12 @@
     function on_cluster_config() {
         check_cluster_id('/cluster_config/');
     }
+    function on_operlog() {
+        check_cluster_id('/operations_log/');
+    }
+    function on_syslog() {
+        check_cluster_id('/system_log/');
+    }
 
 
     $(function() {
@@ -42,6 +48,11 @@
             {name: 'Cluster nodes', bclass: 'cont', onpress : on_cluster_nodes},
             {separator: true},
             {name: 'Configuration', bclass: 'edit', onpress : on_cluster_config},
+            {separator: true},
+            {separator: true},
+            {name: 'Operations log', bclass: 'list', onpress : on_operlog},
+            {separator: true},
+            {name: 'System log', bclass: 'list', onpress : on_syslog},
             {separator: true}
             ],
             'title': 'Clusters list',

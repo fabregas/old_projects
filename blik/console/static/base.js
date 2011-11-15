@@ -6,14 +6,16 @@ function process_menu_item(item, skip_li) {
     }
     items.push('<a href="' + item.url + '">' + item.label + '</a>');
 
+    
     if (item.children && item.children.length > 0) {
+        items.push('<span>');
         $.each(item.children, function(i,subitem) {
            var subitems = process_menu_item(subitem, 1); 
-           items.push('<span>');
            items = items.concat(subitems);
-           items.push('</span>');
         });
+        items.push('</span>');
     }
+    
     if (skip_li == 0) {
         items.push('</li>');
     }

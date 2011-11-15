@@ -21,9 +21,9 @@ except ImportError:
     NODES_NAMAGER_SUPPORT = False
 
 
-@authorize('base')
+
 def index(request):
-    return render_to_response('base.html')
+    return HttpResponseRedirect('/clusters_list')
 
 def exit(request):
     logout(request)
