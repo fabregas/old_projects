@@ -10,6 +10,7 @@ from console_base.auth import authenticate_user
 
 urlpatterns = patterns('',
      (r'^$', index),
+     (r'^exit/$', exit),
      (r'^static/(.+)$', get_media),
      (r'^get_menu_items/$', get_menu_items),
      (r'^auth/$', authenticate_user),

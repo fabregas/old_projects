@@ -13,6 +13,7 @@ body {
     left: 1%;
     width: 98%;
     min-width: 600px;
+    border: 1px solid #CCC;
 }
 
 #container_table {
@@ -48,8 +49,7 @@ body {
 }
 
 #base_content {
-    background-color: #FAFAFA;
-    border-right: 1px solid #CCC;
+    background-color: #efefef;
     font-size: 14px;
     font-style: normal;
     font-variant: normal;
@@ -123,7 +123,47 @@ form table td input, form table td select {
     width: 100%;
 }
 
-/*  END BASE INTEMS */
+#auth_form  {
+   width: 30%;
+   padding-left: 35%;
+   padding-top: 10%;
+}
+
+#auth_form form {
+   padding: 5px 5px;
+   display: block;
+   border: solid 2px #646d59;
+   background-color: #cacfc4;
+}
+
+#welcome {
+   color: #6c8054; 
+   font-weight: bold;
+   text-align: center;
+   font-size: 18px;
+}
+
+#auth_form table {
+   width: 100%;
+   color: #6e7269;
+   padding-top: 10px
+}
+
+#auth_form table th {
+    text-align: right;
+    padding-right: 10px;
+}
+
+#auth_form input {
+    width: 100%;
+    margin: 10 5 10 -5;
+}
+
+#auth_form p input {
+    width: 50%;
+    margin-left: 25%;
+    font-size: 16px;
+}
 
 .flexigrid div.fbutton .add {
     background: url(table/images/add.png) no-repeat center left;

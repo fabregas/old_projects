@@ -2,7 +2,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import connection, transaction
 from console_base.menu import get_menu
-from console_base.auth import get_current_user, authorize, is_authorize, cache_users, is_authenticated
+from console_base.auth import *
 from console_base.models import *
 from console_base.library import *
 from copy import copy
@@ -25,11 +25,17 @@ except ImportError:
 def index(request):
     return render_to_response('base.html')
 
+def exit(request):
+    logout(request)
+
+    return HttpResponseRedirect('/')
+
 def _select_user_menu(menu, user):
     ret_menu = []
     for item in menu:
-        #if item['role'] not in user.roles:
-        #    continue
+        if item['role'] and item['role'] == 'none':
+            if item['role'] not in user.roles:
+                continue
 
         item = copy(item)
         if item['children']:
