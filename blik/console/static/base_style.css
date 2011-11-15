@@ -3,17 +3,16 @@
 
 body {
     font-family: 'Lucida Grande', 'Lucida Sans Unicode', Helvetica, Arial, Verdana, sans-serif;
-    margin: 0px;
+    margin: 0%;
     padding: 0px;
     background-color: #E6E6E6 ;
 }
 
 #container {
-    margin-left: 1%;
+    position: absolute;
+    left: 1%;
     width: 98%;
     min-width: 600px;
-    display: block;
-    clear: both;
 }
 
 #container_table {

@@ -80,6 +80,17 @@ function fix_columns_width(element_id) {
     });
 }
 
+function auto_height_tables() {
+    $('table[auto_height]').each(function(i, item) {
+        var table = $(item).parentsUntil('.flexigrid');
+        var h = calc_height(table);
+        if ($(item).attr('has_pager') == '') {
+            h = h-30;
+        }
+        table.height(h);
+    });
+}
+
 function get_col_pw(perc) {
     var tbl_width = $('#container').width();
     tbl_width = tbl_width*95/100;
@@ -92,13 +103,11 @@ $(document).ready(function(){
 });
 
 $(window).load(function() {
-        $('table[auto_height]').each(function(i, item) {
-            var table = $(item).parentsUntil('.flexigrid');
-            var h = calc_height(table);
-            if ($(item).attr('has_pager') == '') {
-                h = h-30;
-            }
-            table.height(h);
-        });
+    auto_height_tables();
+});
+
+$(window).resize(function() {
+    fix_console_height();
+    auto_height_tables();
 });
 
