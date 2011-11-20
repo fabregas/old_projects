@@ -165,6 +165,32 @@ form table td input, form table td select {
     font-size: 16px;
 }
 
+#inform_area {	
+   width: 40%;
+   padding-left: 30%;
+   padding-top: 10%;
+}
+
+#inform_area table {
+    background-color: #cacfc4;
+    width: 100%;
+    color: #4E5546;
+    padding: 5px 5px;
+    display: block;
+    border: solid 2px #646d59;
+}
+
+#inform_area table td {
+   font-size: 14pt;
+   text-align: center;
+}
+#inform_area input {
+    margin-top: 30px;
+    width: 30%;
+    font-size: 24pt;
+}
+
+
 .flexigrid div.fbutton .add {
     background: url(table/images/add.png) no-repeat center left;
 }
