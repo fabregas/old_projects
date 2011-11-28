@@ -1,0 +1,154 @@
+#!/usr/bin/python
+"""
+Copyright (C) 2011 Konstantin Andrusenko
+    See the documentation for further information on copyrights,
+    or contact the author. All Rights Reserved.
+
+@author Konstantin Andrusenko
+@date November 28, 2011
+
+cluster-type-installer is utility for installation cluster type by specification
+"""
+
+import yaml
+import os
+import sys
+import shutil
+from blik.utils.databaseConnection import DatabaseConnection
+from blik.utils.exec_command import run_command
+from pexpect import spawn
+from datetime import datetime
+
+CLUSTER_OBJECT = 1
+PARAMS_TYPES = {'string': 1, 'integer': 2, 'datetime': 3, 'hidden': 4}
+
+class ParameterSpec:
+    def __init__(self, name, type, posible_params, default):
+        self.name = name
+        self.type = type
+        self.posible_params = posible_params
+        self.default = default
+
+class ClusterType:
+    def __init__(self):
+        self.type_name = None
+        self.description = None
+        self.parameters = []
+
+def print_log(message):
+    print ('[%s] %s' % (datetime.now(), message))
+
+def _get_item(obj, element_name):
+    element = obj.get(element_name, None)
+    if element is None:
+        raise Exception('<%s> element is not found'%element_name)
+
+    return element
+
+def parse_specification(yaml_file):
+    url_lower = yaml_file.lower()
+    if url_lower.startswith('http://') or url_lower.startswith('ftp://'):
+        yaml_file_out = '/tmp/tmp-node-spec.yaml'
+
+        ret,out,err = run_command(['wget', yaml_file, '-O', yaml_file_out])
+        if ret:
+            raise Exception('Node specification is not downloaded! Details: %s'%err)
+    else:
+        yaml_file_out = yaml_file
+
+    f = open(yaml_file)
+    objects = yaml.load(f.read())
+    f.close()
+
+    ct = ClusterType()
+
+    cluster_info = _get_item(objects, 'cluster_info')
+    ct.type_name = cluster_info[0]['type_name']
+    ct.description = cluster_info[0]['description']
+
+    params = objects.get('parameters', [])
+    for param in params:
+        name = param['name']
+        type = param['type']
+        posible_params = param.get('posible_params', None)
+        default = param.get('default', None)
+
+        ct.parameters.append(ParameterSpec(name, type, posible_params, default))
+
+    return ct
+
+def insert_cluster_type(cluster_type):
+    dbsrv = DatabaseConnection()
+
+    rows = dbsrv.select("SELECT description FROM nm_cluster_type WHERE type_sid=%s",(cluster_type.type_name,))
+
+    if not rows:
+        dbsrv.modify("INSERT INTO nm_cluster_type (type_sid, description) VALUES (%s, %s)",
+                    (cluster_type.type_name, cluster_type.description))
+    else:
+        dbsrv.modify("UPDATE nm_cluster_type SET description=%s WHERE type_sid=%s",
+                    (cluster_type.description, cluster_type.type_name))
+
+
+def insert_params_spec(cluster_type):
+    dbsrv = DatabaseConnection()
+    cluster_type_id = dbsrv.select('SELECT id FROM nm_cluster_type WHERE type_sid=%s', (cluster_type.type_name,))[0][0]
+
+    for param_spec in cluster_type.parameters:
+        param_name = param_spec.name.strip()
+        param_type = PARAMS_TYPES.get(param_spec.type.strip(), None)
+        if param_type is None:
+            raise Exception('Parameter type "%s" is not supported!'%param_spec.type)
+
+        if param_spec.posible_params is None:
+            param_spec.posible_params = ''
+        if param_spec.default is None:
+            param_spec.default = ''
+
+        param_posible_val = param_spec.posible_params.strip()
+        param_default = param_spec.default.strip()
+
+        params = (param_name, CLUSTER_OBJECT, cluster_type_id)
+        rows = dbsrv.select("SELECT id FROM nm_config_spec WHERE parameter_name=%s AND object_type_id=%s AND config_object=%s", params)
+
+        if rows:
+            param_id = rows[0][0]
+            params = (param_type, param_posible_val, param_default, param_id)
+            dbsrv.modify("UPDATE nm_config_spec SET parameter_type=%s, posible_values_list=%s, default_value=%s WHERE id=%s", params)
+        else:
+            params = (CLUSTER_OBJECT, cluster_type_id, param_name, param_type, param_posible_val, param_default)
+            dbsrv.modify("INSERT INTO nm_config_spec (object_type_id, config_object, parameter_name, \
+                        parameter_type, posible_values_list, default_value) VALUES (%s,%s,%s,%s,%s,%s)", params)
+
+
+#-----------------------------------------------------------------------------------
+
+
+def main(yaml_file):
+    try:
+        cluster_type = parse_specification(yaml_file)
+
+        insert_cluster_type(cluster_type)
+        insert_params_spec(cluster_type)
+
+        print_log('Cluster type installed successful!')
+    except Exception, err:
+        print_log(err)
+        print_log('Cluster type installation failed!')
+        return 1
+
+    return 0
+
+#-----------------------------------------------------------------------------------
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print 'Usage: cluster-type-installer <yaml-file>'
+        sys.exit(1)
+
+    yaml_file = sys.argv[-1]
+
+    ret = main(yaml_file)
+
+    sys.exit(ret)
+

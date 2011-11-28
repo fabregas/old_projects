@@ -19,6 +19,9 @@ from blik.utils.exec_command import run_command
 from pexpect import spawn
 from datetime import datetime
 
+PARAMS_TYPES = {'string': 1, 'integer': 2, 'datetime': 3, 'hidden': 4}
+NODE_OBJECT = 2
+
 DISKLESS_KERNELS_PATH = '/opt/blik/diskless/kernels/'
 TMP_DIR = '/opt/blik/tmp/'
 CANONICAL_IMAGE_PATH = '/opt/blik/diskless/images/canonical/%s/image.tar.bz2'
@@ -62,6 +65,13 @@ stop()
 }
 '''
 
+class ParameterSpec:
+    def __init__(self, name, type, posible_params, default):
+        self.name = name
+        self.type = type
+        self.posible_params = posible_params
+        self.default = default
+
 class KernelSource:
     def __init__(self, arch, url):
         self.arch = arch
@@ -75,6 +85,7 @@ class NodeType:
         self.description = None
         self.rootfs_mode = None
         self.kernels = []
+        self.parameters = []
 
 
 def print_log(message):
@@ -123,6 +134,15 @@ def parse_specification(yaml_file):
 
         nt.kernels.append(KernelSource(arch, kernel_url))
 
+    params = objects.get('parameters', [])
+    for param in params:
+        name = param['name']
+        type = param['type']
+        posible_params = param.get('posible_params', None)
+        default = param.get('default', None)
+
+        nt.parameters.append(ParameterSpec(name, type, posible_params, default))
+
     return nt
 
 def insert_node_type(node_type):
@@ -136,6 +156,37 @@ def insert_node_type(node_type):
     else:
         dbsrv.modify("UPDATE nm_node_type SET description=%s WHERE type_sid=%s",
                     (node_type.description, node_type.type_name))
+
+
+def insert_params_spec(node_type):
+    dbsrv = DatabaseConnection()
+    node_type_id = dbsrv.select('SELECT id FROM nm_node_type WHERE type_sid=%s', (node_type.type_name,))[0][0]
+
+    for param_spec in node_type.parameters:
+        param_name = param_spec.name.strip()
+        param_type = PARAMS_TYPES.get(param_spec.type.strip(), None)
+        if param_type is None:
+            raise Exception('Parameter type "%s" is not supported!'%param_spec.type)
+
+        if param_spec.posible_params is None:
+            param_spec.posible_params = ''
+        if param_spec.default is None:
+            param_spec.default = ''
+
+        param_posible_val = param_spec.posible_params.strip()
+        param_default = param_spec.default.strip()
+
+        params = (param_name, NODE_OBJECT, node_type_id)
+        rows = dbsrv.select("SELECT id FROM nm_config_spec WHERE parameter_name=%s AND object_type_id=%s AND config_object=%s", params)
+
+        if rows:
+            param_id = rows[0][0]
+            params = (param_type, param_posible_val, param_default, param_id)
+            dbsrv.modify("UPDATE nm_config_spec SET parameter_type=%s, posible_values_list=%s, default_value=%s WHERE id=%s", params)
+        else:
+            params = (NODE_OBJECT, node_type_id, param_name, param_type, param_posible_val, param_default)
+            dbsrv.modify("INSERT INTO nm_config_spec (object_type_id, config_object, parameter_name, \
+                        parameter_type, posible_values_list, default_value) VALUES (%s,%s,%s,%s,%s,%s)", params)
 
 
 def install_kernels(node_type):
@@ -383,6 +434,7 @@ def main(yaml_file, is_db_skip, is_image_skip):
 
         if not is_db_skip:
             insert_node_type(node_type)
+            insert_params_spec(node_type)
 
         if node_type.kernels:
             print_log('Installing kernels:')
