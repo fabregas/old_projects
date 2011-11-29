@@ -92,7 +92,7 @@ class OperationPlugin:
             return []
 
         if operations:
-            oper_filter = 'AND O.name IN (%s)' % ','.join(["'%s'"%op for op in operations])
+            oper_filter = 'AND O.sid IN (%s)' % ','.join(["'%s'"%op for op in operations])
         else:
             oper_filter = ''
 

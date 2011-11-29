@@ -15,8 +15,11 @@ TEST_SET="
 ./tests/bootManager/bootEventListener_test.py
 ./tests/nodeAgent/bootEventSender_test.py
 ./tests/nodeAgent/base_operations.py
-./tests/nodesManager/base_operations.py"
+./tests/nodesManager/base_operations.py
+"
 
+echo "Test CloudManager console..."
+/usr/bin/python ./blik/console/manage.py test || exit 22
 
 for PY in $TEST_SET ; do
     echo "* Run $PY"
@@ -27,3 +30,5 @@ for PY in $TEST_SET ; do
         exit $rc
     fi
 done
+
+

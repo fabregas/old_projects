@@ -12,7 +12,9 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-SITE_PATH = os.path.abspath('.')
+SITE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+NODES_MANAGER_SUPPORT = False
 
 DATABASE_ENGINE = 'postgresql_psycopg2'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = 'blik_cloud_db'             # Or path to database file if using sqlite3.

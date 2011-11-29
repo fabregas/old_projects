@@ -125,7 +125,7 @@ class OperationsEngine:
 
 
     def __get_operation_info(self, operation_name):
-        rows = self._dbconn.select("SELECT id, node_type_id, timeout FROM NM_OPERATION WHERE name=%s",(operation_name,))
+        rows = self._dbconn.select("SELECT id, node_type_id, timeout FROM NM_OPERATION WHERE sid=%s",(operation_name,))
         if not rows:
             raise Exception('Operation with name %s is not found in database!' % operation_name)
 

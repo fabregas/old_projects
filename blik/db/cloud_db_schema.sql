@@ -95,14 +95,18 @@ CREATE TABLE NM_NODE_TYPE (
 
 CREATE TABLE NM_OPERATION ( 
 	id serial NOT NULL,
-	name varchar(128) NOT NULL,    --  symbol identifier 
+    sid varchar(128) NOT NULL, -- symbol identifier ^M
+	name varchar(128) NOT NULL,    --  operation label 
 	timeout bigint NOT NULL,    --  operation timeout in seconds 
 	node_type_id bigint,    --  if NULL - for all nodes types 
 	description varchar(1024)
 )
 ;
-COMMENT ON COLUMN NM_OPERATION.name
+COMMENT ON COLUMN NM_OPERATION.sid
     IS 'symbol identifier'
+;
+COMMENT ON COLUMN NM_OPERATION.name
+    IS 'operation label'
 ;
 COMMENT ON COLUMN NM_OPERATION.timeout
     IS 'operation timeout in seconds'
@@ -238,7 +242,7 @@ ALTER TABLE NM_NODE_TYPE
 	ADD CONSTRAINT UQ_NM_NODE_TYPE_type_sid UNIQUE (type_sid)
 ;
 ALTER TABLE NM_OPERATION
-	ADD CONSTRAINT UQ_NM_OPERATION_name UNIQUE (name)
+	ADD CONSTRAINT UQ_NM_OPERATION_sid UNIQUE (sid)
 ;
 ALTER TABLE NM_USER
 	ADD CONSTRAINT UQ_NM_USER_name UNIQUE (name)

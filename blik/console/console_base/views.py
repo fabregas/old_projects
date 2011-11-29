@@ -5,6 +5,7 @@ from console_base.menu import get_menu
 from console_base.auth import *
 from console_base.models import *
 from console_base.library import *
+from settings import NODES_MANAGER_SUPPORT
 from copy import copy
 import json
 import re
@@ -14,11 +15,12 @@ from datetime import datetime
 DT_PATTERN = '%m/%d/%Y %H:%M'
 
 try:
-    from blik.nodesManager.dbusClient import DBUSInterfaceClient
-    from blik.utils.exec_command import run_command
-    NODES_NAMAGER_SUPPORT = True
+    if NODES_MANAGER_SUPPORT:
+        from blik.nodesManager.dbusClient import DBUSInterfaceClient
+        from blik.utils.exec_command import run_command
+        NODES_MANAGER_SUPPORT = True
 except ImportError:
-    NODES_NAMAGER_SUPPORT = False
+    NODES_MANAGER_SUPPORT = False
 
 
 
@@ -360,7 +362,7 @@ def change_base_node_params(request, node_id):
 
     ret_message = 'Parameters are installed for node!\n'
 
-    if NODES_NAMAGER_SUPPORT:
+    if NODES_MANAGER_SUPPORT:
         #apply parameters
         code,out,err = run_command(['change-node', '--node-type', node.node_type.type_sid, \
                             '--arch', node.architecture, '--hostname', node.hostname, '--uuid', node.node_uuid])
@@ -402,7 +404,7 @@ def reboot_node(request, node_id):
     node = NmNode.objects.get(id=node_id)
     url = '/cluster_nodes/%s'%node.cluster.id
 
-    if NODES_NAMAGER_SUPPORT:
+    if NODES_MANAGER_SUPPORT:
         cur_user = get_current_user(request)
 
         #reboot node
@@ -420,7 +422,7 @@ def sync_node(request, node_id):
     node = NmNode.objects.get(id=node_id)
     url = '/cluster_nodes/%s'%node.cluster.id
 
-    if NODES_NAMAGER_SUPPORT:
+    if NODES_MANAGER_SUPPORT:
         cur_user = get_current_user(request)
 
         #synchronize node
