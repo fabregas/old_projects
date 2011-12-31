@@ -115,15 +115,13 @@ def parse_specification(yaml_file):
     f.close()
 
     nt = NodeType()
-    node_info = _get_item(objects, 'node_info')
-    nt.node_info = node_info[0]
+    nt.node_info = _get_item(objects, 'node_info')
 
     nt.type_name = _get_item(nt.node_info, 'type_name')
     supported_archs = _get_item(nt.node_info, 'supported_archs')
-    nt.supported_archs = [s.strip() for s in supported_archs.split(',')]
+    nt.supported_archs = _get_item(nt.node_info, 'supported_archs')
 
-    packages = _get_item(nt.node_info, 'packages')
-    nt.packages = packages.split(',')
+    nt.packages = _get_item(nt.node_info, 'packages')
     nt.description = _get_item(nt.node_info, 'description')
     nt.rootfs_mode = _get_item(nt.node_info, 'rootfs_mode')
 
@@ -138,7 +136,7 @@ def parse_specification(yaml_file):
     for param in params:
         name = param['name']
         type = param['type']
-        posible_params = param.get('posible_params', None)
+        posible_params = param.get('posible_params', [])
         default = param.get('default', None)
 
         nt.parameters.append(ParameterSpec(name, type, posible_params, default))
@@ -153,9 +151,13 @@ def insert_node_type(node_type):
     if not rows:
         dbsrv.modify("INSERT INTO nm_node_type (type_sid, description) VALUES (%s, %s)",
                     (node_type.type_name, node_type.description))
+
+        print_log('Node type "%s" is inserted into database'%node_type.type_name)
     else:
         dbsrv.modify("UPDATE nm_node_type SET description=%s WHERE type_sid=%s",
                     (node_type.description, node_type.type_name))
+
+        print_log('Node type "%s" is updated in database'%node_type.type_name)
 
 
 def insert_params_spec(node_type):
@@ -163,8 +165,8 @@ def insert_params_spec(node_type):
     node_type_id = dbsrv.select('SELECT id FROM nm_node_type WHERE type_sid=%s', (node_type.type_name,))[0][0]
 
     for param_spec in node_type.parameters:
-        param_name = param_spec.name.strip()
-        param_type = PARAMS_TYPES.get(param_spec.type.strip(), None)
+        param_name = param_spec.name
+        param_type = PARAMS_TYPES.get(param_spec.type, None)
         if param_type is None:
             raise Exception('Parameter type "%s" is not supported!'%param_spec.type)
 
@@ -173,8 +175,8 @@ def insert_params_spec(node_type):
         if param_spec.default is None:
             param_spec.default = ''
 
-        param_posible_val = param_spec.posible_params.strip()
-        param_default = param_spec.default.strip()
+        param_posible_val = '|'.join(param_spec.posible_params)
+        param_default = param_spec.default
 
         params = (param_name, NODE_OBJECT, node_type_id)
         rows = dbsrv.select("SELECT id FROM nm_config_spec WHERE parameter_name=%s AND object_type_id=%s AND config_object=%s", params)
@@ -183,10 +185,12 @@ def insert_params_spec(node_type):
             param_id = rows[0][0]
             params = (param_type, param_posible_val, param_default, param_id)
             dbsrv.modify("UPDATE nm_config_spec SET parameter_type=%s, posible_values_list=%s, default_value=%s WHERE id=%s", params)
+            print_log('Parameter type "%s" is updated in database'%param_name)
         else:
             params = (NODE_OBJECT, node_type_id, param_name, param_type, param_posible_val, param_default)
             dbsrv.modify("INSERT INTO nm_config_spec (object_type_id, config_object, parameter_name, \
                         parameter_type, posible_values_list, default_value) VALUES (%s,%s,%s,%s,%s,%s)", params)
+            print_log('Parameter type "%s" is inserted into database'%param_name)
 
 
 def install_kernels(node_type):

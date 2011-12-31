@@ -63,14 +63,14 @@ def parse_specification(yaml_file):
     ct = ClusterType()
 
     cluster_info = _get_item(objects, 'cluster_info')
-    ct.type_name = cluster_info[0]['type_name']
-    ct.description = cluster_info[0]['description']
+    ct.type_name = cluster_info['type_name']
+    ct.description = cluster_info['description']
 
     params = objects.get('parameters', [])
     for param in params:
         name = param['name']
         type = param['type']
-        posible_params = param.get('posible_params', None)
+        posible_params = param.get('posible_params', [])
         default = param.get('default', None)
 
         ct.parameters.append(ParameterSpec(name, type, posible_params, default))
@@ -85,9 +85,14 @@ def insert_cluster_type(cluster_type):
     if not rows:
         dbsrv.modify("INSERT INTO nm_cluster_type (type_sid, description) VALUES (%s, %s)",
                     (cluster_type.type_name, cluster_type.description))
+
+        print_log('Cluster type "%s" inserted into database'%cluster_type.type_name)
     else:
         dbsrv.modify("UPDATE nm_cluster_type SET description=%s WHERE type_sid=%s",
                     (cluster_type.description, cluster_type.type_name))
+
+        print_log('Cluster type "%s" updated in database'%cluster_type.type_name)
+
 
 
 def insert_params_spec(cluster_type):
@@ -95,8 +100,8 @@ def insert_params_spec(cluster_type):
     cluster_type_id = dbsrv.select('SELECT id FROM nm_cluster_type WHERE type_sid=%s', (cluster_type.type_name,))[0][0]
 
     for param_spec in cluster_type.parameters:
-        param_name = param_spec.name.strip()
-        param_type = PARAMS_TYPES.get(param_spec.type.strip(), None)
+        param_name = param_spec.name
+        param_type = PARAMS_TYPES.get(param_spec.type, None)
         if param_type is None:
             raise Exception('Parameter type "%s" is not supported!'%param_spec.type)
 
@@ -105,8 +110,8 @@ def insert_params_spec(cluster_type):
         if param_spec.default is None:
             param_spec.default = ''
 
-        param_posible_val = param_spec.posible_params.strip()
-        param_default = param_spec.default.strip()
+        param_posible_val = '|'.join(param_spec.posible_params)
+        param_default = param_spec.default
 
         params = (param_name, CLUSTER_OBJECT, cluster_type_id)
         rows = dbsrv.select("SELECT id FROM nm_config_spec WHERE parameter_name=%s AND object_type_id=%s AND config_object=%s", params)
@@ -115,10 +120,14 @@ def insert_params_spec(cluster_type):
             param_id = rows[0][0]
             params = (param_type, param_posible_val, param_default, param_id)
             dbsrv.modify("UPDATE nm_config_spec SET parameter_type=%s, posible_values_list=%s, default_value=%s WHERE id=%s", params)
+
+            print_log('Parameter type "%s" is updated in database'%param_name)
         else:
             params = (CLUSTER_OBJECT, cluster_type_id, param_name, param_type, param_posible_val, param_default)
             dbsrv.modify("INSERT INTO nm_config_spec (object_type_id, config_object, parameter_name, \
                         parameter_type, posible_values_list, default_value) VALUES (%s,%s,%s,%s,%s,%s)", params)
+
+            print_log('Parameter type "%s" is installed into database'%param_name)
 
 
 #-----------------------------------------------------------------------------------
