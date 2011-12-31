@@ -8,7 +8,7 @@ setup(
     maintainer = "Konstantin Andrusenko",
     maintainer_email = "blikproject@gmail.com",
     description = "Blik cloud boot manager",
-    packages = ['blik', 'blik.bootManager'],  # include all packages under src
+    packages = ['blik.bootManager'],  # include all packages under src
     scripts = ['bin/configureBootManager.py',
                 'bin/node-type-installer',
                 'bin/node-image-updater',

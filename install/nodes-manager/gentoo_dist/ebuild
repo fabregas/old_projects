@@ -18,7 +18,9 @@ IUSE=""
 
 DEPEND="blik-products/blik-utils
         blik-products/boot-manager
-        dev-python/dbus-python"
+        dev-python/dbus-python
+        dev-python/django[postgres]
+        dev-python/cherrypy"
 
 RDEPEND="${DEPEND}"
 
@@ -31,6 +33,8 @@ src_install() {
 	distutils_src_install
 
     newinitd init_scripts/nodes-manager nodes-manager
+
+    newinitd init_scripts/cloud-manager-console cloud-manager-console
 
     insinto /etc/dbus-1/system.d
     newins config/com.blik.nodesManager.conf com.blik.nodesManager.conf

@@ -2,11 +2,10 @@ import os
 import ConfigParser
 from ConfigParser import RawConfigParser
 
+CONF_DIR = '/opt/blik/conf'
 
 def getConfigFilePath():
-    home = os.environ['HOME']
-
-    return os.path.join(home, '.blik_cloud_manager')
+    return os.path.join(CONF_DIR, 'blik_cloud_manager.conf')
 
 class Config:
     @staticmethod

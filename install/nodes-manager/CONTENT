@@ -3,3 +3,6 @@ bin/nodesManager
 bin/call-operation
 init_scripts/nodes-manager
 config/com.blik.nodesManager.conf
+blik/console/*
+bin/consoleManager
+init_scripts/cloud-manager-console

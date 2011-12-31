@@ -1,5 +1,6 @@
 # Django settings for blik_console project.
 import os
+import sys
 
 from django.conf import settings
 from django.conf.global_settings import *
@@ -16,6 +17,10 @@ ADMINS = (
 MANAGERS = ADMINS
 
 SITE_PATH = os.path.dirname(os.path.abspath(__file__))
+if not os.path.exists(os.path.join(SITE_PATH, 'menu')):
+    SITE_PATH = '/opt/blik/console/'
+
+sys.path.append(SITE_PATH)
 
 NODES_MANAGER_SUPPORT = False
 
@@ -76,6 +81,7 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = [
     'django.contrib.sessions',
+    'console_base'
 ]
 
 for item in os.listdir(SITE_PATH):

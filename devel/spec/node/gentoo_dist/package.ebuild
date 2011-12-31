@@ -21,7 +21,7 @@ DEPEND="blik-products/node-agent"
 RDEPEND="${DEPEND}"
 
 src_install() {
-	/opt/blik/bin/plugin-installer --operations --agent node_agent_plugins/ || die "cluster type installation failed"
+	plugin-installer --operations --agent node_agent_plugins/ || die "cluster type installation failed"
 }
 
 
