@@ -212,7 +212,27 @@ def __check_spec(path, yaml_structure):
 
         print('Validating %s specification structure...'%f_path)
         validate_spec(f_name, yaml_obj, yaml.load(yaml_structure))
+        return yaml_obj
 
+def __validate_operations_plugins(path, plugin_dir):
+    '''Static validation of operations plugins directories'''
+    nmp_path = os.path.join(path, plugin_dir)
+    if not os.path.exists(nmp_path):
+        raise Exception('Directory %s is not found!'%nmp_path)
+
+    items = os.listdir(nmp_path)
+    for item in items:
+        path = os.path.join(nmp_path, item)
+        if os.path.isfile(path):
+            raise Exception('%s contain file %s. This directory should contain subdirectories only!'%(plugin_dir, item))
+
+        init_file = os.path.join(path, '__init__.py')
+        if not os.path.exists(init_file):
+            raise Exception('Plugin at %s is incorrent! It should contain __init__.py file'% path)
+
+        init_content = open(init_file).read()
+        if init_content.find('OPERATIONS_PLUGINS') < 0:
+            raise Exception('OPERATIONS_PLUGINS variable should be defined in %s'%init_file)
 
 def test_package(package_path):
     '''Testing package at path @package_path'''
@@ -223,7 +243,8 @@ def test_package(package_path):
     __check_spec(os.path.join(package_path, 'nodes_spec'), NODES_SPEC_STRUCT)
     __check_spec(os.path.join(package_path, 'operations_spec'), OPERATIONS_SPEC_STRUCT)
 
-    #TODO: find no implemented operations and write warning if found
+    __validate_operations_plugins(package_path, 'nodes_manager_plugins')
+    __validate_operations_plugins(package_path, 'node_agent_plugins')
 
     tests_dir = os.path.join(package_path, 'tests')
     for f_name in os.listdir(tests_dir):
@@ -312,6 +333,8 @@ def distribute_package(package_path, version, distribution_server):
     package_name = os.path.basename(os.path.normpath(package_path))
     remote_path = '%s:/usr/portage/distfiles' % distribution_server
 
+    distribute_ebuilds(package_name, version, distribution_server)
+
     for node_type in NODES_TYPES:
         tar_file = '%s-%s-%s.tar'% (package_name, node_type, version)
         local_path = os.path.join(package_path, 'dist', tar_file)
@@ -323,13 +346,12 @@ def distribute_package(package_path, version, distribution_server):
         if ret:
             raise Exception('Distribution package %s failed!'%package_name)
 
-    distribute_ebuilds(package_name, version, distribution_server)
-
-    mirror_updater = '/opt/blik/sbin/portage-mirror-update'
-    ret = os.system('ssh %s %s /usr/portage/blik-products/%s/%s-%s.ebuild'%(distribution_server, \
-                                            mirror_updater, package_name, package_name, version))
-    if ret:
-        raise Exception('Distribution server is not updated on distribution server')
+        mirror_updater = '/opt/blik/sbin/portage-mirror-update'
+        ebuild_name = '%s-%s'%(package_name, node_type)
+        ret = os.system('ssh %s %s /usr/portage/blik-products/%s/%s-%s.ebuild'%(distribution_server, \
+                                                mirror_updater, ebuild_name, ebuild_name, version))
+        if ret:
+            raise Exception('Distribution server is not updated on distribution server')
 
     print('Package %s is distributed successfully!'%package_name)
 
