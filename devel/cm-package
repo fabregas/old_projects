@@ -234,6 +234,16 @@ def __validate_operations_plugins(path, plugin_dir):
         if init_content.find('OPERATIONS_PLUGINS') < 0:
             raise Exception('OPERATIONS_PLUGINS variable should be defined in %s'%init_file)
 
+def __validate_console_applications(app_path):
+    '''Validate cloud manager console applications'''
+    for item in os.listdir(app_path):
+        path = os.path.join(app_path, item)
+        if os.path.isdir(path):
+            if not os.path.exists(os.path.join(path, '__init__.py')):
+                raise Exception('Console application "%s" should contain __init__.py file!'%item)
+        else:
+            raise Exception('console_ext/applications contain file %s. This directory should contain directories only!'%item)
+
 def test_package(package_path):
     '''Testing package at path @package_path'''
     package_path = os.path.abspath(package_path)
@@ -245,6 +255,8 @@ def test_package(package_path):
 
     __validate_operations_plugins(package_path, 'nodes_manager_plugins')
     __validate_operations_plugins(package_path, 'node_agent_plugins')
+
+    __validate_console_applications(os.path.join(package_path, 'console_ext/applications'))
 
     tests_dir = os.path.join(package_path, 'tests')
     for f_name in os.listdir(tests_dir):
