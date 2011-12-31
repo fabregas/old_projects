@@ -1,4 +1,10 @@
 #!/usr/bin/python
+#pylint: disable-msg=C0301
+"""
+Purpose: Manager of custom packages for Blik CloudManager
+Created: 31.12.2011
+Author:  Konstantin Andrusenko
+"""
 import os
 import sys
 import shutil
@@ -7,6 +13,7 @@ import tempfile
 from optparse import OptionParser
 
 import yaml
+
 
 SPEC_DIR = '/opt/blik/develop/spec/'
 NODES_TYPES = ['mgmt', 'node']
@@ -95,8 +102,12 @@ operations:
             type: str
 '''
 
+class OptionError(Exception):
+    '''Exception class for invalid command line parameters'''
+    pass
 
 def new_package(package_name, path='.'):
+    '''Creates new package development structure'''
     print('Creating project "%s" at %s...'%(package_name, path))
     package_dir = os.path.join(path, package_name)
     if os.path.exists(package_dir):
@@ -112,7 +123,7 @@ def new_package(package_name, path='.'):
         os.makedirs(os.path.join(package_dir, subdir))
 
     for f_name in os.listdir(SPEC_DIR):
-        path = os.path.join(SPEC_DIR,f_name)
+        path = os.path.join(SPEC_DIR, f_name)
 
         dst =  os.path.join(package_dir, 'spec/')
         ret = os.system('cp -r %s %s'%(path, dst))
@@ -124,6 +135,9 @@ def new_package(package_name, path='.'):
 #---------------------------------------------------------------------------
 
 def _check_element_type(element, type_name):
+    '''checks element type
+        Returns True if element has valid type
+    '''
     if element.__class__.__name__ == type_name:
         return True
 
@@ -142,6 +156,7 @@ def _check_element_type(element, type_name):
     return False
 
 def validate_spec(spec_name, spec_obj, structure):
+    '''Validate yaml config structure'''
     for key in spec_obj:
         if key not in structure:
             raise Exception('Key "%s" is not supported'%key)
@@ -179,6 +194,7 @@ def validate_spec(spec_name, spec_obj, structure):
 
 
 def __check_spec(path, yaml_structure):
+    '''Validate all YAML files at @path directory'''
     for f_name in os.listdir(path):
         if not f_name.endswith('.yaml'):
             continue
@@ -199,6 +215,7 @@ def __check_spec(path, yaml_structure):
 
 
 def test_package(package_path):
+    '''Testing package at path @package_path'''
     package_path = os.path.abspath(package_path)
     print('Start testing process of project at %s'%package_path)
 
@@ -210,7 +227,7 @@ def test_package(package_path):
 
     tests_dir = os.path.join(package_path, 'tests')
     for f_name in os.listdir(tests_dir):
-        ret = os.system(os.path.join(tests_dir,f_name))
+        ret = os.system(os.path.join(tests_dir, f_name))
         if ret:
             raise Exception('===== Tests failed! =====')
     print('Project is tested successful!')
@@ -218,6 +235,7 @@ def test_package(package_path):
 #---------------------------------------------------------------------------
 
 def build_package(package_path, version):
+    '''Build package at path @package_path with version @version'''
     #testing package before build
     test_package(package_path)
 
@@ -233,7 +251,7 @@ def build_package(package_path, version):
 
     package_name = os.path.basename(os.path.normpath(package_path))
     for node_type in NODES_TYPES:
-        out_file = '%s-%s-%s.tar'%(package_name, node_type, version)
+        out_file = '%s-%s-%s.tar'% (package_name, node_type, version)
         out_file = os.path.join(build_dir, out_file)
 
         tar = tarfile.TarFile(out_file,'w')
@@ -253,6 +271,7 @@ def build_package(package_path, version):
 #---------------------------------------------------------------------------
 
 def distribute_ebuilds(pkg_name, version, distribution_server):
+    '''Distribute Gentoo ebuilds to distribution server'''
     tmp_path = tempfile.mkdtemp(suffix='blikdevel')
 
     remote_path = '%s:/opt/blik/portage/blik-products/'% distribution_server
@@ -286,6 +305,7 @@ def distribute_ebuilds(pkg_name, version, distribution_server):
 
 
 def distribute_package(package_path, version, distribution_server):
+    '''Distribure package with version @version to distribution server'''
     print('Distributing packages with version %s to %s'%(version, distribution_server))
     package_path = os.path.abspath(package_path)
     os.chdir(package_path)
@@ -293,7 +313,7 @@ def distribute_package(package_path, version, distribution_server):
     remote_path = '%s:/usr/portage/distfiles' % distribution_server
 
     for node_type in NODES_TYPES:
-        tar_file = '%s-%s-%s.tar'%(package_name, node_type, version)
+        tar_file = '%s-%s-%s.tar'% (package_name, node_type, version)
         local_path = os.path.join(package_path, 'dist', tar_file)
         if not os.path.exists(local_path):
             raise Exception('Build is not found at %s'%local_path)
@@ -306,7 +326,7 @@ def distribute_package(package_path, version, distribution_server):
     distribute_ebuilds(package_name, version, distribution_server)
 
     mirror_updater = '/opt/blik/sbin/portage-mirror-update'
-    ret = os.system('ssh %s %s /usr/portage/blik-products/%s/%s-%s.ebuild'%(distribution_server,\
+    ret = os.system('ssh %s %s /usr/portage/blik-products/%s/%s-%s.ebuild'%(distribution_server, \
                                             mirror_updater, package_name, package_name, version))
     if ret:
         raise Exception('Distribution server is not updated on distribution server')
@@ -316,26 +336,24 @@ def distribute_package(package_path, version, distribution_server):
 #----------------------------------------------------------------------------------------------------------------
 
 def get_usage():
-    s = 'Usage: cm-package <options>\n'
-    s += 'Options:\n'
-    s += '*  create [--path|-p <home dir path>] --name|-n <package name>\n'
-    s += '      creates new project with name <package> name in <home dir path> directory or in current directory\n'
-    s += '*  test [--path|-p <package path>]\n'
-    s += '      test project at path <package path> or at current directory\n'
-    s += '*  build [--path|-p <package path>] --ver|-v <version>\n'
-    s += '      build project at path <package path> or at current directory with version <version>\n'
-    s += '*  distribute [--path|-p <package path>] --ver|-v <version> --dist-server|-d <dist server>\n'
-    s += '      distribute project at path <package path> or at current directory with version <version> to server <dist server>\n'
-    s += '      <dist server> should has format: <login>@<server hostname>\n'
+    '''Returns usage information'''
+    s_usage = 'Usage: cm-package <options>\n'
+    s_usage += 'Options:\n'
+    s_usage += '*  create [--path|-p <home dir path>] --name|-n <package name>\n'
+    s_usage += '      creates new project with name <package> name in <home dir path> directory or in current directory\n'
+    s_usage += '*  test [--path|-p <package path>]\n'
+    s_usage += '      test project at path <package path> or at current directory\n'
+    s_usage += '*  build [--path|-p <package path>] --ver|-v <version>\n'
+    s_usage += '      build project at path <package path> or at current directory with version <version>\n'
+    s_usage += '*  distribute [--path|-p <package path>] --ver|-v <version> --dist-server|-d <dist server>\n'
+    s_usage += '      distribute project at path <package path> or at current directory with version <version> to server <dist server>\n'
+    s_usage += '      <dist server> should has format: <login>@<server hostname>\n'
 
-    return s
+    return s_usage
 
-
-def print_error(err_msg):
-    sys.stderr.write('%s\nPlease, run "cm-package --help" for printing usage\n'%err_msg)
-    return 1
 
 def main():
+    '''Main routine'''
     if (len(sys.argv) < 2) or ('--help' in sys.argv) or ('-h' in sys.argv):
         print(get_usage())
         return 1
@@ -347,41 +365,40 @@ def main():
     parser.add_option("-d", "--dist-server", dest="dist_server")
 
     try:
-        options, args = parser.parse_args(sys.argv[2:])
-    except Exception, err:
-        parser.print_usage(sys.stderr)
+        options = parser.parse_args(sys.argv[2:])[0]
+
+        command = sys.argv[1]
+        if command == 'create':
+            if options.p_name is None:
+                raise OptionError('Option --name is not found!')
+
+            new_package(options.p_name, options.path)
+        elif command == 'test':
+            test_package(options.path)
+        elif command == 'build':
+            if options.version is None:
+                raise OptionError('Option --ver is not found!')
+
+            build_package(options.path, options.version)
+        elif command == 'distribute':
+            if options.version is None:
+                raise OptionError('Option --ver is not found!')
+            if options.dist_server is None:
+                raise OptionError('Option --dist-server is not found!')
+
+            distribute_package(options.path, options.version, options.dist_server)
+        else:
+            raise OptionError('Command "%s" is not supported'%command)
+    except OptionError, err:
+        sys.stderr.write('%s\nPlease, run "cm-package --help" for printing usage\n'%err)
         return 1
-
-    command = sys.argv[1]
-    if command == 'create':
-        if options.p_name is None:
-            return print_error('Option --name is not found!')
-
-        new_package(options.p_name, options.path)
-    elif command == 'test':
-        test_package(options.path)
-    elif command == 'build':
-        if options.version is None:
-            return print_error('Option --ver is not found!')
-
-        build_package(options.path, options.version)
-    elif command == 'distribute':
-        if options.version is None:
-            return print_error('Option --ver is not found!')
-        if options.dist_server is None:
-            return print_error('Option --dist-server is not found!')
-
-        distribute_package(options.path, options.version, options.dist_server)
+    except Exception, err:
+        sys.stderr.write('ERROR: %s\n'%err)
+        return 2
 
     return 0
 
 
 if __name__ == '__main__':
-    try:
-        ret = main()
-        if ret:
-            sys.exit(1)
-        sys.exit(0)
-    except Exception, err:
-        sys.stderr.write('ERROR: %s\n'%err)
-        sys.exit(2)
+    sys.exit(main())
+
