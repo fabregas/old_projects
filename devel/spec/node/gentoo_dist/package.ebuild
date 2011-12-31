@@ -5,7 +5,7 @@
 EAPI=3
 PYTHON_DEPEND="2"
 
-inherit distutils
+inherit eutils
 
 DESCRIPTION="Blik Cloud Manager Plugins for Node Agent"
 HOMEPAGE=""
@@ -20,15 +20,8 @@ DEPEND="blik-products/node-agent"
 
 RDEPEND="${DEPEND}"
 
-src_compile() {
-
-}
-
 src_install() {
-	plugin-installer --operations --agent node_agent_plugins/
+	/opt/blik/bin/plugin-installer --operations --agent node_agent_plugins/ || die "cluster type installation failed"
 }
 
-pkg_postinst() {
-
-}
 

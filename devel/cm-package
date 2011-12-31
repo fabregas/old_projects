@@ -9,6 +9,10 @@ from optparse import OptionParser
 import yaml
 
 SPEC_DIR = '/opt/blik/develop/spec/'
+NODES_TYPES = ['mgmt', 'node']
+NODE_TYPE_DIRS = {'mgmt': ['clusters_spec', 'nodes_spec', 'operations_spec',
+                            'nodes_manager_plugins', 'console_ext', 'console_ext'],
+                 'node': ['node_agent_plugins']}
 
 def new_package(package_name, path='.'):
     print('Creating project "%s" at %s...'%(package_name, path))
@@ -27,14 +31,12 @@ def new_package(package_name, path='.'):
 
     for f_name in os.listdir(SPEC_DIR):
         path = os.path.join(SPEC_DIR,f_name)
-        #if os.path.isdir(path):
-        #    continue
 
         dst =  os.path.join(package_dir, 'spec/')
-        #print ('Copying %s to %s'%(path, dst))
         ret = os.system('cp -r %s %s'%(path, dst))
         if ret:
             raise Exception('Copying failed!')
+
     print ('Project is created successfull!')
 
 #---------------------------------------------------------------------------
@@ -53,7 +55,8 @@ def __check_spec(path):
         except Exception, err:
             raise Exception('File %s has invalid format! Details: %s'%(f_path, err))
         finally:
-            if file_obj: f.close()
+            if file_obj:
+                file_obj.close()
 
 
 def test_package(package_path):
@@ -87,22 +90,22 @@ def build_package(package_path, version):
         os.mkdir(build_dir)
 
     package_name = os.path.basename(os.path.normpath(package_path))
-    out_file = '%s-%s.tar'%(package_name, version)
-    out_file = os.path.join(build_dir, out_file)
+    for node_type in NODES_TYPES:
+        out_file = '%s-%s-%s.tar'%(package_name, node_type, version)
+        out_file = os.path.join(build_dir, out_file)
 
-    tar = tarfile.TarFile(out_file,'w')
+        tar = tarfile.TarFile(out_file,'w')
 
-    cur_dir = os.path.abspath('.')
-    os.chdir(package_path)
-    content = os.listdir('.')
-    ignore_paths = ['dist', 'spec']
-    for item in content:
-        if item.startswith('.') or (item in ignore_paths):
-            continue
-        tar.add(item)
-    tar.close()
-    os.chdir(cur_dir)
-    print('Build saved at %s'%out_file)
+        cur_dir = os.path.abspath('.')
+        os.chdir(package_path)
+        content = os.listdir('.')
+        for item in content:
+            if item in NODE_TYPE_DIRS[node_type]:
+                tar.add(item)
+
+        tar.close()
+        os.chdir(cur_dir)
+        print('Build saved at %s'%out_file)
     print('Project is builded successfull!')
 
 #---------------------------------------------------------------------------
@@ -111,9 +114,8 @@ def distribute_ebuilds(pkg_name, version, distribution_server):
     tmp_path = tempfile.mkdtemp(suffix='blikdevel')
 
     remote_path = '%s:/opt/blik/portage/blik-products/'% distribution_server
-    nodes_types = ['mgmt', 'node']
 
-    for node_type in nodes_types:
+    for node_type in NODES_TYPES:
         ebuild = 'spec/%s/gentoo_dist/package.ebuild'% node_type
         metadata = 'spec/%s/gentoo_dist/metadata.xml'% node_type
         changelog = 'spec/%s/gentoo_dist/ChangeLog'% node_type
@@ -133,7 +135,7 @@ def distribute_ebuilds(pkg_name, version, distribution_server):
 
     os.chdir(tmp_path)
     print('Copying portage ebuilds files to %s...'%(remote_path))
-    for node_type in nodes_types:
+    for node_type in NODES_TYPES:
         ret = os.system('scp -r %s-%s %s' % (pkg_name, node_type, remote_path))
         if ret:
             raise Exception('Ebuilds distribution for package %s is failed!'%pkg_name)
@@ -146,17 +148,18 @@ def distribute_package(package_path, version, distribution_server):
     package_path = os.path.abspath(package_path)
     os.chdir(package_path)
     package_name = os.path.basename(os.path.normpath(package_path))
-    tar_file = '%s-%s.tar'%(package_name, version)
-
     remote_path = '%s:/usr/portage/distfiles' % distribution_server
-    local_path = os.path.join(package_path, 'dist', tar_file)
-    if not os.path.exists(local_path):
-        raise Exception('Build is not found at %s'%local_path)
 
-    print('Copying %s to %s over ssh'%(local_path, remote_path))
-    ret = os.system('scp %s %s'%(local_path, remote_path))
-    if ret:
-        raise Exception('Distribution package %s failed!'%package_name)
+    for node_type in NODES_TYPES:
+        tar_file = '%s-%s-%s.tar'%(package_name, node_type, version)
+        local_path = os.path.join(package_path, 'dist', tar_file)
+        if not os.path.exists(local_path):
+            raise Exception('Build is not found at %s'%local_path)
+
+        print('Copying %s to %s over ssh'%(local_path, remote_path))
+        ret = os.system('scp %s %s'%(local_path, remote_path))
+        if ret:
+            raise Exception('Distribution package %s failed!'%package_name)
 
     distribute_ebuilds(package_name, version, distribution_server)
 

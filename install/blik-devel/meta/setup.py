@@ -11,8 +11,8 @@ setup(
     packages = [],  # include all packages under src
     scripts = ['devel/cm-package'],
     license = 'GPLv3',
-    data_files = [('/opt/blik/develop/spec/devel/spec/mgmt/gentoo_dist/', ['devel/spec/mgmt/gentoo_dist/package.ebuild']),
-                    ('/opt/blik/develop/spec/devel/spec/node/gentoo_dist/', ['devel/spec/node/gentoo_dist/package.ebuild'])],
+    data_files = [('/opt/blik/develop/spec/mgmt/gentoo_dist/', ['devel/spec/mgmt/gentoo_dist/package.ebuild']),
+                    ('/opt/blik/develop/spec/node/gentoo_dist/', ['devel/spec/node/gentoo_dist/package.ebuild'])],
     zip_safe = True
 )
 

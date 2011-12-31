@@ -5,7 +5,7 @@
 EAPI=3
 PYTHON_DEPEND="2"
 
-inherit distutils
+inherit eutils
 
 DESCRIPTION="Blik Cloud Manager Plugins"
 HOMEPAGE=""
@@ -20,31 +20,25 @@ DEPEND="blik-products/nodes-manager"
 
 RDEPEND="${DEPEND}"
 
-src_compile() {
-
-}
-
 src_install() {
 	for spec in clusters_spec/*.yaml
 	do
-		cluster-type-installer $spec
+		/opt/blik/bin/cluster-type-installer $spec || die "cluster type installation failed"
 	done
 
 	for spec in nodes_spec/*.yaml
 	do
-		node-type-installer $spec
+		/opt/blik/bin/node-type-installer $spec || die "node type installation failed"
 	done
 
 	for spec in operations_spec/*.yaml
 	do
-		operations-installer $spec
+		/opt/blik/bin/operations-installer $spec || die "operations installation failed"
 	done
 
-	plugin-installer --operations --management nodes_manager_plugins/
-	plugin-installer --console console_ext/
+	/opt/blik/bin/plugin-installer --operations --management
+	nodes_manager_plugins/ || die "installation of nodes manager plugins failed"
+	/opt/blik/bin/plugin-installer --console console_ext/ || die "installation of blik console failed"
 }
 
-pkg_postinst() {
-
-}
 
