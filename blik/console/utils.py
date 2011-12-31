@@ -8,7 +8,13 @@ def get_data(source):
     data = STATIC_CACHE.get(source, None)
 
     if not data:
-        data = open(os.path.join(STATIC_PATH,source), "rb").read()
+        for path in STATIC_PATH:
+            source_path = os.path.join(path, source)
+            if os.path.exists(source_path):
+                data = open(source_path, "rb").read()
+                break
+        else:
+            raise Exception('Static file %s is not found at server'%source)
 
         STATIC_CACHE[source] = data
 
@@ -18,8 +24,8 @@ def get_data(source):
 def get_media(request, source):
     try:
         data = get_data(source)
-    except:
-        return HttpResponse(status=404)
+    except Exception, err:
+        return HttpResponse(err, status=404)
 
     if source.endswith(".png"):
         mtype = "image"

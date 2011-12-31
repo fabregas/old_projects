@@ -1,8 +1,10 @@
+import os
 from django.conf.urls.defaults import *
 from console_base.views import *
 from utils import get_media
 import django.conf.urls.i18n
 from console_base.auth import authenticate_user
+from settings import SITE_PATH
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -39,3 +41,14 @@ urlpatterns = patterns('',
      (r'^edit_user_roles/(\d+)$', edit_user_roles),
      (r'^delete_user/(\d+)$', delete_user),
 )
+
+for item in os.listdir(SITE_PATH):
+    path = os.path.join(SITE_PATH, item)
+    if not os.path.isdir(path):
+        continue
+
+    if os.path.exists(os.path.join(path, 'urls.py')):
+        app = __import__(item + '.urls')
+
+        urlpatterns += app.urls.urlpatterns
+
