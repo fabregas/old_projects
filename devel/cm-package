@@ -1,0 +1,243 @@
+#!/usr/bin/python
+import os
+import sys
+import shutil
+import tarfile
+import tempfile
+from optparse import OptionParser
+
+import yaml
+
+#SPEC_DIR = '/opt/blik/development/spec/'
+SPEC_DIR = './spec/'
+
+def new_package(package_name, path='.'):
+    print('Creating project "%s" at %s...'%(package_name, path))
+    package_dir = os.path.join(path, package_name)
+    if os.path.exists(package_dir):
+        raise Exception('Directory %s already exists!'%package_dir)
+
+    os.makedirs(package_dir)
+
+    subdirs = ['clusters_spec', 'nodes_spec', 'operations_spec',
+            'nodes_manager_plugins', 'node_agent_plugins',
+            'console_ext/menu', 'console_ext/applications', 'tests', 'spec']
+
+    for subdir in subdirs:
+        os.makedirs(os.path.join(package_dir, subdir))
+
+    for f_name in os.listdir(SPEC_DIR):
+        path = os.path.join(SPEC_DIR,f_name)
+        #if os.path.isdir(path):
+        #    continue
+
+        dst =  os.path.join(package_dir, 'spec/')
+        #print ('Copying %s to %s'%(path, dst))
+        ret = os.system('cp -r %s %s'%(path, dst))
+        if ret:
+            raise Exception('Copying failed!')
+    print ('Project is created successfull!')
+
+#---------------------------------------------------------------------------
+
+
+def __check_spec(path):
+    for f_name in os.listdir(path):
+        if not f_name.endswith('.yaml'):
+            continue
+
+        f_path = os.path.join(path, f_name)
+        file_obj = None
+        try:
+            file_obj = open(f_path)
+            yaml.load(file_obj.read())
+        except Exception, err:
+            raise Exception('File %s has invalid format! Details: %s'%(f_path, err))
+        finally:
+            if file_obj: f.close()
+
+
+def test_package(package_path):
+    package_path = os.path.abspath(package_path)
+    print('Start testing process of project at %s'%package_path)
+
+    __check_spec(os.path.join(package_path, 'clusters_spec'))
+    __check_spec(os.path.join(package_path, 'nodes_spec'))
+    __check_spec(os.path.join(package_path, 'operations_spec'))
+
+    #TODO: find no implemented operations and write warning if found
+
+    tests_dir = os.path.join(package_path, 'tests')
+    for f_name in os.listdir(tests_dir):
+        ret = os.system(os.path.join(tests_dir,f_name))
+        if ret:
+            raise Exception('===== Tests failed! =====')
+    print('Project is tested successful!')
+
+#---------------------------------------------------------------------------
+
+def build_package(package_path, version):
+    package_path = os.path.abspath(package_path)
+    print ('Building packages with versiion %s for project at %s'%(version, package_path))
+
+    if not os.path.exists( os.path.join(package_path, 'spec') ):
+        raise Exception('Project directory is invalid!')
+
+    build_dir = os.path.join(package_path, 'dist')
+    if not os.path.exists(build_dir):
+        os.mkdir(build_dir)
+
+    package_name = os.path.basename(os.path.normpath(package_path))
+    out_file = '%s-%s.tar'%(package_name, version)
+    out_file = os.path.join(build_dir, out_file)
+
+    tar = tarfile.TarFile(out_file,'w')
+
+    cur_dir = os.path.abspath('.')
+    os.chdir(package_path)
+    content = os.listdir('.')
+    ignore_paths = ['dist', 'spec']
+    for item in content:
+        if item.startswith('.') or (item in ignore_paths):
+            continue
+        tar.add(item)
+    tar.close()
+    os.chdir(cur_dir)
+    print('Build saved at %s'%out_file)
+    print('Project is builded successfull!')
+
+#---------------------------------------------------------------------------
+
+def distribute_ebuilds(pkg_name, version, distribution_server):
+    tmp_path = tempfile.mkdtemp(suffix='blikdevel')
+
+    remote_path = '%s:/opt/blik/portage/blik-products/'% distribution_server
+    nodes_types = ['mgmt', 'node']
+
+    for node_type in nodes_types:
+        ebuild = 'spec/%s/gentoo_dist/package.ebuild'% node_type
+        metadata = 'spec/%s/gentoo_dist/metadata.xml'% node_type
+        changelog = 'spec/%s/gentoo_dist/ChangeLog'% node_type
+
+        out_path = os.path.join(tmp_path, '%s-%s'%(pkg_name, node_type))
+        os.mkdir(out_path)
+
+        ret = os.system('cp %s %s/%s-%s-%s.ebuild' % (ebuild, out_path, pkg_name, node_type, version))
+        if ret:
+            raise Exception('Copying ebuilds to temporary directory failed')
+
+        if os.path.exists(metadata):
+            os.system('cp %s %s/metadata.xml'%(metadata, out_path))
+
+        if os.path.exists(changelog):
+            os.system('cp %s %s/ChangeLog'%(changelog, out_path))
+
+    os.chdir(tmp_path)
+    print('Copying portage ebuilds files to %s...'%(remote_path))
+    for node_type in nodes_types:
+        ret = os.system('scp -r %s-%s %s' % (pkg_name, node_type, remote_path))
+        if ret:
+            raise Exception('Ebuilds distribution for package %s is failed!'%pkg_name)
+    os.chdir('/tmp')
+    shutil.rmtree(tmp_path)
+
+
+def distribute_package(package_path, version, distribution_server):
+    print('Distributing packages with version %s to %s'%(version, distribution_server))
+    package_path = os.path.abspath(package_path)
+    os.chdir(package_path)
+    package_name = os.path.basename(os.path.normpath(package_path))
+    tar_file = '%s-%s.tar'%(package_name, version)
+
+    remote_path = '%s:/usr/portage/distfiles' % distribution_server
+    local_path = os.path.join(package_path, 'dist', tar_file)
+    if not os.path.exists(local_path):
+        raise Exception('Build is not found at %s'%local_path)
+
+    print('Copying %s to %s over ssh'%(local_path, remote_path))
+    ret = os.system('scp %s %s'%(local_path, remote_path))
+    if ret:
+        raise Exception('Distribution package %s failed!'%package_name)
+
+    distribute_ebuilds(package_name, version, distribution_server)
+
+    mirror_updater = '/opt/blik/sbin/portage-mirror-update'
+    ret = os.system('ssh %s %s /usr/portage/blik-products/%s/%s-%s.ebuild'%(distribution_server,\
+                                            mirror_updater, package_name, package_name, version))
+    if ret:
+        raise Exception('Distribution server is not updated on distribution server')
+
+    print('Package %s is distributed successfully!'%package_name)
+
+#----------------------------------------------------------------------------------------------------------------
+
+def get_usage():
+    s = 'Usage: cm-package <options>\n'
+    s += 'Options:\n'
+    s += '*  create [--path|-p <home dir path>] --name|-n <package name>\n'
+    s += '      creates new project with name <package> name in <home dir path> directory or in current directory\n'
+    s += '*  test [--path|-p <package path>]\n'
+    s += '      test project at path <package path> or at current directory\n'
+    s += '*  build [--path|-p <package path>] --ver|-v <version>\n'
+    s += '      build project at path <package path> or at current directory with version <version>\n'
+    s += '*  distribute [--path|-p <package path>] --ver|-v <version> --dist-server|-d <dist server>\n'
+    s += '      distribute project at path <package path> or at current directory with version <version> to server <dist server>\n'
+    s += '      <dist server> should has format: <login>@<server hostname>\n'
+
+    return s
+
+
+def print_error(err_msg):
+    sys.stderr.write('%s\nPlease, run "cm-package --help" for printing usage\n'%err_msg)
+    return 1
+
+def main():
+    if (len(sys.argv) < 2) or ('--help' in sys.argv) or ('-h' in sys.argv):
+        print(get_usage())
+        return 1
+
+    parser = OptionParser(get_usage(), version="%prog 1.0")
+    parser.add_option("-p", "--path", dest="path", default='.')
+    parser.add_option("-n", "--name", dest="p_name")
+    parser.add_option("-v", "--ver", dest="version")
+    parser.add_option("-d", "--dist-server", dest="dist_server")
+
+    try:
+        options, args = parser.parse_args(sys.argv[2:])
+    except Exception, err:
+        parser.print_usage(sys.stderr)
+        return 1
+
+    command = sys.argv[1]
+    if command == 'create':
+        if options.p_name is None:
+            return print_error('Option --name is not found!')
+
+        new_package(options.p_name, options.path)
+    elif command == 'test':
+        test_package(options.path)
+    elif command == 'build':
+        if options.version is None:
+            return print_error('Option --ver is not found!')
+
+        build_package(options.path, options.version)
+    elif command == 'distribute':
+        if options.version is None:
+            return print_error('Option --ver is not found!')
+        if options.dist_server is None:
+            return print_error('Option --dist-server is not found!')
+
+        distribute_package(options.path, options.version, options.dist_server)
+
+    return 0
+
+
+if __name__ == '__main__':
+    try:
+        ret = main()
+        if ret:
+            sys.exit(1)
+        sys.exit(0)
+    except Exception, err:
+        sys.stderr.write('ERROR: %s\n'%err)
+        sys.exit(2)
