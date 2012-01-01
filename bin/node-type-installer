@@ -301,6 +301,60 @@ def _fix_diskless_issues(work_path, rootfs_mode):
         open('%setc/init.d/localmount'%work_path, 'w').write(localmount)
 
 
+def is_gentoo_distr():
+    return 'gentoo' in os.uname()[2]
+
+def _yum_update(node_type, arch, work_path, log_file):
+    #chroot to tmp rootfs and install packages
+    session = None
+    try:
+        session = spawn('chroot %s /bin/bash'%work_path, timeout=3000)
+        session.logfile_read = log_file
+        session.logfile_write = log_file
+        session.expect("#")
+        prompt = 'CHROOT #'
+        session.sendline('export PS1="%s"'%prompt)
+        session.readline()
+        session.expect(prompt)
+        session.sendline('yum clean all')
+        session.readline()
+        session.expect(prompt)
+
+        for package in node_type.packages:
+            print_log( 'Installing %s package...' % package)
+
+            session.sendline('yum install %s'%package)
+            session.readline()
+            while True:
+                ret = session.expect(['[y/N]', prompt])
+                if ret == 0:
+                    session.sendline('y')
+                    session.readline()
+                elif ret == 1:
+                    break
+
+            stdout = session.before
+
+            if (len(stdout)<100) or (stdout.find('ERROR')>0):
+                raise Exception('Error ocured while install %s package! See log for details.'% package)
+
+        #pack image if need
+        if node_type.rootfs_mode != 'networked':
+            #pack image
+            print_log('Pack image ...')
+            session.sendline('tar cvjpf /image.tar.bz2 / -X /root/stage4.excl')
+            session.readline()
+            session.expect(prompt)
+    finally:
+        if session:
+            session.sendline('exit')
+            session.close()
+
+        ret = os.system('umount %sproc'%work_path)
+        if ret:
+            raise Exception('Unmounting /proc failed!')
+
+
 def _portage_update(node_type, arch, work_path, log_file):
     #chroot to tmp rootfs and install packages
     session = None
@@ -375,15 +429,16 @@ def _portage_update(node_type, arch, work_path, log_file):
 def install_image(node_type, arch):
     image_path, work_path, need_move = _prepare_work_path(node_type, arch)
 
-    _fix_diskless_issues(work_path, node_type.rootfs_mode)
-
-    run_command(['umount', '%susr/portage'%work_path])
     run_command(['umount', '%sproc'%work_path])
 
-    #bind portage tree
-    ret,out,err = run_command(['mount', '--bind', '/usr/portage', work_path+'usr/portage'])
-    if ret:
-        raise Exception('Binding portage tree error! Details: %s'%err)
+    if is_gentoo_distr():
+        _fix_diskless_issues(work_path, node_type.rootfs_mode)
+
+        run_command(['umount', '%susr/portage'%work_path])
+        #bind portage tree
+        ret,out,err = run_command(['mount', '--bind', '/usr/portage', work_path+'usr/portage'])
+        if ret:
+            raise Exception('Binding portage tree error! Details: %s'%err)
 
     #preparing to chroot
     os.system('cp /etc/resolv.conf %setc/resolv.conf'%work_path)
@@ -395,7 +450,10 @@ def install_image(node_type, arch):
     print_log('See log in /tmp/make_image-%s.log ...'%arch)
 
     #chroot to image rootfs and install/update software.
-    _portage_update(node_type, arch, work_path, log_file)
+    if is_gentoo_distr():
+        _portage_update(node_type, arch, work_path, log_file)
+    else:
+        _yum_update(node_type, arch, work_path, log_file)
 
     if node_type.rootfs_mode != 'networked':
         tar_image_path = image_path + 'image.tar.bz2'
