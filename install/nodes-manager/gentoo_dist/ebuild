@@ -44,5 +44,6 @@ src_install() {
 
 pkg_postinst() {
     rc-update add nodes-manager default
+    rc-update add cloud-manager-console default
 }
 

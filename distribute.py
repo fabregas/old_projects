@@ -13,7 +13,7 @@ This script distribute Blik packages to Distribution Server.
 ####################################################################
 
 import sys, os, shutil
-from build import build, TMP_DIR, DIST_DIR as LOCAL_DIST
+from build import build, TMP_DIR, RHEL_DISTR, DIST_DIR as LOCAL_DIST
 
 DISTR_SERVER='root@blik-mirror'
 #DISTR_SERVER='distributor@blik-mirror'
@@ -74,24 +74,52 @@ def distribute_portage(pkg_name, version):
 
     return ret
 
+
+def distribute_rpm(pkg_name):
+    remote_path = '%s:/repo/blik-products/' % DISTR_SERVER
+
+    pkg_file, version = build(pkg_name, RHEL_DISTR)
+
+    local_path = '%s/%s'% (LOCAL_DIST, pkg_file)
+
+    print ('Copying package %s to %s'%(pkg_file,remote_path))
+    ret = os.system('scp %s %s'%(local_path, remote_path))
+
+    if ret:
+        print ('ERROR: distribution package %s failed!'%pkg_name)
+        sys.exit(1)
+
+
 ####################################################################
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print ('Usage: distribute.py <dist name>')
+    if len(sys.argv) != 3:
+        print ('Usage: distribute.py <dist name> --gentoo | --rhel')
         sys.exit(1)
 
     dist_name = sys.argv[1]
+    dist = sys.argv[2]
 
-    version = distribute_package(dist_name)
-    distribute_portage(dist_name, version)
+    if dist == '--gentoo':
+        version = distribute_package(dist_name)
+        distribute_portage(dist_name, version)
 
-    mirror_updater = '/opt/blik/sbin/portage-mirror-update'
-    ret = os.system('ssh %s %s /usr/portage/blik-products/%s/%s-%s.ebuild'%(DISTR_SERVER, mirror_updater, dist_name, dist_name, version))
-    if ret:
-        print ('ERROR! Mirror is not updated on distribution server')
-        sys.exit(1)
+        mirror_updater = '/opt/blik/sbin/portage-mirror-update'
+        ret = os.system('ssh %s %s /usr/portage/blik-products/%s/%s-%s.ebuild'%(DISTR_SERVER, mirror_updater, dist_name, dist_name, version))
+        if ret:
+            print ('ERROR! Mirror is not updated on distribution server')
+            sys.exit(1)
+    elif dist == '--rhel':
+        distribute_rpm(dist_name)
+        ret = os.system('ssh %s createrepo --update /repo/blik-products/'% DISTR_SERVER)
+        if ret:
+            print ('ERROR! Mirror is not updated on distribution server')
+            sys.exit(1)
+    else:
+        print('--gentoo or --rhel option expected')
+        sys.exit(2)
+
 
     print ('Package %s distributed successfully!'%dist_name)
 

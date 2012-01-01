@@ -16,6 +16,9 @@ import os, shutil, sys
 import subprocess
 import tarfile
 
+GENTOO_DISTR = 'gentoo'
+RHEL_DISTR = 'rhel'
+
 DIST_DIR = './dist'
 TMP_DIR = '/tmp'
 
@@ -42,7 +45,7 @@ def make_tempdir(pkg_name):
     if os.path.exists(tmp_dir):
         shutil.rmtree(tmp_dir)
 
-    os.mkdir(tmp_dir)
+    os.makedirs(tmp_dir)
 
     return tmp_dir
 
@@ -115,30 +118,79 @@ def pack(pkg_name):
     tar.close()
     os.chdir(cur_dir)
 
+def pack_rpm(dist_name, version):
+    pkg_name = '%s-%s'%(dist_name, version)
+    tar_file = '%s/%s.tar'%(DIST_DIR, pkg_name)
 
-def build(dist_name):
+    rpmTopDir = os.path.join(TMP_DIR,pkg_name)
+    os.system('rm -rf %s > /dev/null'%rpmTopDir)
+    os.system('mkdir -p %s/{SOURCES,SRPMS,BUILD,SPECS,RPMS}'%rpmTopDir)
+    os.system('cp %s %s/SOURCES/%s.tar'%(tar_file, rpmTopDir, pkg_name))
+
+    spec_file = os.path.join('install', dist_name, 'rhel_dist/rpm.spec')
+
+    idx = version.find('-')
+    if idx < 0:
+        version_num = version
+        version_rev = '1'
+    else:
+        version_num = version[:idx]
+        version_rev = version[idx+1:]
+
+    os.system('sed -e "s/vNNN/%s/g" -e "s/vRRR/%s/g" -e "s/vVVV/%s/g" < %s >  %s/SPECS/rpm.spec'%
+                                        (version_num, version_rev, version,  spec_file, rpmTopDir))
+
+    ret = os.system("rpmbuild  -bb --define '_topdir %s'  --clean %s/SPECS/rpm.spec"%(rpmTopDir, rpmTopDir))
+    if ret:
+        raise Exception('rpmbuild failed!')
+
+    ret = os.system("cp -v %s/RPMS/noarch/${NAME}*.rpm ./dist/"%rpmTopDir)
+    os.system('rm -rf %s'%rpmTopDir)
+
+
+def build(dist_name, dist=GENTOO_DISTR):
     version = get_current_version()
     pkg_name = '%s-%s'%(dist_name, version)
 
-    tmp_dir = make_tempdir(pkg_name)
+    if dist == RHEL_DISTR:
+        tmp_dir = make_tempdir(os.path.join(pkg_name, pkg_name))
+    else:
+        tmp_dir = make_tempdir(pkg_name)
 
     f = open(os.path.join(tmp_dir, 'version.py'), 'w')
     f.write('VERSION="%s"'%version)
     f.close()
 
     copy_dist(dist_name, tmp_dir)
+
     pack(pkg_name)
+    if dist == RHEL_DISTR:
+        pack_rpm(dist_name, version)
+        return '%s.noarch.rpm' % pkg_name, version
 
     return '%s.tar' % pkg_name, version
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print ('Usage: build.py <dist name>')
+    if len(sys.argv) != 3:
+        print ('Usage: build.py <dist name> --gentoo|--rhel')
         sys.exit(1)
 
     dist_name = sys.argv[1]
+    dist = sys.argv[2]
 
-    pkg_name, ver = build(dist_name)
+    if dist == '--gentoo':
+        dist = GENTOO_DISTR
+    elif dist == '--rhel':
+        dist = RHEL_DISTR
+    else:
+        print('--gentoo or --rhel option expected')
+        sys.exit(2)
 
-    print ('Package %s created successfully!'%pkg_name)
+    try:
+        pkg_name, ver = build(dist_name, dist)
+    except Exception, err:
+        print('ERROR: %s'%err)
+        sys.exit(1)
+
+    print ('Package %s with version %s created successfully!'%(dist_name, ver))
