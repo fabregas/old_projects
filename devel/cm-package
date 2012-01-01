@@ -17,7 +17,7 @@ import yaml
 
 SPEC_DIR = '/opt/blik/develop/spec/'
 NODES_TYPES = ['mgmt', 'node']
-NODE_TYPE_DIRS = {'mgmt': ['clusters_spec', 'nodes_spec', 'operations_spec',
+NODE_TYPE_DIRS = {'mgmt': ['clusters_spec', 'nodes_spec', 'operations_spec', 'dictionaries'
                             'nodes_manager_plugins', 'console_ext', 'console_ext'],
                  'node': ['node_agent_plugins']}
 
@@ -102,6 +102,23 @@ operations:
             type: str
 '''
 
+DICTIONARIES_STRUCT = '''
+dictionaries:
+    type: list
+    structure:
+        table_name:
+            type: str
+        dict_fields:
+            type: list
+        unique_field:
+            type: str
+        data:
+            type: list
+            structure:
+                row:
+                    type: list
+'''
+
 class OptionError(Exception):
     '''Exception class for invalid command line parameters'''
     pass
@@ -116,7 +133,7 @@ def new_package(package_name, path='.'):
     os.makedirs(package_dir)
 
     subdirs = ['clusters_spec', 'nodes_spec', 'operations_spec',
-            'nodes_manager_plugins', 'node_agent_plugins',
+            'nodes_manager_plugins', 'node_agent_plugins', 'dictionaries',
             'console_ext/menu', 'console_ext/applications', 'tests', 'spec']
 
     for subdir in subdirs:
@@ -252,6 +269,7 @@ def test_package(package_path):
     __check_spec(os.path.join(package_path, 'clusters_spec'), CLUSTER_SPEC_STRUCT)
     __check_spec(os.path.join(package_path, 'nodes_spec'), NODES_SPEC_STRUCT)
     __check_spec(os.path.join(package_path, 'operations_spec'), OPERATIONS_SPEC_STRUCT)
+    __check_spec(os.path.join(package_path, 'dictionaries'), DICTIONARIES_STRUCT)
 
     __validate_operations_plugins(package_path, 'nodes_manager_plugins')
     __validate_operations_plugins(package_path, 'node_agent_plugins')

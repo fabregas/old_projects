@@ -14,14 +14,6 @@ if not os.path.exists(DISKLESS_GL_HOME):
     os.makedirs(DISKLESS_GL_HOME)
 
 
-run_command(['rc-update', 'add', 'ntpd', 'default'])
-run_command(['rc-update', 'add', 'dhcpd', 'default'])
-run_command(['rc-update', 'add', 'named', 'default'])
-run_command(['rc-update', 'add', 'in.tftpd', 'default'])
-run_command(['rc-update', 'add', 'glusterfsd', 'default'])
-run_command(['rc-update', 'add', 'postgresql-9.0', 'default']) #FIXME
-run_command(['rc-update', 'add', 'boot-event-listener', 'default'])
-
 #starting services
 os.system('/etc/init.d/dhcpd restart')
 os.system('/etc/init.d/named restart')

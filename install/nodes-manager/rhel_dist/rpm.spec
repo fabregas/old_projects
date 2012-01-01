@@ -54,7 +54,7 @@ cp -pv config/com.blik.nodesManager.conf $RPM_BUILD_ROOT/etc/dbus-1/system.d/com
 echo 'FIXME: rc-update add nodes-manager default'
 echo 'FIXME: rc-update add cloud-manager-console default'
 
-#FIXME: python dictionaries.py || exit 1
+dictionaries-updater /opt/blik/db/init_dicts.yaml || exit 1
 
 %clean
 rm -rf $RPM_BUILD_ROOT

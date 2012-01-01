@@ -6,3 +6,4 @@ config/com.blik.nodesManager.conf
 blik/console/*
 bin/consoleManager
 init_scripts/cloud-manager-console
+blik/db/init_dicts.yaml

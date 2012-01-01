@@ -38,12 +38,12 @@ src_install() {
 
     insinto /etc/dbus-1/system.d
     newins config/com.blik.nodesManager.conf com.blik.nodesManager.conf
-
-    python dictionaries.py || die "Dictionaries is not installed!!" 
 }
 
 pkg_postinst() {
     rc-update add nodes-manager default
     rc-update add cloud-manager-console default
+
+    dictionaries-updater /opt/blik/db/init_dicts.yaml || die "Dictionaries is not installed!!"
 }
 

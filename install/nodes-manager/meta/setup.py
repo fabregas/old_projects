@@ -23,7 +23,8 @@ setup(
     description = "Nodes Manager module of Blik Cloud management system",
     packages = [ 'blik.nodesManager', 'blik.nodesManager.plugins', 'blik.console', 'blik.console.console_base'],  # include all packages under src
     scripts = ['bin/nodesManager','bin/call-operation', 'bin/consoleManager'],
-    data_files = get_files('blik/console/templates') + get_files('blik/console/static') + get_files('blik/console/menu'),
+    data_files = get_files('blik/console/templates') + get_files('blik/console/static') + get_files('blik/console/menu') \
+                        + [('/opt/blik/db/', ['blik/db/init_dicts.yaml'])],
     license = 'GPLv3',
     zip_safe = True
 )
