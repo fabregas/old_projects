@@ -20,7 +20,7 @@ SALT = 'fabregas_salt'
 
 class BootEventSenderThread(threading.Thread):
     def _remount_devfs(self):
-        #FIXME: I dont know why /dev mouned AFTER /dev/pts and /dev/shm, but its fact :(
+        #FIXME: I dont know why /dev mounting AFTER /dev/pts and /dev/shm, but its fact :(
         os.system('umount /dev/pts')
         os.system('umount /dev/shm')
         os.system('mount -av')
@@ -44,7 +44,7 @@ class BootEventSenderThread(threading.Thread):
         else:
             logger.info('Hostname specified by kernel command line: %s'%hostname)
 
-        run_command(['hostname',hostname])
+        run_command(['hostname', hostname])
 
         ret,out,err = run_command(['dhcpcd','--rebind', '--waitip', 'eth0'])
         if ret:
@@ -56,7 +56,7 @@ class BootEventSenderThread(threading.Thread):
         return hostname
 
     def _get_interface_info(self):
-        ifname = 'eth0'
+        ifname = 'eth0' #FIXME
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', ifname[:15]))
         mac = ''.join(['%02x:' % ord(char) for char in info[18:24]])[:-1]
@@ -79,6 +79,8 @@ class BootEventSenderThread(threading.Thread):
         run_command(['useradd', '-m', 'node_agent'])
         enc_passwd = crypt.crypt(password, SALT)
         ret, out, err = run_command(['usermod', '-p', enc_passwd, 'node_agent'])
+
+        #TO-DO: set permissions to user
 
         if ret:
             raise Exception('usermod error: %s'%err)
