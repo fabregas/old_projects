@@ -1,0 +1,14 @@
+$ORIGIN .
+$TTL 172800	; 2 days
+blik.org		IN SOA	blik.org. root.blik.org. (
+				2008122620 ; serial
+				10800      ; refresh (3 hours)
+				900        ; retry (15 minutes)
+				604800     ; expire (1 week)
+				86400      ; minimum (1 day)
+				)
+			NS	localhost.
+$ORIGIN blik.org.
+farnsworth-master		A	192.168.87.1
+farnsworth-slave    	A	192.168.87.2
+farnsworth              A   192.168.87.1

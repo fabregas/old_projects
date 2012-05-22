@@ -1,0 +1,66 @@
+<html>
+ <head>
+      <title>{% block title %}{% endblock %}</title>
+      <link rel="stylesheet" type="text/css" href="/static/base_style.css">
+	  <link rel="stylesheet" href="/static/menu.css" type="text/css" media="screen" charset="utf-8" />
+	  <link rel="stylesheet" href="/static/table/flexigrid.css" type="text/css" media="screen" charset="utf-8" />
+      <script  src="/static/jquery-min.js"></script>
+      <script  src="/static/base.js"></script>
+      <script  src="/static/table/flexigrid.js"></script>
+
+      {% block custom_head %}
+      {% endblock %}
+
+      <link rel="SHORTCUT ICON" href="/static/logo.png"/>
+ </head>
+
+
+<body>
+    <div id="container">
+    <table id="container_table" width="80%" border="0" cellspacing="0" cellpadding="0">
+        <tr><td>
+        {% block banner %}
+            <div id="banner">
+                <div id="big_logo"></div>
+                <div id="banner_text">Cloud Manager Console</div>
+            </div>
+        {% endblock %}
+        </td></tr>
+
+        <tr><td>
+        {% block menu %}
+        <script type="text/javascript">
+            $(document).ready(function(){
+                load_menu();
+            });
+        </script>
+        
+        <div id="menu">
+        </div>
+        {% endblock %}
+        </td></tr>
+
+        <tr><td>
+        <div id="base_content">
+            {% block base_content %}
+            {% endblock %}
+        </div>
+        </td></tr>
+
+        <tr><td>
+        <div id="footer">
+            <table width="100%" border="0">
+                 <tr>
+                <td>&copy;2011-2012 <a href="mailto:blikproject@gmail.com">blikproject@gmail.com<a></td>
+                <td align="right">Powered by <a href="http://djangoproject.com">Django</a> 1.2</td>
+                     </tr>
+            </table>
+        </div>
+        </td></tr>
+    </table>
+    </div>
+</body>
+
+
+ </html>
+

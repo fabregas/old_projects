@@ -1,0 +1,94 @@
+#!/usr/bin/python
+"""
+Copyright (C) 2011 Konstantin Andrusenko
+    See the documentation for further information on copyrights,
+    or contact the author. All Rights Reserved.
+
+@author Konstantin Andrusenko
+@date July 30, 2011
+
+node-image-updater is utility for installing images by URL
+"""
+
+import os
+import sys
+import shutil
+import getopt
+from blik.utils.exec_command import run_command
+
+IMAGE_PATH = '/opt/blik/diskless/images/%s/%s/'
+
+def install_image(image, node_type, arch, dont_unpack):
+    print ('Installing image for "%s" node type and %s architecture...'%(node_type,arch))
+    image_path = IMAGE_PATH %(node_type, arch)
+    tar_image_path = image_path + 'image.tar.bz2'
+
+    if os.path.exists(image_path):
+        shutil.rmtree(image_path)
+    os.makedirs(image_path)
+
+    print ('Copy image to %s...'%tar_image_path)
+    url_lower = image.lower()
+    if url_lower.startswith('http://') or url_lower.startswith('ftp://'):
+        ret,out,err = run_command(['wget', image, '-O', tar_image_path])
+        if ret:
+            raise Exception('Image is not downloaded! Details: %s'%err)
+    else:
+        shutil.copy(image, tar_image_path)
+
+    if not dont_unpack:
+        print ('Untar image...')
+        os.chdir(image_path)
+        ret,out,err = run_command(['tar','-xjpf', tar_image_path])
+        if ret:
+            raise Exception('Untar image error! Details: %s'%err)
+    else:
+        print ('Dont unpack flag found. Skipping image unpack...')
+
+    print ('Image installed successful!')
+
+
+def usage(err_msg=None):
+    if err_msg:
+        print ('ERROR: %s'%err_msg)
+    print ('Usage: node-image-updater -t|--node-type <node type>  -a|--arch <arch> -i|--image <URL> [--dont-unpack]')
+    sys.exit(0)
+
+#---------------------------------------------------------------------------------------------------------------------
+
+if __name__ == '__main__':
+    try:
+        opts,args = getopt.getopt(sys.argv[1:], "t:a:i:", ["node-type=", "arch=", "image=",'dont-unpack'])
+    except getopt.GetoptError, err:
+        usage(err)
+
+    node_type = arch = image = None
+    dont_unpack = False
+
+    for opt, arg in opts:
+        if opt in ['-t','--node-type']:
+            node_type = arg
+        elif opt in ['-a', '--arch']:
+            arch = arg
+        elif opt in ['-i', '--image']:
+            image = arg
+        elif opt in ['--dont-unpack']:
+            dont_unpack = True
+
+    if node_type is None:
+        usage('Node type is not specified')
+
+    if arch is None:
+        usage('Architecture is not specified')
+
+    if image is None:
+        usage('Image URL is not specified')
+
+    try:
+        install_image(image, node_type, arch, dont_unpack)
+    except Exception, err:
+        print ('ERROR: %s'%err)
+        sys.exit(1)
+
+    sys.exit(0)
+

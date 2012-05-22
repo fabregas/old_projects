@@ -1,0 +1,10 @@
+$ORIGIN .
+$TTL 86400	; 1 day
+87.168.192.in-addr.arpa	IN SOA	blik.org. root.blik.org. (
+				2001105151 ; serial
+				28800      ; refresh (8 hours)
+				14400      ; retry (4 hours)
+				3600000    ; expire (5 weeks 6 days 16 hours)
+				86400      ; minimum (1 day)
+				)
+			NS	localhost.

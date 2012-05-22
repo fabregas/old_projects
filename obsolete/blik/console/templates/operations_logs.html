@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block custom_head %}
+	  <link rel="stylesheet" href="/static/timepicker/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" charset="utf-8" />
+	  <link rel="stylesheet" href="/static/timepicker/timepicker.css" type="text/css" media="screen" charset="utf-8" />
+      <script  src="/static/timepicker/jquery-ui-1.8.16.custom.min.js"></script>
+      <script  src="/static/timepicker/jquery-ui-timepicker-addon.js"></script>
+{% endblock %}
+
+{% block base_content %}
+
+<script type="text/javascript">
+    function on_refresh() {
+        $(".operations_logs_table").flexReload();
+    }
+
+    function on_view_details() {
+        var instance_id = $('.trSelected td div:first').html();
+        if (instance_id) {
+            document.location.href = '/operation_details/' + instance_id;
+        } else {
+            alert('Please, select operation instance!');
+        }
+    }
+
+
+    $(function() {
+        fix_columns_width('.operations_logs_table');
+        fix_columns_width('.logs_filter_table');
+
+        $('.logs_filter_table').flexigrid({'height': 'auto', 
+            'title': 'Logs filter',
+            'buttons' : [
+                {name: 'Apply filter', bclass: 'save', onpress : on_refresh},
+                {separator: true},
+            ],
+
+            showTableToggleBtn: true,
+            resizable: false,
+            singleSelect: true});
+
+        $(".operations_logs_table").flexigrid({
+            url: '/get_operlogs_data/',
+            dataType: 'json',
+            colModel : [
+                {display: 'Instance ID', name : 'instance_id', width : get_col_pw(1), sortable : false, align: 'center', hide: true},
+                {display: 'Operation', name : 'operation', width : get_col_pw(20), sortable : false, align: 'center'},
+                {display: 'Status', name : 'status', width : get_col_pw(10), sortable : false, align: 'center'},
+                {display: 'Date start', name : 'start_datetime', width : get_col_pw(20), sortable : true, align: 'center'},
+                {display: 'Last response', name : 'last_response', width : get_col_pw(49), sortable : false, align: 'left'}
+                ],
+            'buttons' : [
+                {name: 'View details', bclass: 'list', onpress : on_view_details},
+                {separator: true},
+            ],
+            usepager: true,
+            sortname: "start_datetime",
+            sortorder: "desc",
+            title: 'Operations log',
+            useRp: true,
+            rp: 50,
+            onSubmit: function() {
+                $('.operations_logs_table').flexOptions({params: [{name:'cluster_id', value:'{{cluster.id}}'}].concat($('#fmFilter').serializeArray())});
+                return true;
+            },
+            singleSelect: true,
+            resizable: false,
+            height: 200
+        });   
+
+        $('#start_dt').datetimepicker({onSelect: function (selectedDateTime){
+                var start = $(this).datetimepicker('getDate');
+                $('#end_dt').datetimepicker('option', 'minDate', new Date(start.getTime()) );
+            }
+        });
+        $('#end_dt').datetimepicker({
+            onSelect: function (selectedDateTime){
+                    var end = $(this).datetimepicker('getDate');
+                    $('#start_dt').datetimepicker('option', 'maxDate', new Date(end.getTime()) );
+            }
+        });
+    });
+</script>
+
+<form id="fmFilter"> 
+<table class="logs_filter_table" width="100%">
+    <thead>
+    <tr style="visibility:hidden;">
+        <th width="40%"></th>
+        <th width="60%"></th>
+    </tr>
+    </thead>
+    <tbody>
+
+    <tr>
+    <td>Operation</td>
+    <td><select name="operation">
+            <option value=""></option>
+        {% for oper in operations %}
+            <option value="{{oper.id}}">{{oper.name}}</option>
+        {% endfor %}
+    </select></td>
+    </tr>
+    <tr>
+    <td>Node</td>
+    <td><select name="node">
+            <option value=""></option>
+        {% for node in nodes %}
+            <option value="{{node.id}}">{{node.hostname}}</option>
+        {% endfor %}
+    </select></td>
+    </tr>
+    <tr>
+    <td>Operation status</td>
+    <td><select name="oper_status">
+        <option value=""></option>
+        <option value="0">In progress</option>
+        <option value="1">Complete</option>
+        <option value="2">Error</option>
+    </select></td>
+    </tr>
+    <tr>
+    <td>Start datetime</td>
+    <td>
+        <input id="start_dt" name="start_dt" type="text" value=""/> 
+    </td></tr>
+    <tr>
+    <td>End datetime</td>
+    <td>
+        <input id="end_dt" name="end_dt" type="text"  value="" /> 
+    </td></tr>
+</table>
+</form> 
+<table class="operations_logs_table" width="100%" auto_height has_pager>
+</table>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+#!/usr/bin/python
+
+import os
+import sys
+import signal
+from blik.utils.logger import logger
+from blik.nodeAgent import  nodeAgent
+
+WORKERS = 10
+
+node_agent = None
+
+def stop(s, p):
+    global node_agent
+    try:
+        logger.info('Node agent stoping...')
+        node_agent.stop()
+    except Exception, err:
+        logger.error('Stoping node agent error: %s'%err)
+
+def start():
+    global node_agent
+    try:
+        logger.info('Node agent starting...')
+
+        node_agent = nodeAgent.NodeAgent(WORKERS)
+
+        signal.signal(signal.SIGINT, stop)
+
+        node_agent.start()
+
+        logger.info('Node agent stoped')
+    except Exception, err:
+        logger.error('nodeAgent error: %s. exit!'%err)
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    start()

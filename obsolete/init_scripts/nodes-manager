@@ -1,0 +1,34 @@
+#!/sbin/runscript
+
+depend() {
+	need syslog-ng
+	need sshd
+    need postgresql-9.0
+    need dbus
+}
+
+start() {
+	[ -d /var/run/nodes_manager ] || mkdir -m 777 /var/run/nodes_manager
+	ebegin "Starting BlikCloud Nodes Manager"
+	start-stop-daemon --start --quiet --background \
+		--exec nodesManager \
+		--make-pidfile --pidfile /var/run/nodes_manager/nodes_manager.pid
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping BlikCloud Nodes Manager"
+	start-stop-daemon --stop --signal INT  \
+		--pidfile /var/run/nodes_manager/nodes_manager.pid
+	eend $?
+}
+
+reload() {
+	if [ ! -f /var/run/nodes_manager/nodes_manager.pid ] ; then
+		eerror "BlikCloud Nodes Manager is not running."
+	else
+        stop
+	fi
+
+	start
+}

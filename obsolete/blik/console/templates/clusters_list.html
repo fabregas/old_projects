@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block base_content %}
+
+<script type="text/javascript">
+    function on_new_cluster() {
+        document.location.href = '/new_cluster';
+    }
+
+    function check_cluster_id(base_url) {
+        var cluster_id = $('.trSelected').attr('id');
+        if (cluster_id) {
+            document.location.href = base_url + cluster_id;
+        } else {
+            alert('Please, select cluster!');
+        }
+    }
+
+    function on_delete_cluster() { 
+        var agree = confirm("Do you really want delete selected cluster?");
+        
+        if (agree) {
+            check_cluster_id('/delete_cluster/');
+        }
+    }
+    function on_cluster_nodes() {
+        check_cluster_id('/cluster_nodes/');
+    }
+    function on_cluster_config() {
+        check_cluster_id('/cluster_config/');
+    }
+    function on_operlog() {
+        check_cluster_id('/operations_log/');
+    }
+    function on_syslog() {
+        check_cluster_id('/system_log/');
+    }
+
+
+    $(function() {
+        fix_columns_width('.clusters_list_table');
+        $('.clusters_list_table').flexigrid({'height': 200, 'buttons' : [
+            {name: 'New cluster', bclass: 'add', onpress : on_new_cluster},
+            {separator: true},
+            {name: 'Delete cluster', bclass: 'delete', onpress : on_delete_cluster},
+            {separator: true},
+            {separator: true},
+            {name: 'Cluster nodes', bclass: 'cont', onpress : on_cluster_nodes},
+            {separator: true},
+            {name: 'Configuration', bclass: 'edit', onpress : on_cluster_config},
+            {separator: true},
+            {separator: true},
+            {name: 'Operations log', bclass: 'list', onpress : on_operlog},
+            {separator: true},
+            {name: 'System log', bclass: 'list', onpress : on_syslog},
+            {separator: true}
+            ],
+            'title': 'Clusters list',
+            resizable: false,
+            singleSelect: true});
+    });
+</script>
+
+<table class="clusters_list_table" width="100%" auto_height>
+    <thead>
+    <tr>
+        <th width="20%">Cluster SID</th>
+        <th width="20%">Cluster name</th>
+        <th width="15%">Cluster type</th>
+        <th width="45%">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for cluster in clusters %}
+        <tr id="{{cluster.id}}">
+            <td>{{cluster.cluster_sid}}</td>
+            <td>{{cluster.cluster_name}}</td>
+            <td>{{cluster.cluster_type.type_sid}}</td>
+            <td>{{cluster.description}}</td>
+        </tr>
+
+    {% endfor %}
+</table>
+
+{% endblock %}
