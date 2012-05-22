@@ -1,0 +1,13 @@
+cluster_info:
+    type_name: cluster01
+    description: 'Test cluster #1 for UT'
+    allowed_nodes: [node_type_01, node_type_02]
+    parameters:
+        - name: str_param
+          type: string
+          default: 'default value'
+        - name: int_param
+          type: integer
+          posible_values: [0, 1, 2, 3]
+          default: 0
+
