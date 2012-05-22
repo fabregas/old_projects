@@ -1,9 +1,0 @@
-{
-    "1" : { "url": "/clusters_list", "label": "Clusters", "parent_id":"none", "sid":"clusters", "role":"clusters_ro"},
-    "2" : { "url": "/new_cluster", "label": "New cluster...", "parent_id":"1", "sid":"new_cluster", "role":"clusters_ro"},
-    "3" : { "url": "/clusters_list", "label": "Clusters list", "parent_id":"1", "sid":"clusters_list", "role":"clusters_ro"},
-    "4" : { "url": "/users_list", "label": "Users", "parent_id":"none", "sid":"users", "role":"none"},
-    "5" : { "url": "/create_new_user", "label": "New user...", "parent_id":"4", "sid":"new_user", "role":"users_admin"},
-    "6" : { "url": "/users_list", "label": "Users list", "parent_id":"4", "sid":"users_list", "role":"none"},
-    "999" : { "url": "/exit", "label": "exit", "parent_id":"none", "sid":"exit", "role":"none"}
-}

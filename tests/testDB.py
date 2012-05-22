@@ -6,26 +6,25 @@ from blik.utils.config import Config
 
 db_name = 'blik_cloud_db_test'
 db_user = Config.db_user
-
 Config.db_name = db_name
 
-schema_file = './blik/db/cloud_db_schema.sql'
-fixture_file = './tests/test_data.sql'
+from blik.management.core import settings
+
+from django.core.management import call_command
 
 def createTestDB():
+    print 'drop test database...'
     os.system('dropdb -U %s %s'%(db_user, db_name))
+    print 'ok!'
 
+    print 'create test database...'
     ret = os.system('createdb -U %s %s'%(db_user, db_name))
     if ret != 0:
         return False
+    print 'ok!'
 
-    ret = os.system('psql -U %s -d %s -f %s'%(db_user, db_name, schema_file))
-    if ret != 0:
-        return False
-
-    ret = os.system('psql -U %s -d %s -f %s'%(db_user, db_name, fixture_file))
-    if ret != 0:
-        return False
+    settings.INSTALLED_APPS = ['blik.management.core']
+    call_command('syncdb')
 
     return True
 
