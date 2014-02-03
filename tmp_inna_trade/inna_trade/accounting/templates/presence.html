@@ -1,0 +1,769 @@
+{% extends "index.html" %}
+
+{% block main_content %}
+
+    <ul class="nav nav-tabs" id="gl_menu">
+      <li id="li_all"><a onclick="show_table('all');">Все</a></li>
+      <li id="li_store"><a onclick="show_table('store');">На складе</a></li>
+      <li id="li_eurasia"><a onclick="show_table('eurasia');">Евразия</a></li>
+      <li id="li_asiapark"><a onclick="show_table('asiapark');">Азияпарк</a></li>
+      <li id="li_in_transit"><a onclick="show_table('in_transit');">В пути</a></li>
+      <li id="li_sold"><a onclick="show_table('sold');">Продано</a></li>
+    </ul>
+
+    <form class="form-inline hide" id="search_form">
+	    <div class="input-daterange" id="datepicker" style="margin-bottom: 5px;">
+		<label class="control-label" for="">Дата продажи</label>
+		<input type="text" class="input dt-input" name="start" readonly id="dtp_from"/>
+		<span class="add-on">to</span>
+		<input type="text" class="input dt-input" name="end" readonly id="dtp_to"/>
+        <label class="control-label" for="shopSellerSelect" style="margin-left:10px;">Продавец</label>
+        <select id="shopSellerSelect" type="text" name="seller" style="height: 20px; padding-top: 0px; padding-bottom: 0px;">
+            <option value="">Все</option>
+        </select>
+	    </div>
+
+        <div>
+        <input id="buyerSEdit" type="text" placeholder="Покупатель"/>
+	    <button class="btn btn-small btn-primary" style="margin-top: 26px; margin-left: 40px;" onclick="apply_filter();return false;">Выбрать</button>
+        </div>
+
+    </form>
+
+    <div class="row hide" id="search_pres_form">
+        <div class="span6">
+        <input id="brandSEdit" type="text" placeholder="Бренд"/>
+        <input id="nameSEdit" type="text"  placeholder="Название"/>
+        </div>
+        <div class="span3">
+            <button class="btn btn-small btn-primary" style="margin-top: 13px;" onclick="apply_pres_filter();return false;">Выбрать</button>
+            <button class="btn btn-small btn-danger" style="margin-top: 13px;" onclick="calc_filter();return false;">Подсчитать сумму</button>
+        </div>
+    </div>
+    <div style="height:10px;"></div>
+
+    <form class="form-inline hide" id="selected_act">
+        <div class="btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+                <span class="icon-road"></span>&nbsp;Отправить выбранное в&nbsp;&nbsp;
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a onclick="move_items_to('eurasia');">Евразию</a></li>
+                <li><a onclick="move_items_to('asiapark');">Азияпарк</a></li>
+            </ul>
+        </div>
+    </form>
+
+    <div id="loading_img_rgn" style="text-align:center;"></div>
+    <table class="table table-hover" id="orders_tbl">
+        <tbody>
+        </tbody>
+    </table>
+
+    <span id="summarize"></span>
+
+    <ul class="pager">
+        <li id="prev_btn"><a onclick="prev_page();">Предыдущая</a></li>
+        <li><span id="page_num" class="badge" style="color:#999999;">1</span></li>
+        <li id="next_btn"><a onclick="next_page();">Следующая</a></li>
+    </ul>
+
+
+
+    <!-- Sell item -->
+    <div id="SellItemModal" class="modal hide fade">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>Продажа</h3>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal" id="update_order_form">
+
+              <input type="hidden" name="item_id" id="modalitem_id"/>
+
+              <div class="control-group">
+                <label class="control-label" for="sellDate">Дата продажи</label>
+                <div class="controls">
+                    <div class="input-daterange">
+                        <input id="sellDate" type="text" class="input dt-input" name="sell_date" readonly/>
+                    </div>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="sellerSelect">Продавец</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <select id="sellerSelect" type="text" name="seller">
+                        </select>
+                        <button class="btn" onclick="new_shop_seller();return false;">новый...</button>
+                    </div>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="buyerEdit">Покупатель</label>
+                <div class="controls">
+                    <input id="buyerEdit" type="text" name="buyer"/>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="discountEdit">Скидка</label>
+                <div class="controls">
+                    <input id="discountEdit" type="number" step="0.01" name="discount"></input>
+                </div>
+              </div>
+
+            </form>
+        </div>
+      <div class="modal-footer">
+          <a onclick="apply_sell();" class="btn btn-success">Продать</a>
+        </div>
+    </div>
+
+    <!-- Create new seller -->
+    <div id="NewSellerModal" class="modal hide fade">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>Новый продавец</h3>
+        </div>
+        <div class="modal-body">
+            <input id="newSellerEdit" type="text"/>
+        </div>
+        <div class="modal-footer">
+          <a onclick="save_seller();" class="btn btn-success">Добавить</a>
+        </div>
+    </div>
+
+    <!-- Create/modify order items -->
+    <div id="CreateModOrderItemsModal" class="modal hide fade">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>Позиция заказа</h3>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal" id="update_order_item_form">
+              <input type="hidden" name="order_item_id" id="crmodorderitem_item_id"/>
+
+              <div class="control-group">
+                <label class="control-label" for="brandEdit">Бренд</label>
+                <div class="controls">
+                    <input id="brandEdit" type="text" name="brand"/>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="nameEdit">Название</label>
+                <div class="controls">
+                    <input id="nameEdit" type="text" name="item_name"/>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="optionEdit">Опция</label>
+                <div class="controls">
+                    <input id="optionEdit" type="text" name="item_option"/>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="costEdit">Стоимость</label>
+                <div class="controls">
+                    <input id="costEdit" type="number" step="0.01" name="cost"/>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="priceEdit">Цена</label>
+                <div class="controls">
+                    <input id="priceEdit" type="number" step="0.01" name="price"/>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="notesEdit">Заметки</label>
+                <div class="controls">
+                    <textarea id="notesEdit" rows="3" name="notes"></textarea>
+                </div>
+              </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <a onclick="remove_order_item();" id="rem_order_item_btn" class="btn btn-danger">Удалить</a>
+          <a onclick="save_order_item();" class="btn btn-success">Сохранить</a>
+        </div>
+
+    </div>
+
+    <script type="text/javascript">
+      function show_alert(msg) {
+        alert(msg);
+      }
+
+        function getFormData($form){
+            var unindexed_array = $form.serializeArray();
+            var indexed_array = {};
+
+            $.map(unindexed_array, function(n, i){
+                indexed_array[n['name']] = n['value'];
+            });
+
+            return indexed_array;
+        }
+
+
+      function apply_filter() {
+        $.flags.page_num = 1;
+        $.flags.is_filter = true;
+        $.flags.location = 'sold';
+        //$('#gl_menu li').removeClass('active');
+        load_orders_table();
+      }
+      
+      function apply_pres_filter() {
+        $.flags.page_num = 1;
+        $.flags.is_filter = true;
+        load_orders_table();
+      }
+      
+      function next_page() {
+        if ($('#next_btn').hasClass('disabled')) {
+            return;
+        }
+        $.flags.page_num += 1;
+        load_orders_table();
+      }
+
+      function prev_page() {
+        if ($('#prev_btn').hasClass('disabled')) {
+            return;
+        }
+        $.flags.page_num -= 1;
+        load_orders_table();
+      }
+
+
+
+    function show_table(loc) { 
+      $('#brandSEdit').val('');
+      $('#nameSEdit').val('');
+      $('#dtp_from').val('');
+      $('#dtp_to').val('');
+      $('#buyerSEdit').val('');
+      $('#shopSellerSelect option:first').attr('selected', true);
+      $('#summarize').html('');
+
+      if (loc == 'sold') {
+	  	$('#dtp_from').val('');
+	  	$('#dtp_to').val('');
+		$('#search_pres_form').hide();
+		$('#search_form').show();
+	  } else {
+		$('#search_form').hide();
+		$('#search_pres_form').show();
+	  }
+          $('#gl_menu li').removeClass('active');
+          $('#li_'+loc).addClass('active');
+          $.flags.location = loc;
+          $.flags.is_filter = false;
+          load_orders_table();
+      }
+
+      function form_table_header() {
+          var ret_str = '<th>Бренд</th>'+
+                '<th>Название</th>'+
+                '<th>Себестоимость</th>'+
+                '<th>Цена</th>'+
+                '<th>Заметки</th>';
+
+          if ($('#li_sold').hasClass('active')) {
+	        if (! $.flags.is_filter) {
+            	ret_str += '<th>Маржа</th>';
+	        }
+            ret_str += '<th>Дата продажи</th>'+
+                '<th>Продавец</th>'+
+                '<th>Покупатель</th>'+
+                '<th></th><th></th>';
+          } else {
+            if ($('#li_all').hasClass('active')) {
+                ret_str += '<th>Где</th>';
+            }
+
+            if ((! $('#li_in_transit').hasClass('active'))) {
+                ret_str = '<th></th>' + ret_str;
+                ret_str += '<th></th><th></th>';
+            }
+          }
+          return ret_str;
+
+      }
+
+      function form_item_str(item) { 
+          var seller = $('#sellerSelect option[value="'+item['shop_seller_id']+'"]').text();
+          $.items_cache[item['id']] = [item['sale_date'], seller, item['buyer'], item['discount']];
+
+          var sell_btn = '<td><button class="btn" onclick="sell_item('+item['id']+');">'+
+                '<span class="icon-shopping-cart"></span></button></td>';
+          var rem_btn = '<td><button class="btn" title="Отменить продажу" onclick="cancel_cell('+item['id']+');">'+
+                '<span class="icon-remove"></span></button></td>';
+
+          var ret_str = '<td>'+item['brand']+'</td>'+
+                '<td onclick="edit_order_item('+item['id']+');">'+item['name']+'</td>'+
+                '<td>'+item['init_cost']+'</td>'+
+                '<td>'+item['price']+'</td>'+
+                '<td>'+item['notes']+'</td>';
+
+          if ($('#li_sold').hasClass('active')) {
+            if (! $.flags.is_filter) {
+                    ret_str += '<td>'+item['margin']+'</td>';
+            }
+            ret_str += '<td>'+item['sale_date']+'</td>'+
+                '<td>'+seller+'</td>'+
+                '<td>'+item['buyer']+'</td>'+
+                sell_btn+rem_btn;
+          } else {
+            if ($('#li_all').hasClass('active')) {
+                ret_str += '<td>'+$.loc_map[item['location']]+'</td>';
+            } 
+
+            if ((! $('#li_in_transit').hasClass('active'))) {
+                ret_str = '<td><input type="checkbox" value="'+item['id']+'"></td>'+ ret_str;
+                ret_str += '<td>'+
+                '<div class="btn-group">' +
+                  '<a class="btn btn-small dropdown-toggle" data-toggle="dropdown">'+
+                    //'Отправить в'+
+                    '<span class="icon-road"></span>&nbsp;&nbsp;'+
+                    '<span class="caret"></span>'+
+                  '</a>'+
+                  '<ul class="dropdown-menu">'+
+                    '<li><a onclick="move_item_to(\''+item['id']+'\',\'eurasia\');">Евразию</a></li>'+
+                    '<li><a onclick="move_item_to(\''+item['id']+'\',\'asiapark\');">Азияпарк</a></li>'+
+                  '</ul>'+
+                '</div>'+
+                '</td>'+
+                sell_btn;
+            }
+          }
+          return ret_str;
+      }
+
+      function edit_order_item(order_item_id) {
+        $('#crmodorderitem_item_id').val(order_item_id);
+
+        $.getJSON('/get_order_item', { item_id: order_item_id}, 
+           function(data) {
+            if (data['ret_code'] != 0) {
+                show_alert('Can not receive order item: '+data['ret_message']);
+            } else {
+                $('#brandEdit').val(data['item']['brand']);
+                $('#nameEdit').val(data['item']['name']);
+                $('#optionEdit').val(data['item']['option']);
+                $('#costEdit').val(data['item']['cost']);
+                $('#priceEdit').val(data['item']['price']);
+                $('#notesEdit').val(data['item']['notes']);
+
+                $('#CreateModOrderItemsModal').modal();        
+            }
+        });
+      }
+
+      function save_order_item() {
+          if (! $('#brandEdit').val()) {
+            alert('Brand is empty!');
+            return;
+          }
+          if (! $('#nameEdit').val()) {
+            alert('Item name is empty!');
+            return;
+          }
+          if (! $('#costEdit').val()) {
+            alert('Invalid cost!');
+            return;
+          }
+
+          //save order info
+          var data = getFormData($('#update_order_item_form'));
+          $.post('/update_order_item', data)
+              .fail( function(xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText);
+                    })
+              .done( function(data) {
+                load_orders_table();
+                $('#CreateModOrderItemsModal').modal('hide');        
+              });
+
+      }
+      function remove_order_item() {
+      	if (!confirm('Вы уверены, что хотите удалить позицию заказа?')) {
+		    return;
+	    }
+        var item_id = $('#crmodorderitem_item_id').val();
+
+        $.post('/remove_order_item', {'item_id': item_id})
+              .fail( function(xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText);
+               })
+              .done( function(data) {
+                if (data['ret_code'] != 0) {
+                    alert(data['ret_message']);
+                    return;
+                }
+                load_orders_table();
+                $('#CreateModOrderItemsModal').modal('hide');        
+
+            alert('Позиция заказа успешно удалена!');
+        });	
+      }
+
+      function move_item_to(item_id, loc) { 
+        $.post('/change_item_location', {'location': loc, 'item_id': item_id})
+          .fail(function (data) {alert('ERROR! '+ data);})
+          .done(function (data) {
+                load_orders_table();
+          });
+      }
+      
+      function move_items_to(loc) { 
+        $('input[type="checkbox"]:checked').each(function() {
+            move_item_to($(this).val(), loc);
+        });
+      }
+
+      function calc_filter() {
+          var brand = '';
+          var item_name = '';
+          if ($.flags.is_filter) {
+            brand = $('#brandSEdit').val();
+            item_name = $('#nameSEdit').val();
+          }
+          $.getJSON('/get_orders_items', { page_num: $.flags.page_num,
+                                    location: $.flags.location,
+                                    brand: brand,
+                                    item_name: item_name,
+                                    sum_margin: true}, 
+           function(data) {
+            if (data['ret_code'] != 0) {
+                show_alert('Can not receive orders list: '+data['ret_message']);
+            } else {
+                $('#summarize').html('<div class="alert alert-success">'+
+                        '<h4>Сумма цен: '+data['price_sum']+'</h4>'+
+                        '<h4>Сумма маржи : '+data['margin_sum']+'</h4>'+
+                        '</div>');
+
+            }
+        });
+
+      }
+
+      function load_orders_table() { 
+          var seller = '';
+          var brand = '';
+          var item_name = '';
+          var buyer = '';
+          var summarize = false;
+          if ($.flags.is_filter) {
+            seller = $('#shopSellerSelect').val();
+            brand = $('#brandSEdit').val();
+            item_name = $('#nameSEdit').val();
+            buyer = $('#buyerSEdit').val();
+          }
+          if ($('#li_sold').hasClass('active') &&  $.flags.is_filter &&($.flags.page_num ==1)) {
+            summarize = true;
+          }
+
+          $('#loading_img_rgn').append('<img src="/static/img/loading.gif" alt="Loading..."/>');
+
+          $.getJSON('/get_orders_items', { page_num: $.flags.page_num,
+                                    shop_seller: seller,
+				    date_from: $('#dtp_from').val(),
+				    date_to: $('#dtp_to').val(),
+                                    location: $.flags.location,
+                                    brand: brand,
+                                    item_name: item_name,
+                                    buyer: buyer,
+                                    summarize: summarize}, 
+           function(data) {
+            $('#loading_img_rgn').html('');
+            if (data['ret_code'] != 0) {
+                show_alert('Can not receive orders list: '+data['ret_message']);
+            } else {
+                $('#orders_tbl tbody').html('');
+                $('#selected_act').hide();
+
+                if (data['pages_count'] == data['page_num']) {
+                    $('#next_btn').addClass('disabled');
+                } else {
+                    $('#next_btn').removeClass('disabled');
+                }
+                if (data['page_num'] == 1) {
+                    $('#prev_btn').addClass('disabled');
+                } else {
+                    $('#prev_btn').removeClass('disabled');
+                }
+                $('#page_num').html(data['page_num'] + ' из '+ data['pages_count']);
+
+                $.items_cache = {};
+                $('#orders_tbl tbody').append('<tr>'+form_table_header()+'</tr>');
+                for (var i=0; i<data['items'].length; i++) { 
+                   var order_id = data['items'][i]['id'];
+                   var loc = data['items'][i]['location'];  
+                   var tr_class = 'warning';
+                   if (loc == 'store') {
+                        tr_class = 'error';
+                   } 
+                   if (loc == 'eurasia') {
+                        tr_class = 'info';
+                   } 
+                   if (loc == 'asiapark') {
+                        tr_class = 'success';
+                   } 
+
+                   $('#orders_tbl tbody').append('<tr class="'+tr_class+'">'+
+                           form_item_str(data['items'][i])+'</tr>');
+                }
+
+                $('input[type="checkbox"]').change(function() {
+                    //alert($(this).is(':checked'));
+                    if ($('input[type="checkbox"]:checked').length > 0) {
+                        $('#selected_act').show();
+                    } else {
+                        $('#selected_act').hide();
+                    }
+                });
+
+                if (summarize) {
+                    $('#summarize').html('');
+                    $('#summarize').html('<div class="alert alert-success">'+
+                        '<h4>Сумма цен: '+data['price_sum']+'</h4>'+
+                        '<h4>5% : '+data['five_perc']+'</h4>'+
+                        '</div>');
+                }
+
+
+            }
+        });
+      }
+    
+      function cancel_cell(item_id) { 
+          $.post('/cancel_sell', {'item_id': item_id})
+              .fail( function(xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText);
+                    })
+              .done( function(data) {
+                if (data['ret_code'] != 0) {
+                    alert(data['ret_message']);
+                    return;
+                }
+                load_orders_table();
+              });
+
+      }
+   
+      function sell_item(item_id) { 
+          //if ($('#li_sold').hasClass('active')) {
+          //  return;
+          //}
+          if ($('#li_in_transit').hasClass('active')) {
+            return;
+          }
+
+          var item = $.items_cache[item_id];
+
+          if (item[0]) {
+              $('#sellDate').datepicker( "update", item[0]);
+          } else{
+             $('#sellDate').val('');
+          }
+        
+          if (item[1]) {
+            $('#sellerSelect option:contains("'+item[1]+'")').attr('selected', true);
+          } else {
+            $('#sellerSelect option:first').attr('selected', true);
+          }
+          $('#modalitem_id').val(item_id);
+          $('#buyerEdit').val(item[2]);
+          if (item[3]) {
+              $('#discountEdit').val(item[3]);
+          } else {
+              $('#discountEdit').val(0);
+          }
+
+          $('#SellItemModal').modal();
+      }
+
+      function apply_sell() {
+          if (! $('#sellDate').val()) {
+            alert('Date is empty!');
+            return;
+          }
+
+          if (! $('#sellerSelect :selected').val()) {
+              alert('Seller is empty!');
+              return;
+          }
+
+          if (! $('#discountEdit').val()) {
+            alert('Discount is empty!');
+            return;
+          }
+
+          if (! $.isNumeric($('#discountEdit').val())) { 
+              alert('Discount should be float value!');
+              return;
+          }
+          
+          var data = getFormData($('#update_order_form'));
+          $.post('/sell_item', data)
+              .fail( function(xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText);
+                    })
+              .done( function(data) {
+                if (data['ret_code'] != 0) {
+                    alert(data['ret_message']);
+                    return;
+                }
+                load_orders_table();
+                $('#SellItemModal').modal('hide');
+              });
+      }
+
+      function new_shop_seller() {
+        $('#SellItemModal').modal('hide');        
+
+        $('#newSellerEdit').val('');
+        $('#NewSellerModal').modal();        
+      }
+
+      function save_seller() {
+        var new_seller = $('#newSellerEdit').val();
+        if (new_seller.length == 0) {
+            alert('Empty string!');
+            return;
+        }
+
+        //save seller on server
+        $.post('/update_shop_seller', {'seller': new_seller})
+          .fail(function (data) {alert('ERROR! '+ data);})
+          .done(function (data) {
+            var newopt = '<option selected="selected" value="'+data['seller_id']+'">'+new_seller+'</option>';
+            $('#sellerSelect').append(newopt);
+            var cur_selected = $('#shopSellerSelect :selected');
+            $('#shopSellerSelect').append(newopt);
+            cur_selected.attr('selected', true);
+
+            $('#NewSellerModal').modal('hide');         
+          });
+      }
+
+
+      function sell_items() {
+        alert('продано!');
+      }
+
+      $(function() {
+        $.flags = {};
+        $.flags.order_changed = false; 
+        $.flags.order_items__changed = false; 
+        $.flags.page_num = 1;
+        $.flags.location = '';
+        $.items_cache = {};
+        $.loc_map = {'store': 'Склад',
+                     'eurasia': 'Евразия',
+                     'asiapark': 'Азияпарк'};
+
+        $('#presence').addClass('active');
+
+        $('#SellItemModal').on('shown', function () {
+            if ( $('#sellDate').val() ) {
+                $('#sellerSelect').focus();
+            } else {
+                $('#sellDate').focus();
+            }
+        });
+
+        $("#SellItemModal").keypress(function(e) {
+          if (e.which == 13) {
+              apply_sell();
+              return false;
+          }
+        });
+
+        $('#NewSellerModal').on('shown', function () {
+            $('#newSellerEdit').focus();
+        });
+
+        $('#NewSellerModal').on('hidden', function () {
+            $('#SellItemModal').modal(); 
+        });
+
+        $("#NewSellerModal").keypress(function(e) {
+          if (e.which == 13) {
+              save_seller();
+              return false;
+          }
+        });
+
+
+        $('#sellDate').datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            todayBtn: true,
+            clearBtn: true,
+            todayHighlight: true
+        });
+
+        $('#datepicker').datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            todayBtn: true,
+            clearBtn: true,
+            todayHighlight: true
+          });
+
+        $('#buyerEdit').typeahead([
+         {
+            name: 'buyers',
+            remote: '/get_json_dict/buyers?q=%QUERY',
+            prefetch: '/get_json_dict/buyers',
+            cache: false,
+         }
+        ]);
+        $('#buyerSEdit').typeahead([
+         {
+            name: 'buyers',
+            remote: '/get_json_dict/buyers?q=%QUERY',
+            prefetch: '/get_json_dict/buyers',
+            cache: false,
+         }
+        ]);
+
+        $('#brandSEdit').typeahead([
+         {
+            name: 'brands',
+            remote: '/get_json_dict/brands?q=%QUERY',
+            cache: false,
+         }
+        ]);
+        $('#nameSEdit').typeahead([
+         {
+            cache: false,
+            name: 'item_names',
+            remote: '/get_json_dict/item_names?q=%QUERY',
+         }
+        ]);
+
+
+        $.getJSON('/get_shop_sellers/', function(data) {
+            for (var i=0; i<data.length; i++) { 
+                var newopt = '<option value="'+data[i][0]+'">'+data[i][1]+'</option>';
+                $('#sellerSelect').append(newopt);
+                $('#shopSellerSelect').append(newopt);
+            }
+        });
+
+        show_table('all');
+      });
+    </script>
+{% endblock %}

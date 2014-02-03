@@ -1,0 +1,10 @@
+# Lines starting with '#' are considered comments.
+# Ignore objects and archives.
+
+*.pyc
+*.pyo
+*.swp
+*~
+dist
+build
+make_dump_settings.py

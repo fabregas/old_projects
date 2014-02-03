@@ -1,0 +1,276 @@
+{% extends "index.html" %}
+
+{% block main_content %}
+
+
+    <a class="btn btn-success" onclick="add_item();">Добавить</a>
+
+    <div style="height:10px;"></div>
+    <table class="table table-hover" id="orders_tbl">
+        <tbody>
+        </tbody>
+    </table>
+
+    <span id="summarize"></span>
+
+    <ul class="pager">
+        <li id="prev_btn"><a onclick="prev_page();">Предыдущая</a></li>
+        <li><span id="page_num" class="badge" style="color:#999999;">1</span></li>
+        <li id="next_btn"><a onclick="next_page();">Следующая</a></li>
+    </ul>
+
+
+    <div id="AddItemModal" class="modal hide fade">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3 id="modal_header">Добавить вложения/долги</h3>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal" id="update_order_form">
+
+              <input type="hidden" name="item_id" id="mod_item_id"/>
+
+              <div class="control-group">
+                <label class="control-label" for="sellDate">Дата</label>
+                <div class="controls">
+                    <div class="input-daterange">
+                        <input id="sellDate" type="text" class="input dt-input" name="date" readonly/>
+                    </div>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="priceEdit">Сумма</label>
+                <div class="controls">
+                    <input id="priceEdit" type="number" step="0.01" name="sum"></input>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="nameEdit">Описание</label>
+                <div class="controls">
+                    <input id="nameEdit" type="text" name="desc"/>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="repaidEdit">Погашено</label>
+                <div class="controls">
+                    <input id="repaidEdit" type="checkbox" name="repaid"/>
+                </div>
+              </div>
+
+            </form>
+        </div>
+      <div class="modal-footer">
+          <a onclick="remove_item();" class="btn btn-danger" id="rem_btn">Удалить</a>
+          <a onclick="apply_sell();" class="btn btn-success">Сохранить</a>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      function show_alert(msg) {
+        alert(msg);
+      }
+
+        function getFormData($form){
+            var unindexed_array = $form.serializeArray();
+            var indexed_array = {};
+
+            $.map(unindexed_array, function(n, i){
+                indexed_array[n['name']] = n['value'];
+            });
+
+            return indexed_array;
+        }
+
+      function apply_date_filter() {
+        $.flags.page_num = 1;
+        $.flags.is_filter = true;
+
+        load_orders_table();
+      }
+      
+      function next_page() {
+        if ($('#next_btn').hasClass('disabled')) {
+            return;
+        }
+        $.flags.page_num += 1;
+        load_orders_table();
+      }
+
+      function prev_page() {
+        if ($('#prev_btn').hasClass('disabled')) {
+            return;
+        }
+        $.flags.page_num -= 1;
+        load_orders_table();
+      }
+
+      function form_table_header() {
+          return '<th>Дата</th>'+
+                '<th>Сумма</th>'+
+                '<th>Описание</th>';
+      }
+
+      function form_item_str(item) { 
+          $.items_cache[item['id']] = [item['date'], item['sum'], item['description'], item['is_repaid']];
+          return '<td>'+item['date']+'</td>'+
+                '<td>'+item['sum']+'</td>'+
+                '<td>'+item['description']+'</td>';
+      }
+
+      function load_orders_table() { 
+          var summarize = $.flags.is_filter;
+          $.getJSON('/get_embedebts', { page_num: $.flags.page_num},
+           function(data) {
+            if (data['ret_code'] != 0) {
+                show_alert('Can not receive orders list: '+data['ret_message']);
+            } else {
+                $('#orders_tbl tbody').html('');
+
+                if (data['pages_count'] == data['page_num']) {
+                    $('#next_btn').addClass('disabled');
+                } else {
+                    $('#next_btn').removeClass('disabled');
+                }
+                if (data['page_num'] == 1) {
+                    $('#prev_btn').addClass('disabled');
+                } else {
+                    $('#prev_btn').removeClass('disabled');
+                }
+                $('#page_num').html(data['page_num'] + ' из '+ data['pages_count']);
+
+                $.items_cache = {};
+                $('#orders_tbl tbody').append('<tr class="warning">'+form_table_header()+'</tr>');
+                for (var i=0; i<data['items'].length; i++) { 
+                   var order_id = data['items'][i]['id'];
+                    var s_style = ' ';
+                    if (data['items'][i]['is_repaid']) {
+                        s_style = ' style="text-decoration:line-through"';
+                    }
+                   tr_class = 'info';
+                   $('#orders_tbl tbody').append('<tr class="'+tr_class+'"' + s_style +
+                         ' " onclick="mod_item('+order_id +');">'+
+                           form_item_str(data['items'][i])+'</tr>');
+                }
+            }
+        });
+      }
+
+      function add_item() { 
+          $('#mod_item_id').val('');
+          $('#sellDate').val('');
+          $('#nameEdit').val('');
+          $('#priceEdit').val(0);
+          $('#repaidEdit').attr('checked', false);
+
+          $('#rem_btn').hide();
+          $('#AddItemModal').modal();
+      }
+      
+      function mod_item(item_id) { 
+            $('#mod_item_id').val(item_id);
+            var item = $.items_cache[item_id];
+            $('#sellDate').datepicker( "update", item[0]);
+            $('#priceEdit').val(item[1]);
+            $('#nameEdit').val(item[2]);
+            if (item[3]) {
+                $('#repaidEdit').attr('checked', true);
+            } else {
+                $('#repaidEdit').attr('checked', false);
+            }
+            $('#rem_btn').show();
+            $('#AddItemModal').modal();
+      }
+
+      function apply_sell() {
+          if (! $('#sellDate').val()) {
+            alert('Date is empty!');
+            return;
+          }
+
+          if (! $('#nameEdit').val()) {
+            alert('Description is empty!');
+            return;
+          }
+
+          if (! $.isNumeric($('#priceEdit').val())) { 
+              alert('Summ should be float value!');
+              return;
+          }
+          
+          var data = getFormData($('#update_order_form'));
+          $.post('/add_item_embedebts', data)
+              .fail( function(xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText);
+                    })
+              .done( function(data) {
+                if (data['ret_code'] != 0) {
+                    alert(data['ret_message']);
+                    return;
+                }
+                load_orders_table();
+                $('#AddItemModal').modal('hide');
+              });
+      }
+      
+      function remove_item() {
+      	if (!confirm('Вы уверены, что хотите удалить запись?')) {
+		    return;
+	    }
+
+        var item_id = $('#mod_item_id').val();
+	    $.post('/remove_item_embedebts', {'item_id': item_id})
+              .fail( function(xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText);
+               })
+              .done( function(data) {
+                if (data['ret_code'] != 0) {
+                    alert(data['ret_message']);
+                    return;
+                }
+                load_orders_table();
+                $('#AddItemModal').modal('hide');        
+
+		        alert('Запись успешно удалена!');
+        });
+	
+      }
+    
+   
+      $(function() {
+        $.flags = {};
+        $.flags.page_num = 1;
+        $.items_cache = {};
+
+        $('#embedebts').addClass('active');
+
+        $('#sellDate').datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            todayBtn: true,
+            clearBtn: true,
+            todayHighlight: true
+        });
+
+
+        $('#AddItemModal').on('shown', function () {
+            if ( $('#sellDate').val() ) {
+                $('#priceEdit').focus();
+            } else {
+                $('#sellDate').focus();
+            }
+        });
+
+        $("#AddItemModal").keypress(function(e) {
+          if (e.which == 13) {
+              apply_sell();
+              return false;
+          }
+        });
+
+        load_orders_table();
+      });
+    </script>
+{% endblock %}

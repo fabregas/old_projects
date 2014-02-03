@@ -1,0 +1,34 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Accounting</title>
+    <link rel="shortcut icon" href="/static/img/icon.ico" />
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS Toolkit styles -->
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <!-- Bootstrap styles for responsive website layout, supporting different screen sizes -->
+    <link rel="stylesheet" href="/static/css/bootstrap-responsive.min.css">
+    <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+    <!-- Shim to make HTML5 elements usable in older Internet Explorer versions -->
+    <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <link rel="stylesheet" href="/static/css/custom.css">
+    <link rel="stylesheet" href="/static/css/datepicker.css">
+    <link rel="stylesheet" href="/static/css/typeahead.js-bootstrap.css">
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/locale.js"></script>
+    <script src="/static/js/bootstrap-datepicker.js"></script>
+    <script src="/static/js/typeahead.js"></script>
+    {% block custom_head %}
+    {% endblock %}
+</head>
+<body>
+    {% block base_content %}
+    {% endblock %}
+    
+    {% block add_content %}
+    {% endblock %}
+</body>
+</html>
