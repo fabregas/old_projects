@@ -1,0 +1,18 @@
+{% extends "base_admin.html" %}
+
+{% block title %}
+Відміна прийому
+{% endblock %}
+
+{% block history %}
+<a href="/" >Головна сторінка</a> > <a href="/manage_worktime">Вибір дня</a> > <a href="/manage_day/{{record.start_datetime|date:"d/m/Y"}}">{{record.start_datetime|date:"d.m.Y"}}</a> > <a href="/manage_record/{{record.id}}">Інформація про прийом</a>
+{% endblock %}
+
+{% block base_content %}
+    <p class="centered_element">Напишіть причину відміни прийому, яка відправиться клієнту</p>
+    
+	<form action="/admin_cancel_record/{{record.id}}" method="POST">
+        <textarea id="cancel_message_text" name="message"></textarea>
+        <p><input id="message_submit" type="submit" value="Відмінити прийом"></input></p>
+    </form>
+{% endblock %}

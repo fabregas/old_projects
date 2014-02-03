@@ -1,0 +1,381 @@
+
+/* BASE INTEMS */
+
+body {
+    font: normal 14px verdana,helvetica,arial;
+    width: 800px;
+    margin: 0px auto;
+}
+
+#base_content {
+    float: right;
+    width:599px;
+    background-color: #DEEDCE;
+    border-right: 1px solid #96D68D;
+}
+
+#history_line { 
+    border-bottom: 1px solid #96D68D;
+    background-color: #DEEDCE;
+    margin: 0;
+    padding: 0 14px;
+    width: 570px;
+    height: 24px;
+    color: #457855;
+}
+
+#history_line a {
+    text-decoration : none;
+    color: #457855;
+}
+
+#history_line a:hover {
+    color : #1A5105;
+}
+
+#footer {
+    clear: both;
+    background-color: #E4F5E1;
+    vertical-align: baseline;
+    display: block;
+    border: 1px solid #96D68D;
+}
+
+#footer table td {
+    color :#5F6D73;
+    font-size: 12px;
+}
+
+ul.errorlist {
+    margin: 0;
+    padding: 0;
+}
+
+.errorlist li {
+    color: #FF655D;
+    display: block;
+    font-size: 15px;
+    margin: 0;
+    padding: 4px 5px;
+}
+
+.error {
+    color: #FF655D;
+    display: block;
+    font-size: 15px;
+    margin: 0px;
+    padding: 4px 5px;
+}
+
+p.centered_element {
+    text-align: center;
+    font-size: 16px; 
+    color: #2A4A34;
+    font-weight: bold;
+}
+
+a.link {
+    color: #4E944A;
+    display: normal;
+    text-decoration:none;
+}
+a.link:hover {
+    color: #174002;
+}
+
+.label { 
+    color: #174002;
+}
+
+.hint_message {
+    margin: 20px;
+    color: #778760;
+}
+
+
+/*  END BASE INTEMS */
+
+
+/* MENU */
+
+/* Generated via www.cssmenubuilder.com */
+
+.menu {
+    margin: 0 5px ; 
+    padding:0; 
+    width:200px; 
+    list-style:none;
+}
+
+.menu li {
+    padding:0; 
+    margin:0 0 1px 0; 
+    height:40px; 
+    display:block; 
+}
+
+.menu li a {
+    text-align:left;
+    height:40px; 
+    padding:0px 25px; 
+    font:16px Verdana, Arial, Helvetica, sans-serif; 
+    color:rgb(255,255,255); 
+    display:block; 
+    background:url('verMenuImages.png') 0px 0px no-repeat; 
+    text-decoration:none;
+}
+
+.menu li a:hover {
+    background:url('verMenuImages.png') 0px -40px no-repeat; 
+    color:rgb(255,255,255);
+}
+
+.menu li a.active, .menu li a.active:hover {
+    background:url('verMenuImages.png') 0px -80px no-repeat; 
+    color:rgb(255,255,255);
+}
+
+.menu li a span {
+    line-height:40px;
+}
+/* END MENU */
+
+
+/* TABLE */
+
+table.headered_table {
+    margin: 5px;
+    width: 98%;
+    border: 1px solid green;
+    border-right: 0px;
+}
+table.headered_table tr.row1  {
+    background-color: #D1E3CF;
+}
+table.headered_table tr.row2  {
+    background-color: #CAE0C8;
+}
+table.headered_table td  {
+    border-right: 1px solid green;
+    padding: 5px;
+    text-align: left;
+    color: #457855;
+}
+table.headered_table th  {
+    border-right: 1px solid green;
+    padding: 5px;
+    text-align: center;
+    background-color: #A9CFA5;
+    color: #457855;
+}
+table.headered_table a {
+    text-decoration : none;
+    display: block;
+    color: #457855;
+}
+
+table.headered_table td input { 
+    margin: 5px 5px;
+}
+
+/* FORM */
+
+.std_form table {
+    width: 100%;
+    border: 1px solid green;
+}
+.std_form table th {
+    text-align: center;
+    background-color: #A9CFA5;
+    color: #457855;
+    padding-top: 3px;
+    padding-bottom: 7px;
+}
+.std_form table td {
+text-align: right;
+    background-color: #CAE0C8;
+    color: #457855;
+    padding: 5px 5px;
+}
+.std_form table td input {
+    width: 100%;
+}
+.std_form table td textarea {
+    width: 100%;
+    height: 100px;
+}
+
+.std_form table td select {
+    width: 100%;
+}
+
+.std_form table td.submit_btn {
+    padding: 10px 0px;
+    text-align: center;
+}
+.std_form table td.submit_btn input {
+    width: 150px;
+}
+.django_form table th {
+    text-align: right;
+    background-color: #CAE0C8;
+    color: #457855; 
+    width: 40%;
+}
+
+
+/* FORM */
+
+.std_button {
+    width: 150px;
+}
+
+.small_button {
+    width: 100px;
+}
+
+/* CUSTOM */
+
+#payments_list td {
+    text-align: center;
+}
+
+#payment_form {
+    margin-left: 100px;
+    margin-top: 30px;
+    margin-bottom: 40px;
+    width: 400px;
+    color: #2A4A34;
+}
+
+#record_form {
+    margin: 50px;
+    width:500px;
+}
+
+#record_form select {
+    width: 100%;
+}
+#record_form textarea {
+    height: 100px;
+}
+
+#new_message_div {
+    margin-left: 5px;
+    margin-top: 30px;
+    width: 590;
+}
+
+#reg_form {
+    margin-left: 50px;
+    margin-top: 30px;
+    margin-bottom: 40px;
+    width: 500px;
+}
+
+#change_password {
+    margin-left: 5px;
+    margin-top: 30px;
+    width: 590;
+}
+
+#inform_area {	
+   background-color: #D9D76A; 
+   width: 80%;
+   margin: 20%  auto;
+   padding: 4px 5px;
+   display: block;
+   border: solid 2px #B0AF6C;
+}
+#inform_area p {
+    text-align: center;
+    color: #457855;
+    font-weight: bold;
+}
+#inform_area table {
+    width: 100%;
+    margin-top: 20px;
+    color: #161604;
+}
+#inform_area input {
+    margin-top: 30px;
+    width: 40%;
+}
+
+
+#menu {
+    width: 199px;
+    float:left;
+    margin: 0px;
+    background-color: #C5E8BE;
+    border-right: 1px solid #96D68D;
+    border-top: 1px solid #96D68D;
+}
+#menu p {
+    text-align: center;
+    margin: 10px;
+    padding: 0px;
+}
+#menu form {
+    padding:0;
+    margin: 5px 10px;
+}
+#menu form p label {
+    font-size: 12px;
+}
+#menu form p  {
+    text-align: left;
+}
+#menu form p input {
+    width: 160px;
+}
+
+
+
+#banner {
+    height: 70px;
+    width: 100%;
+    background-image: url('/static/banner_line.png');
+    background-repeat: repeat-x;
+}
+
+#logo {
+    height: 70px;
+    top: 5px;
+    background-image: url('/static/psychlogo.png');
+    background-position: 20px 5px;
+    background-repeat: no-repeat;
+}
+
+
+#banner_label {
+    padding-top: 15px;
+    margin-left: 140px;
+    font-size: 32px;
+    color: #365938;
+    font-family: Times New Roman, serif;
+    font-style: italic;
+    font-weight: bold;
+}
+
+#banner #logout_btn {
+    margin-left: 750px;
+}
+
+#active_message_topic {
+    color: #C9B661;
+}
+
+
+table.headered_table a.unread_message {
+    color: red;
+}
+
+#content {
+    margin: 10px;
+    color: #174002;
+}
+
+#services_descr {
+    margin: 10px;
+}

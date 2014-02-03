@@ -1,0 +1,42 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+Clusters list
+{% endblock %}
+
+{% block right_content %}
+		{% if warning %}
+			<div id="warning">
+				Warning: {{warning}}
+			</div>
+		{% endif %}
+
+		<p id="page_header">Cluster list</p>
+		
+		<table cellspacing="0" id="clusters_table">
+			<tr id="table_head_line">
+				<th width=3% ></th>
+				<th width=25% >Cluster name</th>
+				<th width=60% >Cluster description</th>
+				<th align="center">Nodes count</th>
+			</tr>
+			{% for cluster in clusters %}
+			    <tr id="{% cycle 'table_line1' 'table_line2' %}">
+			    	<td ><input id="{{cluster.id}}" nname="{{cluster.cluster_sid}}" class="radiobutton" type="radio" name="select"></td>
+				    <td ><a href="/cluster_{{cluster.id}}">{{cluster.cluster_sid}}</a></td>
+				    <td >{{cluster.cluster_name}}</td>
+				    <td  align="center">{{cluster.nodes_count}}</td>
+			    </tr>
+			{% endfor %}
+
+			<tr >
+				<td colspan="3">
+					<input id="tiny_button" type="button" value="append" onclick="location.href='/cluster/modcluster/'">
+					<input id="tiny_button" type="button" value="modify" onClick="modify_cluster();">
+					<input id="tiny_button" type="button" value="remove" onclick="remove_cluster();">
+				</td>
+				<td></td>
+			</tr>
+		</table>
+{% endblock %}

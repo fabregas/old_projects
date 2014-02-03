@@ -1,0 +1,35 @@
+{% extends "base_admin.html" %}
+
+{% block title %}
+Послуги
+{% endblock %}
+
+{% block history %}
+<a href="/" >Головна сторінка</a> 
+{% endblock %}
+
+{% block base_content %}
+        <br/>
+        <p class="centered_element">Послуги</p>
+
+         <table class="headered_table" cellspacing="0" cellpadding="0">
+            <tr>
+                <th>Назва</th>
+                <th>Ціна (грн. за 15 хв)</th>
+                <th>Час прийому (хв)</th>
+            </tr>
+            {% for service in services %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td width="60%"><div><a class="sender_name" href="/manage_service/{{service.id}}">{{service.name}}</a></div></td>
+                <td width="20%">{{service.atom_money}}</td>
+                <td>{{service.time_min}} - {{service.time_max}}</td>                
+            </tr>
+            {% endfor %}
+            <tr class="row1">
+                <td><input type="button" onClick="document.location.href='/manage_service/'" value="Нова послуга"></input></td>
+                <td><div/></td>
+                <td><div/></td>
+            </tr>
+        </table>
+
+{% endblock %}

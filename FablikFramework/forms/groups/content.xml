@@ -1,0 +1,9 @@
+<project>
+	<name>groups</name>
+	<author />
+	<files>
+		<file module="FormWidget">FormWidget.py</file>
+		<file module="Form">Form.py</file>
+		<file module="__init__">__init__.py</file>
+	</files>
+</project>

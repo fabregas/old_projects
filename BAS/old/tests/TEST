@@ -1,0 +1,56 @@
+
+Test application method:
+
+- echo(message)   -- return message string
+- dummy()         -- no input, no output
+- sleep(timeout)  -- sleep timeout seconds
+- work(timeout)   -- do hard work on server temeout seconds
+
+
+----------------------------------------
+echo test
+----------------------------------------
+client threads          message length
+    1                       10
+    2                       10
+    10                      10
+    100                     10
+    1000                    10
+    1                       1000
+    2                       1000
+    10                      1000
+    100                     1000
+    1000                    1000           
+
+
+--------------------------------------------
+dummy test
+--------------------------------------------
+client threads
+    1
+    2
+    10
+    100
+    1000
+
+--------------------------------------------
+sleep test
+--------------------------------------------
+client threads          timeout
+    10                      1
+    100                     1
+    1000                    1
+    10                      5
+    100                     5
+    1000                    5
+-------------------------------------------
+work test
+--------------------------------------------
+client threads          timeout
+    10                      1
+    100                     1
+    1000                    1
+    10                      5
+    100                     5
+    1000                    5
+-------------------------------------------

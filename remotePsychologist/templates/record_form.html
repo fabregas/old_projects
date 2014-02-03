@@ -1,0 +1,81 @@
+{% extends "base_menu.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Запис на прийом" %}
+{% endblock %}
+
+{% block history %}
+<a href="/">{% trans "Головна сторінка" %}</a> > <a href="/find_record_time">{% trans "Вибір дня" %}</a> > <a href="/day_calendar/{{day_path}}">{% trans "Вибір години" %}</a>
+{% endblock %}
+
+{% block base_content %}
+<script type="text/javascript">
+    function onSelectChange() {
+        var serv_id = $('select.service option:selected').val();
+        var stime = $('select.start_time option:selected').val();
+
+        $.get('/get_end_time', {service_id:serv_id, start_time:stime},
+                function(data) { 
+                    $('select.stop_time').children().remove();
+                    $.each(data.split(','), function(idx, value) { $('<option/>').attr("value",value).text(value).appendTo("select.stop_time"); } );  
+
+                    if (data != '') {
+                        $('input[type=submit]').removeAttr("disabled");
+                    } else {
+                        $('input[type=submit]').attr("disabled", "disabled");
+                    }
+                }
+            );
+    }
+
+    $(function() {
+        onSelectChange();
+    });
+</script>
+
+    <div id="record_form">
+	<form class="std_form" action="." method="POST">
+	<table cellspacing="0">
+    <tr>
+        <th colspan="2">{% trans "Запис на прийом" %}</th>
+    </tr>
+    <tr>
+        <td>{% trans "Послуга" %}</td>
+        <td>
+            <select name="service" onchange="onSelectChange();" class="service">
+                {% for service in services %}
+                    <option value="{{service.id}}">{{service.name}} ({{service.atom_money}} {% trans "грн/год" %})</option>
+                {% endfor %}
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>{% trans "Час початку" %}</td>
+        <td>
+            <select name="start_time" onchange="onSelectChange();" class="start_time">
+                {% for stime in start_times %}
+                    <option value="{{stime}}">{{stime}}</option>
+                {% endfor %}
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>{% trans "Час закінчення" %}</td>
+        <td>
+            <select name="stop_time" class="stop_time">
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>{% trans "Коментар" %}</td>
+        <td><textarea name="comment"></textarea></td>
+    </tr>
+    <tr>
+        <td colspan="2" class="submit_btn"><input type="submit" value="{% trans "Записатись" %}"></td>
+    </tr>
+    </table>
+    </form>
+    </div>
+		
+{% endblock %}

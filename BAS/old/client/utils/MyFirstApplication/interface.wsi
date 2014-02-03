@@ -1,0 +1,22 @@
+<interface>
+    <methods>
+    <method name="authenticate">
+        <input>
+            <parameter name="user_name" type="string"/>
+            <parameter name="user_password" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    <method name="echoMethod">
+        <input>
+            <parameter name="message" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    </methods>
+</interface>

@@ -1,0 +1,72 @@
+import IOTypesStructure as IO
+
+class NodeManagementApplicationImplementation:
+    def start_routine(self, config):
+        pass
+
+    def syncronize_application(self, config):
+        pass
+
+    def stop_routine(self):
+        pass
+
+    def StartApplication(self, request):
+        #request - object of IO.RequestStartApplication
+        #response - object of IO.ResponseStartApplication
+
+        pass
+
+    def RestartApplication(self, request):
+        #request - object of IO.RequestRestartApplication
+        #response - object of IO.ResponseRestartApplication
+
+        pass
+
+    def StopApplication(self, request):
+        #request - object of IO.RequestStopApplication
+        #response - object of IO.ResponseStopApplication
+
+        pass
+
+    def LoadLibrary(self, request):
+        #request - object of IO.RequestLoadLibrary
+        #response - object of IO.ResponseLoadLibrary
+
+        pass
+
+    def UnloadLibrary(self, request):
+        #request - object of IO.RequestUnloadLibrary
+        #response - object of IO.ResponseUnloadLibrary
+
+        pass
+
+    def RenewApplicationCache(self, request):
+        #request - object of IO.RequestRenewApplicationCache
+        #response - object of IO.ResponseRenewApplicationCache
+
+        pass
+
+    def GetNodeStatistic(self, request):
+        #request - object of IO.RequestGetNodeStatistic
+        #response - object of IO.ResponseGetNodeStatistic
+
+        pass
+
+    def StartServerNode(self, request):
+        #request - object of IO.RequestStartServerNode
+        #response - object of IO.ResponseStartServerNode
+
+        pass
+
+    def RestartServerNode(self, request):
+        #request - object of IO.RequestRestartServerNode
+        #response - object of IO.ResponseRestartServerNode
+
+        pass
+
+    def StopServerNode(self, request):
+        #request - object of IO.RequestStopServerNode
+        #response - object of IO.ResponseStopServerNode
+
+        pass
+

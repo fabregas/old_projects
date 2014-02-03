@@ -1,0 +1,540 @@
+#!/usr/bin/python
+###################################################
+#   SoundCloud client for geeks
+#
+#   Author: Konstantin Andrusenko
+#   Date: 15.06.2013
+###################################################
+
+import sys
+import threading
+import time
+from datetime import timedelta
+import curses
+
+import gobject
+import gst
+import soundcloud
+
+START_TRACKS_LINE = 7
+
+class MainLoopThread(threading.Thread):
+    def __init__(self, loop):
+        threading.Thread.__init__(self)
+        self.__loop = loop
+
+    def run(self):
+        self.__loop.run()
+
+
+class Player:
+    def __init__(self, limit=10):
+        self.__player = gst.element_factory_make("playbin", "player")
+        self.__player.props.video_sink = gst.element_factory_make ("fakesink")
+
+        bus = self.__player.get_bus()
+        bus.add_signal_watch()
+        bus.enable_sync_message_emission()
+        bus.connect('message', self.__on_event)
+        self.__bus = bus
+
+        self.__client = soundcloud.Client(client_id='bbbe20fbf37c65f4f2cb761ab4f5514f')
+        self.__limit = limit
+        self.__last_query = None
+        self.__tracks = []
+        self.__offset = 0
+        self.__cur_track_idx = None
+        self.__cur_track_hash = None
+        self.__status = 'stopped'
+        self.__main_loop = None
+
+    def init(self):
+        if self.__main_loop:
+            raise Exception('Player is already initialized!')
+        gobject.threads_init()
+        self.__main_loop = gobject.MainLoop()
+        thr = MainLoopThread(self.__main_loop)
+        thr.start()
+
+    def quit(self):
+        if self.__main_loop:
+            self.__main_loop.quit()
+
+    def on_track_changed(self):
+        pass
+
+    def on_new_tracks(self):
+        pass
+
+    def on_info(self, info):
+        pass
+
+    def on_warn(self, warn):
+        pass
+
+    def on_error(self, error):
+        pass
+
+    def __on_event(self, bus, message):
+        if message.type == gst.MESSAGE_ERROR:
+            error, debug = message.parse_error ()
+            self.stop () # this looks neccessary here
+            print 'ERROR: ', error, debug
+            self.on_error(error)
+
+        elif message.type == gst.MESSAGE_NEW_CLOCK:
+            # we connect the timeout handler here to be sure that further queries succeed
+            ##interval = int ((self.__stop_position - self.__start_position) / (2 * gst.SECOND) + 50)
+            ##self.__timeout_id = gobject.timeout_add (interval, self.__on_timeout)
+            pass
+		
+        elif message.type == gst.MESSAGE_STATE_CHANGED:
+            old_state, new_state, pending = message.parse_state_changed ()
+            #print 'STATE_CHANGED: %s, %s, %s'%(old_state, new_state, pending)
+            #self.on_info('NEW STATE: %s'%new_state)
+
+        elif message.type == gst.MESSAGE_EOS:
+            self.__status = 'stopped'
+            self.play_next()
+
+        return True
+
+    def __parse_query(self, query):
+        parts = query.split(',')
+        ret_q = {}
+        for part in parts:
+            p = part.split('=')
+            if len(p) == 1:
+                if ret_q.has_key('q'):
+                    ret_q['q'] += ' %s'%part
+                else:
+                    ret_q['q'] = part
+                continue
+            elif len(p) > 2:
+                raise Exception('Invalid query atom "%s"'%part)
+
+            qt = p[0].strip()
+            QT_MAP = {'t': 'tags', 'g': 'genres'}
+            qt_name = QT_MAP.get(qt, None)
+            if qt_name is None:
+                raise Exception('Invalit query type "%s". '\
+                        'Supported query types are "t" (tags), "g" (genres)'%qt)
+            ret_q[qt_name] = ','.join(p[1].strip().split())
+        return ret_q
+ 
+    def load_by_query(self, query):
+        if self.__last_query != query:
+            self.__last_query = query
+            self.__offset = 0
+
+        self.on_info('Querying "%s" ... page %s ...'%(query, self.__offset/self.__limit))
+        for i in xrange(3):
+            try:
+                q_params = self.__parse_query(query)
+                self.__tracks = self.__client.get('/tracks', order='hotness', \
+                            limit=self.__limit, offset=self.__offset, **q_params)
+                break
+            except Exception, err:
+                if hasattr(err, 'response') and err.response.status_code == 503:
+                    time.sleep(1)
+                    if i == 2:
+                        self.on_error(err)
+                    continue
+                self.on_error(err)
+                return
+
+        self.__offset += self.__limit
+        self.__cur_track_idx = -1
+        self.on_new_tracks()
+        if self.__status == 'stopped':
+            self.play_next()
+
+    def play_next(self):
+        if not self.__tracks:
+            return
+        self.__cur_track_idx += 1
+        if self.__cur_track_idx > len(self.__tracks)-1:
+            return self.load_by_query(self.__last_query)
+
+        try:
+            track = self.__tracks[self.__cur_track_idx]
+            stream_url = self.__client.get(track.stream_url, \
+                        allow_redirects=False)
+        except Exception, err:
+            self.on_error(err)
+            return
+        self.__cur_track_hash = track.fields()['id']
+        self.on_track_changed()
+        self.play_uri(stream_url.location)
+
+    def prev_tracks(self):
+        if self.__offset == 0:
+            return
+
+        self.__offset -= self.__limit
+        self.__offset -= self.__limit
+        if self.__offset < 0:
+            self.__offset = 0
+            return
+
+        self.load_by_query(self.__last_query)
+        for i, track in enumerate(self.__tracks):
+            track_f = track.fields()
+            if track_f['id'] == self.__cur_track_hash:
+                self.__cur_track_idx = i
+
+    def next_tracks(self):
+        if not self.__tracks:
+            return
+        self.load_by_query(self.__last_query)
+
+    def jump_to_track(self, track_num):
+        if track_num < 0 or track_num > (len(self.__tracks)-1):
+            self.on_error('Invalid track number "%s"'%track_num)
+            return
+        if track_num == self.__cur_track_idx:
+            return
+        self.__cur_track_idx = track_num - 1
+        self.play_next()
+        
+    def play_uri(self, uri):
+        self.stop()
+        self.__player.set_property('uri', uri)
+        self.__player.set_state(gst.STATE_PLAYING)
+        self.__status = 'started'
+
+    def tracks(self):
+        def t_time(ms):
+            t = str(timedelta(0, ms/1000))
+            if t.startswith('0'):
+                t = t[2:]
+            return t
+        for track in self.__tracks:
+            track_f = track.fields()
+            yield '[%s] %s [%s]'%(t_time(track_f['duration']), track_f['title'].encode('utf8'), \
+                    'unknown' if not track_f['genre'] else track_f['genre'].encode('utf8')),\
+                    track_f['id'] == self.__cur_track_hash
+
+    def stop(self):
+        self.__player.set_state(gst.STATE_NULL)
+        self.__status = 'stopped'
+
+    def played(self):
+        return self.__status == 'started'
+
+    def pause(self):
+        if self.__status == 'started':
+            self.__player.set_state(gst.STATE_PAUSED)
+            self.__status = 'stopped'
+        else:
+            self.__player.set_state(gst.STATE_PLAYING)
+            self.__status = 'started'
+
+    def rewind_seek(self):
+        try:
+            pos_int = self.__player.query_position(gst.FORMAT_TIME, None)[0]
+            seek_ns = pos_int - (10 * 1000000000)
+            if seek_ns < 0:
+                return
+            self.__player.seek_simple(gst.FORMAT_TIME, gst.SEEK_FLAG_FLUSH, seek_ns)
+        except Exception, err:
+            self.on_error(err)
+		
+    def forward_seek(self):
+        try:
+            pos_int = self.__player.query_position(gst.FORMAT_TIME, None)[0]
+            seek_ns = pos_int + (10 * 1000000000)
+            self.__player.seek_simple(gst.FORMAT_TIME, gst.SEEK_FLAG_FLUSH, seek_ns)
+        except gst.QueryError:
+            pass
+        except Exception, err:
+            self.on_error(err)
+
+    def get_current_seek(self):
+        try:
+            pos_int = self.__player.query_position(gst.FORMAT_TIME, None)[0]
+            return pos_int
+        except gst.QueryError:
+            return None
+        except Exception, err:
+            self.on_error(err)
+            return None
+
+    def get_progress(self):
+        try:
+            pos_int = self.__player.query_position(gst.FORMAT_TIME, None)[0]
+            dur_int = self.__player.query_duration(gst.FORMAT_TIME, None)[0]
+            return pos_int, dur_int
+        except gst.QueryError:
+            return None
+        except Exception, err:
+            self.on_error(err)
+            return None
+
+
+class PrintProgress(threading.Thread):
+    def __init__(self, print_func):
+        threading.Thread.__init__(self)
+        self.__print_func = print_func
+        self.__stop = threading.Event()
+
+    def stop(self):
+        self.__stop.set()
+        self.join()
+
+    def run(self):
+        while not self.__stop.is_set():
+            time.sleep(1)
+            seek = self.__print_func()
+
+class Window:
+    def __init__(self):
+        self.__stdscr = curses.initscr()
+        self.__stdscr.keypad(1)
+        curses.start_color()
+        curses.noecho()
+        curses.cbreak()
+        curses.curs_set(0)
+        self.__player = Player(curses.LINES-16)
+        self.__player.on_track_changed = self.__reload
+        self.__player.on_new_tracks = self.__new_tracks
+        self.__player.on_info = self.information
+        self.__player.on_error = self.error_message
+
+        self.__last_msgs = []
+        self.__last_line_num = None
+        self.__initialized = False
+        self.__selected_track_idx = None
+        self.__displayed_tracks = []
+
+        self.__lock = threading.RLock()
+        self.__print_progress_thrd = PrintProgress(self.print_progress) 
+        self.__print_progress_thrd.start()
+
+    def close(self):
+        self.__print_progress_thrd.stop()
+        curses.endwin()
+        self.__player.quit()
+
+    def interact(self):
+        self.__player.init()
+        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+
+        curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
+        curses.init_pair(4, curses.COLOR_BLACK, curses.COLOR_GREEN)
+
+        curses.init_pair(5, curses.COLOR_YELLOW, curses.COLOR_RED)
+        self.__reload()
+        while True:
+            try:
+                c = self.__stdscr.getch()
+            except KeyboardInterrupt:
+                break
+
+            if c in (ord('F'), ord('f')):
+                self.__query()
+            elif c == ord('Q'):
+                break
+            elif c == ord('B'):
+                self.__player.prev_tracks()
+            elif c == ord('N'):
+                self.__player.next_tracks()
+            elif c == ord('P'):
+                self.__player.pause()
+            elif c == curses.KEY_UP:
+                self.__select_next_track(up=True)
+            elif c == curses.KEY_LEFT:
+                self.__player.rewind_seek()
+            elif c == curses.KEY_RIGHT:
+                self.__player.forward_seek()
+            elif c == curses.KEY_DOWN:
+                self.__select_next_track()
+            elif c == 10:#curses.KEY_ENTER:
+                self.__play_selected_track()
+
+    def __help(self):
+        self.__stdscr.addstr( "**** SoundCloud player for geeks by Kostik Fabregas! ****\n", curses.color_pair(2))
+        self.__stdscr.addstr( "F/f - find music by query\n", curses.color_pair(1) )
+        self.__stdscr.addstr( "B - previous page    N - next page\n", curses.color_pair(1) )
+        self.__stdscr.addstr( "P - pause            Q - exit from program\n", curses.color_pair(1) )
+        self.__stdscr.refresh()
+
+    def __query(self):
+        self.__lock.acquire()
+        try:
+            y, x = self.__last_line_num, 0
+            self.__stdscr.addstr(y, x, '\nPlease, enter query string for seach music (or empty string for cancel) \n') 
+            self.__stdscr.addstr('For example: metallica, g=rock metal\n') 
+            self.__stdscr.addstr('Query: ') 
+            self.__stdscr.refresh()
+            curses.echo()
+            curses.nocbreak()
+            curses.curs_set(1)
+
+            x, y = curses.getsyx()
+            query = self.__stdscr.getstr(x, y)
+            curses.noecho()
+            curses.cbreak()
+            curses.curs_set(0)
+        finally:
+            self.__lock.release()
+
+        if not query:
+            return self.__reload()
+
+        self.__player.load_by_query(query)
+
+    def __select_next_track(self, up=False):
+        self.__lock.acquire()
+        try:
+            if self.__selected_track_idx is not None:
+                if self.__selected_track_idx >= 0  and \
+                        self.__selected_track_idx < len(self.__displayed_tracks):
+                    
+                    i = self.__selected_track_idx
+                    track, is_act = self.__displayed_tracks[i]
+                    self.__stdscr.addstr(START_TRACKS_LINE+i, 0, \
+                            "%s\n"%track, curses.color_pair(2 if is_act else 1) )
+
+            if self.__selected_track_idx is None:
+                for i, (track, is_act) in enumerate(self.__displayed_tracks): 
+                    if is_act:
+                        self.__selected_track_idx = i
+                        break
+                else:
+                    if len(self.__displayed_tracks):
+                        self.__selected_track_idx = -1
+                        if up: return
+                    else:
+                        return
+
+            if self.__selected_track_idx < 0 and up:
+                return
+            if self.__selected_track_idx >= len(self.__displayed_tracks) and not up:
+                return
+
+            if up:
+                self.__selected_track_idx -= 1
+            else:
+                self.__selected_track_idx += 1
+
+            if self.__selected_track_idx < 0 and up:
+                return
+            if self.__selected_track_idx >= len(self.__displayed_tracks) and not up:
+                return
+
+            i = self.__selected_track_idx
+            track, is_act = self.__displayed_tracks[i]
+            self.__stdscr.addstr(START_TRACKS_LINE+i, 0, \
+                    "%s\n"%track, curses.color_pair(4 if is_act else 3) )
+            self.__stdscr.refresh()
+        finally:
+            self.__lock.release()
+
+    def __play_selected_track(self):
+        if self.__selected_track_idx is None:
+            return
+        self.__player.jump_to_track(self.__selected_track_idx)
+        self.__selected_track_idx = None
+
+    def __reload(self):
+        self.__lock.acquire()
+        try:
+            self.__stdscr.clear()
+            self.__help()
+
+            self.print_progress()
+            tracks_cnt = 0
+            self.__displayed_tracks = []
+            self.__stdscr.addstr("\n") 
+            for i, (track, is_act) in enumerate(self.__player.tracks()):
+                self.__stdscr.addstr(START_TRACKS_LINE+i, 0, \
+                        "%s\n"% track, curses.color_pair(2 if is_act else 1) )
+                tracks_cnt += 1
+                self.__displayed_tracks.append((track, is_act))
+
+            if tracks_cnt == 0 and self.__initialized:
+                self.__stdscr.addstr(START_TRACKS_LINE, 0, "NO TRACKS FOUND\n") 
+
+            self.__last_line_num = tracks_cnt+START_TRACKS_LINE
+
+            self.__print_info()
+
+            self.__stdscr.refresh()
+        finally:
+            self.__lock.release()
+
+    def print_progress(self):
+        self.__lock.acquire()
+        try:
+            if not self.__player.played():
+                self.__stdscr.addstr(5, 4, ' [ stopped ] ', curses.color_pair(5)) 
+                return
+
+            progress = self.__player.get_progress()
+            if not progress:
+                return
+            self.__stdscr.addstr(5, 4, self.__form_progress_line(*progress), curses.color_pair(5)) 
+        finally:
+            self.__stdscr.clrtoeol()
+            self.__stdscr.refresh()
+            self.__lock.release()
+
+    def __form_progress_line(self, cur_n, all_n):
+        line_size = 50
+        pr_cnt = (cur_n * line_size) / all_n
+        return ' [%s%s] %s '%('='*pr_cnt, ' '*(line_size-pr_cnt), self.__convert_ns(cur_n))
+
+    def __convert_ns(self, t):
+		s,ns = divmod(t, 1000000000)
+		m,s = divmod(s, 60)
+		if m < 60:
+			return "%02i:%02i" %(m,s)
+		else:
+			h,m = divmod(m, 60)
+			return "%i:%02i:%02i" %(h,m,s)
+
+    def __new_tracks(self):
+        self.__initialized = True
+        self.__selected_track_idx = None
+        self.__reload()
+
+    def __print_info(self):
+        cnt = len(self.__last_msgs)
+        if not cnt:
+            return
+        lines = curses.LINES
+        self.__stdscr.addstr(lines-cnt-1, 0, '[Information]', curses.color_pair(2)) 
+        for msg in self.__last_msgs:
+            self.__stdscr.addstr(lines-cnt, 0, str(msg).replace('\n', ' ')) 
+            self.__stdscr.clrtoeol()
+            cnt-=1
+    
+    def __append_msg(self, msg):
+        self.__last_msgs.append(msg)
+        if len(self.__last_msgs) > 4:
+            del self.__last_msgs[0]
+
+    def information(self, msg):
+        self.__append_msg(msg)
+        self.__print_info()
+
+    def error_message(self, msg):
+        self.__append_msg('ERROR: %s'%(msg))
+        self.__print_info()
+
+
+try:
+    w = Window()
+    w.interact()
+    w.close()
+except Exception, err:
+    w.close()
+    print 'ERROR: %s'%err
+
+    import traceback
+    traceback.print_exc(file=sys.stderr)
+
+
+

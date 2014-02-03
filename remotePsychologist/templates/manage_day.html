@@ -1,0 +1,125 @@
+{% extends "base_admin.html" %}
+
+{% block title %}
+{{day}}
+{% endblock %}
+
+{% block history %}
+<a href="/" >Головна сторінка</a> > <a href="/manage_worktime"> Вибір дня</a>
+{% endblock %}
+
+{% block base_content %}
+<script type="text/javascript">
+    function getTimeSelect(time) {
+        var time_h = parseInt(time.split(':')[0],10);
+        var time_m = parseInt(time.split(':')[1],10);
+
+        var select_h = $('<select class="hour_select"></select>')
+        for (var i=1; i<24; i++) {
+            var opt = $('<option></option>').val(i).append(i);
+            if (i == time_h) {
+                opt.attr("selected", "selected");
+            }
+            select_h.append(opt);
+        }
+
+        var select_m = $('<select class="minute_select"></select>');
+        var mins = new Array('00','15','30','45');
+        for (var i=0; i<4; i++) {
+            var opt = $('<option></option>').val(mins[i]).append(mins[i]);
+            if (mins[i] == time_m) {
+                opt.attr("selected", "selected");
+            }
+            select_m.append(opt);
+        }
+
+        var time_cont = $('<span></span>');
+        time_cont.append(select_h);
+        time_cont.append(select_m);
+
+        return time_cont;
+    }
+
+    function appendWorkRange(start, end) {
+        var start_time = getTimeSelect(start);
+        var end_time = getTimeSelect(end);
+
+        var row_name = 'range_' + $('#manage_worktime_table tr').size();
+        var time_dt = $('<td class="time_select"></td>');
+        time_dt.append(start_time.attr("class","start"));
+        time_dt.append('&nbsp;-&nbsp;');
+        time_dt.append(end_time.attr("class", "end"));
+        row = $('<tr></tr>').attr('id',row_name).append(time_dt).append($('<td></td>').append($('<input type="button" value="Видалити"></input>').attr('onClick','removeRange("'+row_name+'");')));
+        $('#manage_worktime_table').append(row);
+    }
+
+    function removeRange(row_id) {
+        $('#manage_worktime_table tr#'+row_id).remove();
+    }
+
+    function saveWorkRanges() {
+        $('#manage_worktime_table tr').each(function() {
+           var start_h = $('#'+this.id + ' td.time_select span.start select.hour_select option:selected').val();
+           var start_m = $('#'+this.id + ' td.time_select span.start select.minute_select option:selected').val();
+           var start_time = start_h + ':' + start_m;
+
+           var end_h = $('#'+this.id + ' td.time_select span.end select.hour_select option:selected').val();
+           var end_m = $('#'+this.id + ' td.time_select span.end select.minute_select option:selected').val();
+           var end_time = end_h + ':' + end_m;
+
+           $('form').append($('<input type="hidden"></input>').attr('name',this.id).val(start_time + '-' + end_time));
+        });
+        $('form').submit();
+    }
+
+    $(function() {
+	    {% for wrange in work_ranges %}
+            appendWorkRange('{{wrange.start_worktime|date:"H:i"}}','{{wrange.stop_worktime|date:"H:i"}}');
+        {% endfor %}
+
+        {% if is_past_date %}
+            $('input').attr("disabled", true);
+            $('select').attr("disabled", true);
+        {% endif %}
+    
+    });
+
+    function cancelRecordAsk(rec_id) {
+        var yes = confirm("Ви дійсно впевнені, що хочете повернути гроші за прийом клієнту?!");
+
+        if (yes == true) {
+            document.location.href="/cancel_past_record/"+rec_id;
+        }
+    }
+</script>
+
+    <p class="centered_element">{{day}}</p> 
+    
+	<table cellspacing="1" id="manage_worktime_table">
+    </table>
+    <input type="button" id="append_btn" value="Додати" onClick="appendWorkRange('01:00','23:00');"></input>
+	<form action="/manage_day/" method="POST">
+        <input type="button" id="save_btn" value="Зберегти" onClick="saveWorkRanges();"></input>
+    </form>
+
+    <br/>
+    <br/>
+    {% if record_ranges %}
+        <p class="centered_element">Записи на цей день</p>
+        <table cellpadding="1" cellspacing="1" id="manage_records_table">
+        {% for rrange in record_ranges %}
+            <tr>
+                <td width="50%">{{rrange.user.name}} - {{rrange.service.name}}</td>
+                <td width="30%">{{rrange.start_datetime|date:"H:i"}} - {{rrange.stop_datetime|date:"H:i"}}</td>
+                {% if is_past_date %}
+                    <td><a onClick="cancelRecordAsk({{rrange.id}});" >Повернути кошти</a></td>
+                {% else %}
+                    <td><a href='/manage_record/{{rrange.id}}'>Info</a></td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+         <p class="centered_element">Немає записів на цей день</p>
+    {% endif %}
+{% endblock %}

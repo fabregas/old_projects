@@ -1,0 +1,78 @@
+from IOTypesStructure import *
+
+class FablikBaseImplementation:
+    def start_routine(self, config):
+        pass
+
+    def syncronize_application(self, config):
+        pass
+
+    def stop_routine(self):
+        pass
+
+    def authenticate(self, request):
+        #request - object of RequestAuthenticate
+        #response - object of ResponseAuthenticate
+
+        pass
+
+    def getMainMenu(self, request):
+        #request - object of RequestGetMainMenu
+        #response - object of ResponseGetMainMenu
+
+        pass
+
+    def getInterfaces(self, request):
+        #request - object of RequestGetInterfaces
+        #response - object of ResponseGetInterfaces
+
+        pass
+
+    def getDepartaments(self, request):
+        #request - object of RequestGetDepartaments
+        #response - object of ResponseGetDepartaments
+
+        pass
+
+    def getPositions(self, request):
+        #request - object of RequestGetPositions
+        #response - object of ResponseGetPositions
+
+        pass
+
+    def appendPosition(self, request):
+        #request - object of RequestAppendPosition
+        #response - object of ResponseAppendPosition
+
+        pass
+
+    def updatePosition(self, request):
+        #request - object of RequestUpdatePosition
+        #response - object of ResponseUpdatePosition
+
+        pass
+
+    def deletePosition(self, request):
+        #request - object of RequestDeletePosition
+        #response - object of ResponseDeletePosition
+
+        pass
+
+    def appendDepartament(self, request):
+        #request - object of RequestAppendDepartament
+        #response - object of ResponseAppendDepartament
+
+        pass
+
+    def updateDepartament(self, request):
+        #request - object of RequestUpdateDepartament
+        #response - object of ResponseUpdateDepartament
+
+        pass
+
+    def deleteDepartament(self, request):
+        #request - object of RequestDeleteDepartament
+        #response - object of ResponseDeleteDepartament
+
+        pass
+

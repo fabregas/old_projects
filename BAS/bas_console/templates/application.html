@@ -1,0 +1,111 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+Applications list
+{% endblock %}
+
+{% block history %}
+ <a href="/applications">applications list</a>
+{% endblock %}
+
+{% block right_content %}
+        <table><tr>
+		<td><p id="page_header">        
+                   {% if application.state %}
+                        <img src="/static/up.png" alt="up">
+                   {% else %}
+                        <img src="/static/down.png" alt="down">
+                   {% endif %}
+        Application: {{application.app_name}} ({{application.app_version}})
+        </p></td>
+        <td align="right"> 
+		    <input style="margin-left:20px;" type="button" value="undeploy application" onclick="askWindow('Do you realy want updeploy this application?','/undeploy_application/{{application.id}}')">
+        </td>
+        </tr><table>
+	    <div>	
+			<input id="tiny_button" type="button" value="start" onclick="'{{application.state}}'=='False' && askWindow('Do you realy want start application?','/application/start/{{application.id}}')">
+			<input id="tiny_button" type="button" value="restart" onclick="'{{application.state}}'=='True' && askWindow('Do you realy want restart application?','/application/restart/{{application.id}}')">
+		    <input id="tiny_button" type="button" value="stop" onclick="'{{application.state}}'=='True' && askWindow('Do you realy want stop application?','/application/stop/{{application.id}}')">
+
+            <input style="margin-left:50px;" id="tiny_button" type="button" value="logs" onclick="location.href='/applications_logs/'">
+            <input type="button" value="statistic" id="tiny_button" onclick="location.href='/applications_statistic/'">
+        </div>
+	
+        {% if methods %}
+		<p id="page_header">Application's methods list</p>
+		
+		<form action="/save_method_logging/" method="POST" id="method_form">
+		<table cellspacing="0" id="methods_table">
+			<tr id="table_head_line">
+				<th width=5%  >#</th>
+				<th width=60% >method name</th>
+				<th >input logging</th>
+				<th>output logging</th>
+			</tr>
+			{% for method in methods %}
+			    <tr id="{% cycle 'table_line1' 'table_line2' %}">
+				    <td align="center" >{{method.num}}</td>
+				    <td ><a style="margin:0 0 0 20px;" href="/test_method/{{method.method_id}}">{{method.method_name}}</a></td>
+                    <td ><input {{method.status|is_checked:"input"}} type="checkbox" id="tiny_button" name="input_{{method.method_name}}" value="{{method.status|get_logging_value:"input"}}"/></td>
+                    <td ><input {{method.status|is_checked:"output"}}  type="checkbox" id="tiny_button" name="output_{{method.method_name}}" value="{{method.status|get_logging_value:"output"}}"/></td>
+			    </tr>
+			{% endfor %}
+            <tr>
+                <td colspan=4 align="right"><input type="submit" value="save logging"></td>
+            </tr>
+		</table>
+        </form>
+        {% endif %}
+
+		<p id="page_header">Application settings</p>
+		<table cellspacing="0">
+			<tr id="table_head_line">
+				<th width=25% >Parameter name</th>
+				<th width=35% >Parameter value</th>
+				<th >Description</th>
+			</tr>
+			{% for setting in settings %}
+			    <tr id="{% cycle 'table_line1' 'table_line2' %}">
+				<td ><a href="/modlocalparam/{{setting.id}}">{{setting.param_name}}</a></td>
+				<td >{{setting.param_value|check_type:setting.param_type}}</td>	
+				<td >{{setting.description}}</td>	
+			    </tr>
+			{% endfor %}
+			<tr>
+				<td colspan="2">
+					<input type="button" value="append parameter" onclick="location.href='/modlocalparam/'">
+				</td>
+				<td></td>
+			</tr>
+		</table>
+
+
+        {% if old_applications %}
+            <p id="page_header">Old versions</p>
+            
+            <table cellspacing="0" id="old_app_table">
+                <tr id="table_head_line">
+                    <th width=2% ></th>
+                    <th width=60% >Version</th>
+                    <th >Deploy datetime</th>
+                </tr>
+                {% for application in old_applications %}
+			        <tr id="{% cycle 'table_line1' 'table_line2' %}">
+			    	    <td ><input id="{{application.id}}" nname="{{application.app_version}}" class="radiobutton" type="radio" name="select"></td>
+                        <td  align="center">{{application.app_version}}</td>
+				        <td align="center">{{application.deploy_datetime|shortdatetime}}</td>
+                    </tr>
+                {% endfor %}
+
+                    <tr>
+                        <td colspan="3">
+		                    <input type="button" value="undeploy selected" onclick="undeploy_selected();">
+		                    <input type="button" value="activate selected" onclick="activate_selected()">
+                        </td>
+                    </tr>
+            </table>
+        
+        {% endif %}
+
+{% endblock %}

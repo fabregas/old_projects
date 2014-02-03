@@ -1,0 +1,36 @@
+import unittest
+import IOTypesStructure as types
+from ApplicationImplementation import *
+
+
+class TestSystemApplication(unittest.TestCase):
+    def test_DeployApplication(self):
+        #write code for testing DeployApplication routine
+
+        pass
+
+    def test_UndeployApplication(self):
+        #write code for testing UndeployApplication routine
+
+        pass
+
+    def test_StartApplication(self):
+        #write code for testing StartApplication routine
+
+        pass
+
+    def test_RestartApplication(self):
+        #write code for testing RestartApplication routine
+
+        pass
+
+    def test_StopApplication(self):
+        #write code for testing StopApplication routine
+
+        pass
+
+    def test_RenewApplicationCache(self):
+        #write code for testing RenewApplicationCache routine
+
+        pass
+

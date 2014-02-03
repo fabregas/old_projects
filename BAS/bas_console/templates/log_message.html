@@ -1,0 +1,43 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+ {{application.app_name}} application's log message
+{% endblock %}
+
+{% block history %}
+ <a href="/applications">applications list</a> > 
+ <a href="/application/{{application.id}}">{{application.app_name}} application</a> > 
+ <a href="/applications_logs">log list</a>  
+{% endblock %}
+
+{% cycle 'table_line1' 'table_line2' as rowcolors %}
+
+{% block right_content %}
+		<table cellspacing="0" id="logs_table">
+			<tr id="{% cycle rowcolors %}">
+                <td width=15%><b>Message type</b></td>
+                <td  align="center">{{log.message_type|get_msg_type}}</td>
+            </tr>
+			<tr id="{% cycle rowcolors %}">
+                <td><b>Method name</b></td>
+                <td  align="center">{{log.method.method_name}}</td>
+            </tr>
+			<tr id="{% cycle rowcolors %}">
+                <td><b>Datetime</b></td>
+                <td  align="center">{{log.datetime|longdatetime}}</td>
+            </tr>
+			<tr id="{% cycle rowcolors %}">
+                <td><b>Execution node</b></td>
+                <td  align="center">{{log.node.logic_name}}</a></td>
+            </tr>
+			<tr id="{% cycle rowcolors %}">
+                <td><b>Sender host</b></td>
+                <td  align="center">{{log.sender_host}}</td>
+            </tr>
+			<tr id="{% cycle rowcolors %}">
+                <td><b>Message text</b></td>
+                <td  >{{log.message|linebreaks}}</td>
+            </tr>
+		</table>
+{% endblock %}

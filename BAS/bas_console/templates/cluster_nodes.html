@@ -1,0 +1,76 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+Cluster nodes list
+{% endblock %}
+
+{% block history %}
+    <a href="/clusters">clusters list</a> 
+{% endblock %}
+
+
+{% block right_content %}
+        <script language="javascript">
+            function loadData() {
+                loadNodesStates({{cluster_id}});
+            }
+
+            window.onload = loadData;
+        </script>
+
+		<input class="right_btn" type="button" value="Cluster logs" onclick="location.href='/server_logs'">
+
+		<p id="page_header">Cluster nodes</p>
+		
+		<table cellspacing="0" id="nodes_table">
+			<tr id="table_head_line">
+				<th width=3% ></th>
+				<th width=45% >Node name</th>
+				<th width=35% >Node address</th>
+				<th align="center">Node status</th>
+			</tr>
+			{% for node in nodes %}
+			    <tr id="{% cycle 'table_line1' 'table_line2' %}">
+			    	<td ><input id="{{node.id}}" nname="{{node.logic_name}}" class="radiobutton" type="radio" name="select"></td>
+				<td ><a href="/cluster/node/{{node.id}}">{{node.logic_name}}</a></td>
+				<td >{{node.hostname}}</td>
+				<td align="center"><img id="imgNode{{node.id}}" src="/static/loading.gif" alt="loading"></td>
+			    </tr>
+			{% endfor %}
+
+			<tr >
+				<td colspan="2">
+					<input id="tiny_button" type="button" value="append" onclick="location.href='/cluster/modnode_'">
+					<input id="tiny_button" type="button" value="modify" onClick="modify_node();">
+					<input id="tiny_button" type="button" value="remove" onclick="remove_node();">
+				</td>
+				<td colspan="2" align="right"> 
+					<input type="button" value="realod all nodes" onclick="askWindow('Do you realy want reload all nodes?','/cluster/reload/{{cluster_id}}')">
+                </td>
+			</tr>
+		</table>
+
+		<p id="page_header">Cluster system settings</p>	
+		<form method="post" action="/save_system_settings">
+		<table cellspacing="0">
+			<tr id="table_head_line">
+				<th width=25% >Parameter name</th>
+				<th width=25% >Parameter value</th>
+				<th>Description</th>
+			</tr>
+			{% for setting in system_settings %}
+			    <tr id="{% cycle 'table_line1' 'table_line2' %}">
+				<td align="right" >{{setting.param_name}}</td>
+				<td ><input type="text" name="{{setting.param_name}}" value="{{setting.param_value}}"></td>	
+				<td >{{setting.description}}</td>	
+			    </tr>
+			{% endfor %}
+			<tr>
+				<td><input type="submit" value="Save settings"></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</table>
+		</form>
+{% endblock %}

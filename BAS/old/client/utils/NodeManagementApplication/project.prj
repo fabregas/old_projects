@@ -1,0 +1,7 @@
+<project>
+	<name>NodeManagementApplication</name>
+	<author>anonymous</author>
+	<python_version>2.6.5</python_version>
+	<client_version>1.0</client_version>
+	<files />
+</project>

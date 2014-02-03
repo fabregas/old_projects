@@ -1,0 +1,39 @@
+<interface>
+
+    <types>
+        <type name="paramType">
+            <parameter name="name" type="string"/>
+            <parameter name="value" type="string"/>
+        </type>
+
+        <type name="simpleParamsType">
+            <parameter name="paramsList" type="paramType" max_count="unbounded"/>
+        </type>
+
+        <type name="listedParamType">
+            <parameter name="name" type="string"/>
+            <parameter name="items" type="string" max_count="unbounded"/>
+        </type>
+
+        <type name="listedParamsType">
+            <parameter name="paramsList" type="listedParamType" max_count="unbounded"/>
+        </type>
+
+
+    </types>
+
+
+    <methods>
+    <method name="runNGMethod">
+        <input>
+            <parameter name="simpleParameters" type="simpleParamsType"/>
+            <parameter name="listedParameters" type="listedParamsType"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="action_id" type="string"/>
+        </output>
+    </method>
+    </methods>
+</interface>

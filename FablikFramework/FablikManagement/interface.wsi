@@ -1,0 +1,141 @@
+<interface>
+    <methods>
+    <method name="createDepartment">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="sid" type="string"/>
+            <parameter name="parent_id" type="integer"/>
+            <parameter name="name" type="string"/>
+            <parameter name="description" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="department_id" type="integer"/>
+        </output>
+    </method>
+    <method name="updateDepartment">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="department_id" type="integer"/>
+            <parameter name="sid" type="string"/>
+            <parameter name="parent_id" type="integer"/>
+            <parameter name="name" type="string"/>
+            <parameter name="description" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    <method name="deleteDepartment">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="department_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+
+    <method name="createGroup">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="parent_id" type="integer"/>
+            <parameter name="name" type="string"/>
+            <parameter name="description" type="string"/>
+            <parameter name="roles_list" type="list" item_name="role" item_type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="group_id" type="integer"/>
+        </output>
+    </method>
+    <method name="updateGroup">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="group_id" type="integer"/>
+            <parameter name="parent_id" type="integer"/>
+            <parameter name="name" type="string"/>
+            <parameter name="description" type="string"/>
+            <parameter name="roles_list" type="list" item_name="role" item_type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    <method name="deleteGroup">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="group_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+
+    <method name="createUser">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="login" type="string"/>
+            <parameter name="name" type="string"/>
+            <parameter name="email" type="string"/>
+            <parameter name="description" type="string"/>
+            <parameter name="birthday" type="string"/>
+            <parameter name="password" type="string"/>
+            <parameter name="department_id" type="integer"/>
+            <parameter name="group_list" type="list" item_name="role" item_type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="user_id" type="integer"/>
+        </output>
+    </method>
+    <method name="updateUser">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="user_id" type="integer"/>
+            <parameter name="login" type="string"/>
+            <parameter name="name" type="string"/>
+            <parameter name="email" type="string"/>
+            <parameter name="description" type="string"/>
+            <parameter name="birthday" type="string"/>
+            <parameter name="status" type="integer"/>
+            <parameter name="department_id" type="integer"/>
+            <parameter name="group_list" type="list" item_name="role" item_type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    <method name="deleteUser">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="user_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    <method name="changeUserPassword">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="user_id" type="integer"/>
+            <parameter name="new_password" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    </methods>
+</interface>

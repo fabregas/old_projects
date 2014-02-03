@@ -1,0 +1,24 @@
+from IOTypesStructure import *
+
+class MyFirstApplicationImplementation:
+    def start_routine(self, config):
+        pass
+
+    def syncronize_application(self, config):
+        pass
+
+    def stop_routine(self):
+        pass
+
+    def authenticate(self, request):
+        #request - object of RequestAuthenticate
+        #response - object of ResponseAuthenticate
+
+        pass
+
+    def echoMethod(self, request):
+        #request - object of RequestEchoMethod
+        #response - object of ResponseEchoMethod
+
+        pass
+

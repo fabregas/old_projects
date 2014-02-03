@@ -1,0 +1,76 @@
+<interface>
+    <types>
+        <type name="FilterType">
+            <parameter name="name" type="string"/>
+            <parameter name="value" type="string"/>
+        </type>
+
+        <type name="ColumnDescriptionType">
+            <parameter name="num" type="integer"/>
+            <parameter name="type" type="integer"/>
+            <parameter name="name" type="string"/>
+        </type>
+
+        <type name="RowType">
+            <parameter name="columns" type="list" item_name="column" item_type="string"/>    
+        </type>
+    </types>
+
+
+    <methods>
+    
+    <method name="executeQuery">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="sql_query_sid" type="string"/>
+            <parameter name="filter_list" type="list" item_name="filter" item_type="FilterType"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="row_list" type="list" item_name="row" item_type="RowType"/>
+            <parameter name="row_description" type="list" item_name="column_description" item_type="ColumnDescriptionType"/>
+        </output>
+    </method>
+
+    <method name="createCursor">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="sql_query_sid" type="string"/>
+            <parameter name="filter_list" type="list" item_name="filter" item_type="FilterType"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="cursor_sid" type="string"/>
+            <parameter name="row_description" type="list" item_name="column_description" item_type="ColumnDescriptionType"/>
+        </output>
+    </method>
+
+    <method name="closeCursor">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="cursor_sid" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+    <method name="getCursorData">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="cursor_sid" type="string"/>
+            <parameter name="offset" type="integer"/>
+            <parameter name="fetch_count" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="row_list" type="list" item_name="row" item_type="RowType"/>
+        </output>
+    </method>
+
+    </methods>
+</interface>

@@ -1,0 +1,23 @@
+{% extends "base_admin.html" %}
+
+{% block title %}
+Користувачі
+{% endblock %}
+
+{% block history %}
+<a href="/" >Головна сторінка</a>
+{% endblock %}
+
+{% block base_content %}
+    <p class="centered_element">Користувачі</p> 
+    
+	<table cellspacing="1" id="manage_users_table">
+        {% for user in users %}
+        <tr>
+            <td><a href="/manage_user/{{user.id}}">{{user.login}}</a></td>
+            <td>{{user.name}}</td>
+            <td>{{user.email}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

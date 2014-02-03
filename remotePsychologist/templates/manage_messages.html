@@ -1,0 +1,52 @@
+{% extends "base_admin.html" %}
+
+{% block title %}
+Повідомлення
+{% endblock %}
+
+{% block history %}
+<a href="/" >Головна сторінка</a> 
+{% endblock %}
+
+{% block base_content %}
+
+        {% if not is_outbox %}
+            <p class="centered_element"><span id="active_message_topic">Отримані</span>&nbsp;&nbsp;&nbsp;&nbsp;<a class="link" href="/manage_messages?is_outbox=1">Відправлені</a></p>
+        {% else %}
+            <p class="centered_element"><a class="link" href="/manage_messages">Отримані</a>&nbsp;&nbsp;&nbsp;&nbsp;<span id="active_message_topic">Відправлені</span></p>
+        {% endif %}
+
+        {% if messages and not is_outbox %}
+         <table class="headered_table" cellspacing="0" cellpadding="0">
+            <tr>
+                <th>Дата</th>
+                <th>Текст повідомлення</th>
+            </tr>
+            {% for message in messages %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td width="30%"><div>{{message.send_datetime|date:"d.m.Y H:i"}}</div></td>
+                <td><a class="sender_name" href="/manage_user/{{message.sender.id}}">{{message.sender.name}}</a><a href="/manage_messages?msg_id={{message.id}}" {% if message.is_readed %}>{% else %}class="unread_message">{% endif %} 
+                    {{message.message|linebreaksbr}}</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+
+        {% if messages and is_outbox %}
+        <table class="headered_table" cellspacing="0" cellpadding="0">
+            <tr>
+                <th>Дата</th>
+                <th>Текст повідомлення</th>
+            </tr>
+            {% for message in messages %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td width="30%">{{message.send_datetime|date:"d.m.Y H:i"}}</td>
+                <td><a class="sender_name" href="/manage_user/{{message.binded_user.id}}">{{message.binded_user.name}}</a><a href="/manage_messages?msg_id={{message.id}};is_outbox=1">{{message.message|linebreaksbr}}</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+
+{% endblock %}

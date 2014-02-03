@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+	Authentication
+{% endblock %}
+
+{% block body %}
+	<div id="auth_form">
+		 <form action="." method="POST">
+            <div id="welcome">
+                Welcome to BAS console
+            </div>
+		         <table>
+		            {{ form.as_table }}
+		         </table>
+			 {% if error %}
+				<p class="error">{{error}}</p>
+			 {% endif %}
+		         <p><input type="submit" value="Login"></p>
+		</form>
+	</div>
+{% endblock %}

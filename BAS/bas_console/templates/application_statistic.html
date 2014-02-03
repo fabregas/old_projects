@@ -1,0 +1,91 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+ {{application.app_name}} application's logs
+{% endblock %}
+
+{% block history %}
+ <a href="/applications">applications list</a> > 
+ <a href="/application/{{application.id}}">{{application.app_name}} application</a>  
+{% endblock %}
+
+{% block right_content %}
+		<form action="." method="POST" id="find_stat_form">
+        <table id="stat_filter" style="border: 1px solid #C9C779">
+            <tr>
+                <th align="left" width="35%">From date</th>
+                <th align="left" width="35%">To date</th>
+                <td rowspan="2">
+                    <input  type="submit" value="Find statistic">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <select name="fromDay" style="width: 40px;" >
+			            {% for day in calendar_from.days %}
+                            <option value="{{day}}">{{day}}</option>
+			            {% endfor %}
+                    </select>
+                    <select name="fromMonth" style="width: 100px;">
+			            {% for month in calendar_from.months %}
+                            <option value="{{month.num}}">{{month.descr}}</option>
+			            {% endfor %}
+                    </select>
+                    <select name="fromYear" style="width: 50px;">
+                        {% for year in calendar_from.years %}
+                            <option value="{{year}}">{{year}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="toDay" style="width: 40px;" >
+			            {% for day in calendar_to.days %}
+                            <option value="{{day}}">{{day}}</option>
+			            {% endfor %}
+                    </select>
+                    <select name="toMonth" style="width: 100px;">
+			            {% for month in calendar_to.months %}
+                            <option value="{{month.num}}">{{month.descr}}</option>
+			            {% endfor %}
+                    </select>
+                    <select name="toYear" style="width: 50px;">
+                        {% for year in calendar_to.years %}
+                            <option value="{{year}}">{{year}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                </td>
+            </tr>
+        </table>
+        </form>
+
+		<table cellspacing="0" id="logs_table">
+			<tr id="table_head_line">
+				<th width=25% >Node</th>
+				<th width=25% >incomming count</th>
+				<th width=25% >outgoing count</th>
+				<th >error count</th>
+			</tr>
+			{% for log in statistic %}
+			    <tr id="{% cycle 'table_line1' 'table_line2' %}">
+				    <td  align="center">{{log.node.logic_name}}</td>
+				    <td  align="center">{{log.in_count}}</td>
+				    <td  align="center">{{log.out_count}}</td>
+				    <td  align="center">{{log.err_count}}</td>
+			    </tr>
+			{% endfor %}
+			    <tr id="{% cycle 'table_line1' 'table_line2' %}">
+				    <td  align="center"><b>All nodes</b></td>
+				    <td  align="center"><b>{{all.in_count}}</b></td>
+				    <td  align="center"><b>{{all.out_count}}</b></td>
+				    <td  align="center"><b>{{all.err_count}}</b></td>
+			    </tr>
+            <tr>
+                <td colspan="5"> 
+                    <input  type="button" value="clear finded statistic" onclick="askWindow('Do you realy want clear finded statistic?','/clear_statistic/')">
+                </td>
+            </tr>
+		</table>
+{% endblock %}

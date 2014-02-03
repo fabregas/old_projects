@@ -1,0 +1,121 @@
+
+/* manage */
+table#manage_worktime_table {
+    margin-left: 50px;
+    background-color: #C9D6BA;
+    border: 1px solid #ACBF97;
+    width: 500px;
+}
+
+table#manage_worktime_table td {
+    padding: 0px;
+    text-align: center;
+}
+table#manage_worktime_table input {
+    width: 80px;
+}
+input#append_btn {
+    margin-left: 480px;
+    width: 70px;
+}
+input#save_btn {
+    margin-left: 230px;
+    width: 150px;
+}
+table#manage_records_table {
+    margin-left: 50px;
+    border: 1px solid #ACBF97;
+    width: 500px;
+}
+input#records_btn {
+    margin-left: 400px;
+    width: 150px;
+}
+table#manage_records_table td {
+    text-align: center;
+    background-color: #C9D6BA;
+}
+
+table#manage_records_table a {
+    text-decoration : none;
+    color: #457855;
+}
+table#manage_records_table a:hover {
+    color : #254021;
+}
+table#record_info_table {
+    margin: 10px;
+    border: 1px solid #ACBF97;
+    width: 580px;
+}
+table#record_info_table td {
+    text-align: left;
+    background-color: #C9D6BA;
+}
+table#record_info_table .btn {
+    text-align: center;
+}
+table#record_info_table a {
+    text-decoration : none;
+    color: #457855;
+}
+table#record_info_table a:hover {
+    color : #254021;
+}
+#cancel_message_text {
+    width: 300px;
+    height: 100px;
+    margin-left: 150px;
+}
+#message_submit {
+    margin-left: 200px;
+    width: 200px;
+}
+
+table#manage_user_table {
+    margin: 20px 5px;
+    border: 1px solid #ACBF97;
+    width: 588px; 
+}
+table#manage_user_table td {
+    text-align: left;
+    background-color: #C9D6BA;
+}
+
+table#manage_users_table {
+    margin: 10px;
+    border: 1px solid #ACBF97;
+    width: 580px; 
+}
+table#manage_users_table td {
+    text-align: left;
+    padding: 6px 2px;
+    background-color: #C9D6BA;
+}
+table#manage_users_table a {
+    text-decoration : none;
+    color: #457855;
+}
+table#manage_users_table a:hover {
+    color : #254021;
+}
+
+table.headered_table a.sender_name {
+    color: #74AB3C;
+}
+
+#admin_user_payments td {
+    text-align: center;
+}
+
+table#manage_user_table textarea {
+   width: 80%;
+   margin-left: 10%;
+   height: 100px;
+   margin-top: 10px;
+}
+table#manage_user_table #send_btn {
+    width: 150px;
+    margin-left: 200px;
+}
+

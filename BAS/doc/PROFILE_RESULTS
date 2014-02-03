@@ -1,0 +1,148 @@
+
+call Fablik method "authenticate"
+
+1. Parse SOAP/Write SOAP        1 ms
+2. method excecution            16 ms
+    DB select                   4 ms (3 calls)
+    DB update                   10 ms (2 calls)
+
+3. all communacate time         18 ms
+
+------------------------------------------------------------------
+
+
+Sat Aug 21 12:22:40 2010    test_function.cprof
+
+         392 function calls (391 primitive calls) in 0.006 CPU seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.006    0.006 <string>:1(<module>)
+        1    0.000    0.000    0.006    0.006 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:716(respond)
+        1    0.000    0.000    0.006    0.006 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:1891(respond)
+        1    0.000    0.000    0.006    0.006 /home/fabregas/work/BAS_new/server/bin/WSGI.py:47(__call__)
+        1    0.000    0.000    0.006    0.006 /home/fabregas/work/BAS_new/server/bin/soaplib/wsgi_soap.py:168(__call__)
+        1    0.000    0.000    0.004    0.004 /home/fabregas/work/BAS_new/server/bin/soaplib/service.py:35(explainMethod)
+        1    0.000    0.000    0.004    0.004 /home/fabregas/work/BAS_new/server/applications/FablikBase/Application.py:22(authenticate)
+        1    0.000    0.000    0.004    0.004 /home/fabregas/work/BAS_new/server/applications/FablikBase/ApplicationImplementation.py:124(authenticate)
+        5    0.000    0.000    0.003    0.001 /home/fabregas/work/BAS_new/server/bin/Database.py:86(execute)
+        1    0.000    0.000    0.003    0.003 /home/fabregas/work/BAS_new/server/applications/FablikBase/FablikSharedLib/FablikSharedLib.py:68(authenticate)
+        2    0.000    0.000    0.002    0.001 /home/fabregas/work/BAS_new/server/bin/Database.py:126(modify)
+        5    0.002    0.000    0.002    0.000 {method 'execute' of 'psycopg2._psycopg.cursor' objects}
+        1    0.000    0.000    0.001    0.001 /home/fabregas/work/BAS_new/server/applications/FablikBase/FablikSharedLib/FablikSharedLib.py:111(addAudit)
+        5    0.000    0.000    0.001    0.000 /home/fabregas/work/BAS_new/server/bin/Database.py:57(end_transaction)
+        2    0.001    0.001    0.001    0.001 {method 'commit' of 'psycopg2._psycopg.connection' objects}
+        1    0.000    0.000    0.001    0.001 /home/fabregas/work/BAS_new/server/applications/FablikBase/FablikSharedLib/FablikSharedLib.py:105(getUserRoles)
+        1    0.000    0.000    0.001    0.001 /home/fabregas/work/BAS_new/server/bin/soaplib/soap.py:54(to_xml)
+      2/1    0.000    0.000    0.001    0.001 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/clazz.py:89(to_xml)
+        9    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/xmlutils.py:81(create_xml_element)
+        3    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/clazz.py:68(__init__)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/soap.py:79(from_xml)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/primitive.py:547(to_xml)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:1937(write)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/clazz.py:109(from_xml)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/soap.py:144(from_soap)
+        4    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/primitive.py:169(wrapper)
+        9    0.000    0.000    0.000    0.000 {lxml.etree.Element}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:770(send_headers)
+        1    0.000    0.000    0.000    0.000 {lxml.etree.XMLID}
+        3    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/primitive.py:233(to_xml)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python2.6/uuid.py:528(uuid4)
+       12    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/clazz.py:82(__setattr__)
+        3    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/primitive.py:138(_unicode_to_xml)
+        3    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:851(sendall)
+        9    0.000    0.000    0.000    0.000 {setattr}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:1882(__init__)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:2008(get_environ)
+        3    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:861(send)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:1955(get_environ)
+        3    0.000    0.000    0.000    0.000 {method 'send' of '_socket.socket' objects}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/soap.py:190(make_soap_envelope)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:762(write)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:257(read)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python2.6/uuid.py:101(__init__)
+        8    0.000    0.000    0.000    0.000 {method 'append' of 'lxml.etree._Element' objects}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:879(read)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/primitive.py:331(to_xml)
+       16    0.000    0.000    0.000    0.000 {hasattr}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/primitive.py:153(_generic_to_xml)
+        1    0.000    0.000    0.000    0.000 {lxml.etree.tostring}
+        1    0.000    0.000    0.000    0.000 /usr/lib/python2.6/rfc822.py:952(formatdate)
+       18    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+       10    0.000    0.000    0.000    0.000 {getattr}
+       15    0.000    0.000    0.000    0.000 {built-in method acquire_lock}
+        5    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/Database.py:51(is_transaction)
+        2    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/primitive.py:239(from_xml)
+        5    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/Database.py:54(start_transaction)
+       15    0.000    0.000    0.000    0.000 {built-in method release_lock}
+        2    0.000    0.000    0.000    0.000 /usr/lib/python2.6/inspect.py:59(isclass)
+       13    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/WSGI.py:226(onReturn)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/primitive.py:568(get_datatype)
+        2    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/primitive.py:127(_element_to_unicode)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python2.6/ctypes/__init__.py:52(create_string_buffer)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:1909(start_response)
+        3    0.000    0.000    0.000    0.000 {method 'encode' of 'str' objects}
+       12    0.000    0.000    0.000    0.000 {len}
+        8    0.000    0.000    0.000    0.000 {isinstance}
+       10    0.000    0.000    0.000    0.000 {built-in method locked}
+       10    0.000    0.000    0.000    0.000 {method 'iteritems' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/xmlutils.py:97(create_xml_subelement)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/WSGI.py:211(onMethodExec)
+        7    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
+        9    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/xmlutils.py:46(get_all)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/applications/FablikBase/FablikSharedLib/FablikSharedLib.py:21(_get_audit_type)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/soap.py:86(findall)
+        5    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/xmlutils.py:52(get)
+        7    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/primitive.py:163(_get_datatype)
+        3    0.000    0.000    0.000    0.000 {method 'fetchall' of 'psycopg2._psycopg.cursor' objects}
+        1    0.000    0.000    0.000    0.000 {map}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/applications/FablikBase/FablikSharedLib/FablikSharedLib.py:28(_get_object_type)
+        5    0.000    0.000    0.000    0.000 {method 'replace' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/WSGI.py:40(__get_applications)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/soap.py:291(collapse_swa)
+        5    0.000    0.000    0.000    0.000 {method 'getchildren' of 'lxml.etree._Element' objects}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/service.py:145(get_method)
+        2    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/xmlutils.py:28(__init__)
+        6    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/clazz.py:132(get_namespace_id)
+        2    0.000    0.000    0.000    0.000 {method 'set' of 'lxml.etree._Element' objects}
+        5    0.000    0.000    0.000    0.000 {method 'lower' of 'str' objects}
+        2    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/wsgi_soap.py:77(reset_request)
+        4    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/wsgi_soap.py:63(debug)
+        5    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
+        2    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+        3    0.000    0.000    0.000    0.000 {method 'startswith' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 {time.gmtime}
+        1    0.000    0.000    0.000    0.000 {lxml.etree.SubElement}
+        1    0.000    0.000    0.000    0.000 {time.time}
+        1    0.000    0.000    0.000    0.000 {_hashlib.openssl_md5}
+        2    0.000    0.000    0.000    0.000 {method 'seek' of 'cStringIO.StringO' objects}
+        1    0.000    0.000    0.000    0.000 /usr/lib/python2.6/uuid.py:265(get_hex)
+        1    0.000    0.000    0.000    0.000 {method 'hexdigest' of '_hashlib.HASH' objects}
+        2    0.000    0.000    0.000    0.000 {issubclass}
+        1    0.000    0.000    0.000    0.000 {lxml.etree.cleanup_namespaces}
+        2    0.000    0.000    0.000    0.000 {method 'read' of 'cStringIO.StringO' objects}
+        2    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 {range}
+        1    0.000    0.000    0.000    0.000 {method 'copy' of 'dict' objects}
+        2    0.000    0.000    0.000    0.000 {method 'pop' of 'dict' objects}
+        2    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:1539(_get_bind_addr)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/clazz.py:126(get_datatype)
+        1    0.000    0.000    0.000    0.000 {method 'update' of '_hashlib.HASH' objects}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/wsgiserver/__init__.py:253(__init__)
+        1    0.000    0.000    0.000    0.000 {min}
+        1    0.000    0.000    0.000    0.000 {hex}
+        1    0.000    0.000    0.000    0.000 {method 'extend' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 {max}
+        1    0.000    0.000    0.000    0.000 {cStringIO.StringIO}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/wsgi_soap.py:386(getHandler)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/serializers/primitive.py:571(get_namespace_id)
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/wsgi_soap.py:131(onResults)
+        1    0.000    0.000    0.000    0.000 {method 'count' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 {method 'write' of 'cStringIO.StringO' objects}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/soaplib/service.py:138(methods)
+        1    0.000    0.000    0.000    0.000 {method 'tell' of 'cStringIO.StringO' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 /home/fabregas/work/BAS_new/server/bin/WSGI.py:208(onCall)

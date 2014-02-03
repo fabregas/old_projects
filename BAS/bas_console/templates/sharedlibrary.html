@@ -1,0 +1,56 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+Shared libaries | {{ application.app_name }}
+{% endblock %}
+
+{% block history %}
+ <a href="/applications">applications list</a>
+{% endblock %}
+
+{% block right_content %}
+        <table>
+        <tr>
+		    <td><p id="page_header">        
+                    {% if application.state %}
+                        <img src="/static/up.png" alt="up">
+                    {% else %}
+                        <img src="/static/down.png" alt="down">
+                    {% endif %}					
+        Library: {{application.app_name}} ({{application.app_version}})
+            </p></td>
+            <td align="right"> 
+		    <input style="margin-left:20px;" type="button" value="undeploy library" onclick="askWindow('Do you realy want updeploy this library?','/undeploy_application/{{application.id}}')">
+            </td>
+        </tr>
+        </table>
+
+
+        {% if old_applications %}
+            <p id="page_header">Old versions of this library</p>
+            
+            <table cellspacing="0" id="old_app_table">
+                <tr id="table_head_line">
+                    <th width=2% ></th>
+                    <th width=60% >Version</th>
+                    <th >Deploy datetime</th>
+                </tr>
+                {% for application in old_applications %}
+			        <tr id="{% cycle 'table_line1' 'table_line2' %}">
+			    	    <td ><input id="{{application.id}}" nname="{{application.app_version}}" class="radiobutton" type="radio" name="select"></td>
+                        <td  align="center">{{application.app_version}}</td>
+				        <td align="center">{{application.deploy_datetime|shortdatetime}}</td>
+                    </tr>
+                {% endfor %}
+
+                    <tr>
+                        <td colspan="3">
+		                    <input type="button" value="undeploy selected" onclick="undeploy_selected();">
+		                    <input type="button" value="activate selected" onclick="activate_selected()">
+                        </td>
+                    </tr>
+            </table>        
+        {% endif %}
+
+{% endblock %}

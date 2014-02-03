@@ -1,0 +1,90 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+Applications list
+{% endblock %}
+
+{% cycle 'table_line1' 'table_line2' as rowcolors %}
+
+{% block right_content %}
+        <script language="javascript">
+            function loadData() {
+                    loadApplicationState('');
+            }
+
+            window.onload = loadData;
+        </script>
+
+		<p id="page_header" >Select cluster</p>
+        <select onchange="onClusterSelected();">
+			{% for cluster in clusters %}
+                <option value="{{cluster.id}}">{{cluster.cluster_sid}}</option>
+            {% endfor %}
+        </select>
+        
+		<p id="page_header">Applications list</p>
+		
+		<table cellspacing="0" id="applications_table">
+			<tr id="table_head_line">
+				<th width=3% >#</th>
+				<th width=35% >Application name</th>
+				<th width=20% >Version</th>
+				<th width=15% >Type</th>
+				<th width=20% >Deploy datetime</th>
+				<th >State</th>
+			</tr>
+			{% for application in applications %}
+			    <tr id="{% cycle rowcolors %}">
+				    <td  align="center">{{application.num}}</td>
+				    <td >
+                        {% if application.is_native %}
+                            <a href="/application/{{application.id}}">{{application.app_name}}</a></td>
+                        {% else %}
+                            <a href="/sharedlibrary/{{application.id}}">{{application.app_name}}</a></td>
+                        {% endif %}
+				    <td  align="center">{{application.app_version}}</td>
+				    <td  align="center">{{application.app_type|app_type}}</td>
+				    <td  align="center">{{application.deploy_datetime|shortdatetime}}</td>
+
+                        {% if application.is_native %}
+                            <td align="center"><img id="imgApp{{application.id}}" src="/static/loading.gif" alt="loading..."></td>
+                        {% else %}
+                            <td align="center"><img src="/static/up.png" alt="up"></td>
+                        {% endif %}
+			    </tr>
+			{% endfor %}
+
+			<tr >
+				<td colspan="2">
+					<input type="button" value="deploy new application" onclick="location.href='/deploy_application'">
+				</td>
+				<td></td>
+				<td></td>
+			</tr>
+		</table>
+
+
+		<p id="page_header">Global applications settings</p>
+		<table cellspacing="0">
+			<tr id="table_head_line">
+				<th width=25% >Parameter name</th>
+				<th width=35% >Parameter value</th>
+				<th>Description</th>
+			</tr>
+			{% for setting in settings %}
+			    <tr id="{% cycle rowcolors %}">
+				<td ><a href="/modparam/{{setting.id}}">{{setting.param_name}}</a></td>
+				<td > {{setting.param_value|check_type:setting.param_type}}</td>	
+				<td >{{setting.description}}</td>	
+			    </tr>
+			{% endfor %}
+			<tr>
+				<td colspan="2">
+					<input type="button" value="append parameter" onclick="location.href='/modparam/'">
+				</td>
+				<td></td>
+			</tr>
+		</table>
+
+{% endblock %}

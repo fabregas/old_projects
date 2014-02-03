@@ -1,0 +1,40 @@
+<html>
+ <head>
+      <title>{% block title %}{% endblock %}</title>
+
+      <link rel="stylesheet" type="text/css" href="/static/base.css">
+      <script  src="/static/base.js"></script>
+
+      <link rel="SHORTCUT ICON" href="/static/logo.png"/>
+      
+      {% block custom_head %}
+      {% endblock %}
+ </head>
+
+ {% block body %}
+ <body>
+ 	{% block banner %}
+	{% endblock %}
+
+	{% block menu %}
+	{% endblock %}
+
+    <div id="history_line"> 
+        {% block history %}
+        {% endblock %}
+    </div>
+
+    <div id="base_content">
+        {% block right_content %}
+        {% endblock %}
+    </div>
+
+
+
+	{% block footer %}
+	{% endblock %}
+ </body>
+ {% endblock body %}
+
+ </html>
+

@@ -1,0 +1,43 @@
+{% extends "base_menu.html" %}
+{% load i18n %}
+
+{% block custom_head %}
+<link rel="stylesheet" type="text/css" href="/static/calendar.css">
+{% endblock %}
+
+{% block title %}
+{% trans "Вибір часу для запису" %}
+{% endblock %}
+
+{% block history %}
+<a href="/" >{% trans "Головна сторінка" %}</a> > <a href="/find_record_time">{% trans "Вибір дня" %}</a>
+{% endblock %}
+
+{% block base_content %}
+    <p class="centered_element">{{day}}</p> 
+    
+    {% if not hours %}
+        <p>{% trans "На цей день прийом не заплановано" %}</p>
+    {% else %}
+
+	<table cellspacing="1" id="day_table">
+	{% for hour in hours %}
+        <tr>
+			<td class="hour_td">{{hour.hour}}:00</td>
+            {% for part in hour.parts %}
+
+                {% if part.free  %}
+                    <td><a id="free_hour" href="/record/{{hour.hour}}"></a></td>
+                {% else %}
+                    <td><a id="not_free_hour"></a></td>
+                {% endif %}
+
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </table>
+		
+    <p class="hint_message">{% trans "Виберіть зручний для Вас час прийому та натисніть на відповідному рядку для переходу на форму реєстрації прийому" %}</p>
+    <p class="hint_message">{% trans "Неклікабельні рядки означають, що на даний час неможливо записатись" %}</p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,282 @@
+    
+    body {
+        font: normal  14px sans-serif;
+		width: 800px;
+		margin: 0px auto;
+    }
+
+	#auth_form  {
+       background-color: #D7D789;
+       color: #231D87;
+	   width: 40%;
+       margin: 20%  auto;
+       padding: 4px 5px;
+	   display: block;
+	   border: solid 2px #11550D;
+    }
+
+	#auth_form table {
+	   width: 100%;
+	   font-size: 12px;
+	}
+
+	#auth_form input {
+		width: 100%;
+		margin: 10 5 10 -5;
+	}
+
+	#auth_form p input {
+		width: 50%;
+		margin-left: 25%;
+	}
+
+
+	ul.errorlist {
+	    margin: 0;
+		padding: 0;
+	}
+
+	.errorlist li {
+	        color: #B61A09;
+	        display: block;
+	        font-size: 15px;
+	        margin: 0;
+	        padding: 4px 5px;
+	}
+
+	.error {
+	        color: #B61A09;
+	        display: block;
+	        font-size: 15px;
+	        margin: 0px;
+	        padding: 4px 5px;
+	}
+
+
+    #welcome {
+	        color: #216E12;
+	        font-size: 25px;
+            text-align: center;
+            width: 100%;
+    }
+
+
+
+
+	#banner {
+		margin:0;
+		padding:0;
+        width:100%;
+	   	border-bottom: 1px solid #c9c779;
+
+	}
+	#main_menu {
+		background-color: #faf2ba;
+	}
+
+	#main_menu ul {
+		padding: 3px 0;
+		margin: 2px 0px 3px 0px;
+	   	border-bottom: 1px solid #c9c779;
+		font: bold 11pt  sans-serif;
+	}
+
+	#main_menu ul li {
+		list-style: none;
+		margin: 0;
+		display: inline;
+	}
+
+	#main_menu ul li a {
+		padding: 3px 0.5em;
+		border: 1px solid #003;
+		border-bottom: none;
+		background-color: #1A5105;
+		text-decoration: none;
+		color: #F1CC10;
+	}
+
+	#main_menu ul li a:hover {
+		background-color: #F1CC10;
+		color: #1A5105;
+	}
+
+	#main_menu ul li a#current {	
+		background-color: #449723;
+		color: #F1CC10;
+		border-bottom: 3px solid #1F630C;
+	}
+
+
+    #history_line { 
+	   	border: 1px solid #c9c779;
+	   	border-bottom: none;
+		background-color: #c9c779;
+        margin: 0;
+		padding: 0 24px;
+        width: 750px;
+        color: #457855;
+    }
+
+    #history_line a {
+        text-decoration : none;
+        color: #457855;
+    }
+
+    #history_line a:hover {
+        color : #1A5105;
+    }
+
+
+	#base_content {	
+	   	border: 1px solid #c9c779;
+	   	border-top: none;
+		background-color: #faf2ba;
+		margin: 0px;
+		padding: 24px;
+        width: 750px;
+	}
+
+	#base_content #warning {	
+		color: red;	
+		width: 100%;
+		background-color:#A1F8A4;
+	}
+
+	#page_header {
+		color: #457855;
+		font-size: 14pt;
+	}
+
+	#base_content select {
+		width: 100%;
+        margin: -10 0 10 0;
+	}
+
+	#base_content table {
+        border:  0px;
+		width: 100%;
+        border-spacing: 1px 1px;
+	}
+
+	#table_head_line {
+		background-color: #9DBD75;
+	}
+
+	#table_line1 {
+		background-color: #E0E08E;
+
+	}
+	#table_line2 {
+		background-color: #D7D789;
+
+	}
+
+	#base_content table td, #base_content table th {
+		color: #2A4A34;
+	    font-size: 11pt ;
+	}
+
+	#base_content table td a {
+        text-decoration: none;
+        font: bold 14px sans-serif;
+	}
+
+	#base_content table td .radiobutton {
+	                width: 20;
+	                height: 20;
+	}
+	#base_content input {
+	    width:200;
+		margin: 3 3;
+	}
+	#base_content #tiny_button {
+	    width:80;
+	    margin: 0 0;
+	}
+
+	#base_content table td {
+		padding: 5;
+        font-size: 14px;
+	}
+	
+	table a:link, table a:visited, table a:active {
+		color: #3F4533;
+	}
+	table a:hover {
+		color: #56785C;
+	}
+
+
+
+	#footer {
+		background-color: #BFDD92;
+	}
+	#footer table td {
+		color :#5F6D73;
+        font-size: 12px;
+
+	}
+
+
+	#inform_area {	
+       background-color: #DDD38E;
+	   width: 80%;
+       margin: 20%  auto;
+       padding: 4px 5px;
+	   display: block;
+	   border: solid 2px #837755;
+    }
+
+	#inform_area table {
+		width: 100%;
+		margin-top: 20px;
+		color: #476F3B;
+	}
+
+	#inform_area table td {
+       font-size: 14pt;
+
+    }
+	#inform_area input {
+		margin-top: 30px;
+		width: 40%;
+	}
+
+    #base_content .right_btn {
+        margin: 0 0 0 560;
+    }
+
+	#base_content #form_table {
+		width:450;	
+		text-align:left;
+	}
+
+	#form_table input {
+		width: 100%;
+	}
+
+	#form_table select {
+        width: 100%;
+        margin: 0 0 0 2;
+        padding: 0;
+    }
+    
+    #base_content .logs_select select {
+        width: 200px;
+    }
+    
+    #roles_mod_table {
+       background-color:  #E0E08E;
+       border: 1px solid #D7D789;
+    }
+    
+    #roles_mod_table select {
+        background-color: white;
+		color: #457855;
+    }
+	
+    #base_content form select {
+		width: 90%;
+        margin: 0px;
+	}

@@ -1,0 +1,17 @@
+{% extends "base_admin.html" %}
+
+{% block title %}
+Баланс
+{% endblock %}
+
+{% block history %}
+<a href="/" >Головна сторінка</a> 
+{% endblock %}
+
+{% block base_content %}
+        <br/>
+        <p class="centered_element">На вашому віртуальному рахунку: {{ balance }} грн.</p>
+        <br/>
+        <p class="centered_element"><a class="link" href="https://www.liqpay.com/">Перейти на сайт liqPay</a></p>
+
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base_menu.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Мій рахунок" %}
+{% endblock %}
+
+{% block history %}
+<a href="/" >{% trans "Головна сторінка" %}</a> 
+{% endblock %}
+
+{% block base_content %}
+<script type="text/javascript">
+    function payMoney() {
+        var money_count = $('input#money_count').val();
+
+        if (money_count == '') {
+            alert({% trans "'Введіть суму грошового переказу!'" %});
+            return;
+        }
+
+        if ((isNaN(money_count) == true) || (money_count <= 0)) {
+            alert({% trans "'Сума переказу має бути числовим значенням!'" %})
+            return;
+        }
+
+        $.get('/get_liqpay_form', {money:money_count},
+                function(data) { 
+                    var items = data.split(',');
+
+                    $('input#operation_xml').val(items[0]);
+                    $('input#signature').val(items[1]);
+                    $('input[type=button]').attr("disabled", "disabled");
+
+                    $('form#liqpay_form').submit();
+                }
+            );
+    }
+</script>
+    <p class="centered_element">{% trans "Поточний стан рахунку" %}: {{user.balance}} {% trans "грн" %}.</p>
+
+    <div id="payment_form">
+    <form id="liqpay_form" class="std_form" action="https://www.liqpay.com/?do=clickNbuy" method="POST">
+          <input type="hidden" id="operation_xml" name="operation_xml" value="" />
+          <input type="hidden" id="signature" name="signature" value="" />
+
+          <table cellspacing="0" cellpadding="0"tr>
+             <th colspan="2">{% trans "Поповнення рахунку" %}</th>
+           </tr>
+           <tr>
+             <td>{% trans "Сума (грн.)" %}</td>
+             <td><input type="text" id="money_count"/></td>
+           </tr>
+           <tr><td colspan="2" class="submit_btn">
+            <input type="button" value="{% trans "Поповнити" %}" onClick="payMoney();"/></td>
+           </tr>
+          </table>
+    </form>
+    {% trans "* поповнення вашого рахунку забезпечує сервіс ПриватБанку" %} <a href="https://liqpay.com/">LiqPay</a> 
+    <br/>{% trans "** після поповнення вашого рахунку полатіжною карткою, повернення коштів назад неможливе" %}
+    </div>
+
+    {% if payments %}
+    <p class="centered_element">{% trans "Історія поповнень рахунку" %}</p>
+    <table class="headered_table" id="payments_list" cellspacing="0" cellpadding="0">
+        <tr>
+            <th>{% trans "Сума (грн.)" %}</th>
+            <th>{% trans "Дата завершення транзакції" %}</th>
+        </tr>
+        {% for payment in payments %} 
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <td width="40%">{{payment.money}}</td>
+            <td>
+                {% if payment.transaction_end %}
+                    {{payment.transaction_end|date:"d.m.Y H:i"}}
+                {% else %}
+                    {% trans "Очікує підтвердження" %}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+{% endblock %}

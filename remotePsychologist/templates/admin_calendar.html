@@ -1,0 +1,65 @@
+{% extends "base_admin.html" %}
+
+{% block title %}
+Вибір дати
+{% endblock %}
+
+{% block custom_head %}
+<link rel="stylesheet" type="text/css" href="/static/calendar.css">
+{% endblock %}
+
+{% block history %}
+<a href="/" >Головна сторінка</a> 
+{% endblock %}
+
+{% block base_content %}
+    <div id="month_calendar">
+    <p><a id="pn_link" href="/prev_manage_month">Попередній місяць</a>&nbsp;&nbsp;&nbsp; {{month.name}} {{month.year}} &nbsp;&nbsp;&nbsp; <a id="pn_link" href="/next_manage_month">Наступний місяць</a></p> 
+	<table cellspacing="1px" id="month_table">
+        <tr>
+            <th>Понеділок</th>
+            <th>Вівторок</th>
+            <th>Середа</th>
+            <th>Четвер</th>
+            <th>П'ятниця</th>
+            <th>Субота</th>
+            <th>Неділя</th>
+        </tr>
+	{% for week in month.weeks %}
+        <tr>
+            {% for day in week %}
+                {% if day.is_current %}
+                    <td id="current_day"
+                {% else %}
+                    <td 
+                {% endif %}
+
+                {% if day.is_active %}
+                      {% if day.is_recorded %}
+                            class="recorded_day"><a href="/manage_day/{{day.num}}/{{month.num}}/{{month.year}}">{{day.num}}</a>
+                      {% else %}
+                            class="future_day"><a href="/manage_day/{{day.num}}/{{month.num}}/{{month.year}}">{{day.num}}</a>
+                      {% endif %}
+                {% else %}
+                    {% if day.is_past %}
+                        {% if day.num %}
+                         class="pre_day"><a href="/manage_day/{{day.num}}/{{month.num}}/{{month.year}}">{{day.num}}</a>
+                        {% else %}
+                        >
+                        {% endif %}
+                    {% else %}
+                          {% if day.num %}
+                            class="free_day"><a href="/manage_day/{{day.num}}/{{month.num}}/{{month.year}}">{{day.num}}</a>
+                          {% else %}
+                            class="empty_day"> 
+                          {% endif %}
+                    {% endif %}
+                {% endif %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </table>
+    </div>
+		
+{% endblock %}

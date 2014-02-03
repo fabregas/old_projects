@@ -1,0 +1,11 @@
+import unittest
+import IOTypesStructure as types
+from ApplicationImplementation import *
+
+
+class TesttestNG(unittest.TestCase):
+    def test_runNGMethod(self):
+        #write code for testing runNGMethod routine
+
+        pass
+

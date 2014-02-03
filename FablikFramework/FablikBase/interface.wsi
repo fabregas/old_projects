@@ -1,0 +1,89 @@
+<interface>
+
+    <types>
+        <type name="MenuItemType">
+            <parameter name="id" type="integer"/>
+            <parameter name="parent_id" type="integer"/>
+            <parameter name="form_sid" type="string"/>
+            <parameter name="name" type="string"/>
+            <parameter name="help" type="string"/>
+            <parameter name="shortcut" type="string"/>
+        </type>
+        <type name="InterfaceType">
+            <parameter name="sid" type="string"/>
+            <parameter name="url" type="string"/>
+        </type>
+    </types>
+
+
+    <methods>
+    <method name="authenticate">
+        <input>
+            <parameter name="login" type="string"/>
+            <parameter name="password" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="session_id" type="string"/>
+        </output>
+    </method>
+    <method name="authorize">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="role_sid" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="is_authorize" type="integer"/>
+        </output>
+    </method>
+    <method name="closeSession">
+        <input>
+            <parameter name="session_id" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    <method name="getMainMenu">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="lang_sid" type="string"/>
+            <parameter name="checksum" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="menu_list" type="list" item_name="item" item_type="MenuItemType"/>
+        </output>
+    </method>
+    <method name="getInterfaces">
+        <input>
+            <parameter name="session_id" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="interface_list" type="list" item_name="interface" item_type="InterfaceType"/>
+        </output>
+    </method>
+    <method name="getForm">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="form_sid" type="string"/>
+            <parameter name="checksum" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+
+            <parameter name="form_id" type="integer"/>
+            <parameter name="form_source" type="binary"/>
+            <parameter name="form_permission" type="integer"/>
+        </output>
+    </method>
+    </methods>
+</interface>

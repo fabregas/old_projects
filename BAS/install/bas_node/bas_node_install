@@ -1,0 +1,145 @@
+#!/usr/bin/python
+
+import psycopg2, os, sys, zipfile
+
+BAS_HOME_DEFAULT = '/usr/local/bas_node'
+DB_PORT_DEFAULT = 5432 
+BAS_USER = 'bas_node'
+BAS_GROUP = 'bas_node'
+
+def install():
+    bas_home = raw_input('Enter BAS node home path (Empty string for default): ')
+
+    if bas_home:
+        if not os.path.exist(bas_home):
+            raise Exception ('--Directory %s is not found'%bas_home)
+    else:
+        bas_home = BAS_HOME_DEFAULT
+        os.system('mkdir %s'%BAS_HOME_DEFAULT)
+
+    bas_host = ''
+    while not bas_host:
+        bas_host = raw_input('Enter current BAS node hostname: ')
+        if not  bas_host:
+            print '--BAS hostname must be not empty!'
+
+    bas_node_name = ''
+    while not bas_node_name:
+        bas_node_name = raw_input('Enter current BAS node logical name: ')
+        if not bas_node_name:
+            print '--BAS logical name must be not empty!'
+
+    bas_cluster_sid = ''
+    while not bas_cluster_sid:
+        bas_cluster_sid = raw_input('Enter BAS cluster SID: ')
+        if not bas_cluster_sid:
+            print '--BAS cluster SID must be not empty!'
+    
+    db_host = ''
+    while not db_host:
+        db_host = raw_input('Enter BAS database hostname: ')
+        if not db_host:
+            print '--Database hostname must be not empty!'
+
+
+    db_port = raw_input('Enter BAS database listen port (Empty string for default): ')
+    if not db_port:
+        db_port = DB_PORT_DEFAULT
+    else:
+        db_port = int(db_port)
+
+    
+    db_user = ''
+    while not db_user:
+        db_user = raw_input('Enter BAS database user name: ')
+        if not db_user:
+            print '--Database user name must be not empty!'
+
+    db_password = ''
+    while not db_password:
+        db_password = raw_input('Enter BAS database user password: ')
+        if not db_password:
+            print '--Database user password must be not empty!'
+
+
+    db_name = ''
+    while not db_name:
+        db_name = raw_input('Enter BAS database name: ')
+        if not db_name:
+            print '--Database name must be not empty!'
+
+
+    config_file_content = '''
+[DB]
+host = %s
+port = %i
+user = %s
+password = %s
+database_name = %s
+    ''' % (db_host, db_port, db_user, db_password, db_name)
+
+    env_file_content = '''
+BAS_HOME="%s"
+BAS_NODE_NAME="%s"
+
+BAS_USER=%s
+BAS_GROUP=%s
+    ''' % (bas_home, bas_node_name, BAS_USER, BAS_GROUP)
+
+    conf_file = os.path.join(bas_home,'conf/bas_node.conf')
+    env_file = '/etc/conf.d/bas_node'
+
+    
+    conn_str = 'host=%s port=%s user=%s password=%s dbname=%s'% (db_host, db_port,db_user,db_password,db_name)
+
+    conn = psycopg2.connect(conn_str)
+    try:
+        curs = conn.cursor()
+
+        curs.execute("SELECT id FROM BAS_CLUSTER WHERE cluster_sid='%s'"%bas_cluster_sid)
+        cluster_id = curs.fetchone()
+        if not cluster_id:
+            raise Exception('--Cluster with name %s is not found'%bas_cluster_sid)
+        else:
+            cluster_id = cluster_id[0]
+
+        curs.execute("INSERT INTO BAS_CLUSTER_NODE (cluster_id, hostname, logic_name, datestart) VALUES (%s, '%s','%s', current_timestamp)"% (cluster_id, bas_host, bas_node_name))
+
+
+
+
+        source = zipfile.ZipFile('source.zip')
+        source.extractall(bas_home)
+
+        os.system('groupadd %s' % BAS_GROUP)
+        os.system('useradd -g %s %s' % (BAS_GROUP,BAS_USER))
+
+        f = open(conf_file, 'w')
+        f.write(config_file_content)
+        f.close()
+
+        f = open(env_file, 'w')
+        f.write(env_file_content)
+        f.close()
+
+        os.system("cp env/bas_node /etc/init.d/bas_node")
+
+        os.system('chown %s:%s %s -R'%(BAS_USER, BAS_GROUP, bas_home))
+        os.system('chmod +wx %s'%(os.path.join(bas_home,'bin/BAS_node.py')))
+	os.system('env-update && source /etc/profile')
+    except Exception, err:
+        print 'Error: %s' % err
+        conn.rollback()
+    else:
+        conn.commit()
+    finally:
+        conn.close()
+
+
+try:
+    install()
+except Exception, err:
+    print err
+    sys.exit(-1)
+
+sys.exit(0)

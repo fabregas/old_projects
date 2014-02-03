@@ -1,0 +1,29 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+Node information
+{% endblock %}
+
+{% block history %}
+ <a href="/clusters">clusters list</a> > <a href="/cluster_{{cluster_id}}">nodes list</a>
+{% endblock %}
+
+{% block right_content %}
+		<p id="page_header">Node information</p>
+		
+		<table cellspacing="0">
+			<tr id="table_head_line">
+				<th width=30% >Parameter</th>
+				<th width=70%>Value</th>
+			</tr>
+			{% for param in node.parameters %}
+			    <tr id="{% cycle 'table_line1' 'table_line2' %}">
+				<td ><b>{{param.name}}</b></td>
+				<td align="center">{{param.value}}</td>
+			    </tr>
+			{% endfor %}
+
+		</table>
+		
+{% endblock %}

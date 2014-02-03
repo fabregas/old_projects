@@ -1,0 +1,1 @@
+from Application import FablikBase as Application

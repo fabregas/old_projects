@@ -1,0 +1,11 @@
+<project>
+	<name>FablikBase</name>
+	<author>anonymous</author>
+	<python_version>2.6.5</python_version>
+	<client_version>1.0</client_version>
+	<files>
+		<file module="FablikSharedLib.FablikSharedLib">FablikSharedLib/FablikSharedLib.py</file>
+		<file module="FablikSharedLib.sql_fablik_lib">FablikSharedLib/sql_fablik_lib.py</file>
+		<file module="FablikSharedLib.__init__">FablikSharedLib/__init__.py</file>
+	</files>
+</project>

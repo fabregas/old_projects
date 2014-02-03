@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+ {% block banner %}
+	<div id="banner">
+    <div id="logo"/>
+    <div id="banner_label">{% trans "Віддалена психологічна допомога" %}</div>
+    {% if user %}
+    <a id="logout_btn" class="link" href="/logout">{% trans "Вихід" %}</a>
+    {% endif %}
+	</div>
+{% endblock %}
+
+{% block lang_block %}
+    <form action="/i18n/setlang/" method="post" id="lang_form" >
+        <input type="hidden" id="lang_in" name="language" value=""/>
+    </form>
+
+
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == 'uk' %} 
+        <b style="color:#457855">укр</b> 
+    {% else %}
+        <a class="link" name="language" onClick="$('#lang_in').val('uk'); $('#lang_form').submit();">укр</a>
+    {% endif %}
+
+    {% if LANGUAGE_CODE == 'ru' %} 
+        <b style="color:#457855">рус</b> 
+    {% else %}
+        <a class="link" name="language" onClick="$('#lang_in').val('ru'); $('#lang_form').submit();">рус</a>
+    {% endif %}
+{% endblock %}
+
+{% block menu %}
+    {% if user %}
+        <p class="label">{% trans "Вітаємо" %}, {{ user.login }}!</p>
+        <br/>
+        <p class="label">{% trans "Сьогодні:" %} {% now "d.m.Y" %}</p>
+        <br/>
+
+        <ul class="menu">
+        {% if user.role == 'user' %}
+            <li><a href="/services_description">{% trans "Послуги" %}</a></li>
+            <li><a href="/find_record_time">{% trans "Записатись на прийом" %}</a></li>
+            <li><a href="/my_records">{% trans "Мої прийоми" %}</a></li>
+            <li><a href="/my_balance">{% trans "Мій рахунок" %}</a>
+            {% if user.has_messages %}<img src="/static/mail-message-new.png" style="margin-top: 10px;" width="16" height="16">{% endif %}
+            </li>
+            <li><a href="/my_messages">{% trans "Мої повідомлення" %}</a>
+        {% else %}
+            <li><a href="/manage_day/">Робочий день!</a></li>
+            <br/>
+            <li><a href="/manage_worktime">Календар</a></li>
+            <li><a href="/manage_users">Користувачі</a> 
+            {% if user.has_messages %}<img src="/static/mail-message-new.png" style="margin-top: 10px;" width="16" height="16">{% endif %}
+            </li>
+            <li><a href="/manage_messages">Мої повідомлення</a></li>
+            <li><a href="/admin_balance">Баланс</a></li>
+            <li><a href="/admin_services">Послуги</a></li>
+        {% endif %}
+        </ul>
+    {% else %}
+	<div id="auth_form">
+		 <form action="/auth" method="POST">
+            <p> 
+                <label for id="id_username">{% trans "Логін:" %}</label> <input type="text" name="username" id="id_username"></input>
+            </p>
+            <p> 
+                <label for id="id_passwd">{% trans "Пароль:" %}</label> <input type="password" name="passwd" id="id_passwd"></input>
+            </p>
+			 {% if form.error %}
+				<p class="error">{{form.error}}</p>
+			 {% endif %}
+		         <p><input type="submit" value="{% trans "Увійти" %}"></p>
+		</form>
+        <br/>
+        <p><a class="link" href="/register_user">{% trans "Зареєструватись" %}</a></p>
+        <p><a class="link" href="/change_password">{% trans "Забули пароль?" %}</a></p>
+	</div>
+    {% endif %}
+{% endblock %}
+
+
+{% block footer %}
+	<div id="footer">
+		<table width="100%" border="0">
+		     <tr>
+			<td>&copy;2011 <a href="mailto:remotepsy@gmail.com">remotepsy@gmail.com<a></td>
+			<td align="right">Powered by <a href="http://djangoproject.com">Django</a> 1.2</td>
+	       	     </tr>
+		</table>
+	</div>
+{% endblock %}

@@ -1,0 +1,134 @@
+<interface>
+    <types>
+        <type name="AuthType">
+            <parameter name="login" type="string"/>
+            <parameter name="password" type="string"/>
+        </type>
+    </types>
+
+    <methods>
+
+    <method name="StartApplication">
+        <input>
+            <parameter name="auth" type="AuthType"/>
+            <parameter name="application_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+    <method name="RestartApplication">
+        <input>
+            <parameter name="auth" type="AuthType"/>
+            <parameter name="application_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+    <method name="StopApplication">
+        <input>
+            <parameter name="auth" type="AuthType"/>
+            <parameter name="application_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+
+    <method name="LoadLibrary">
+        <input>
+            <parameter name="auth" type="AuthType"/>
+            <parameter name="library_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+    <method name="UnloadLibrary">
+        <input>
+            <parameter name="auth" type="AuthType"/>
+            <parameter name="library_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+
+    <method name="RenewApplicationCache">
+        <input>
+            <parameter name="auth" type="AuthType"/>
+            <parameter name="application_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+    <method name="GetNodeStatistic">
+        <input>
+            <parameter name="auth" type="AuthType"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+
+            <parameter name="statistic"> 
+                <parameter name="loadavg_5" type="string"/>
+                <parameter name="loadavg_10" type="string"/>
+                <parameter name="loadavg_15" type="string"/>
+                <parameter name="utime" type="string"/>
+                <parameter name="stime" type="string"/>
+                <parameter name="swap_outs" type="string"/>
+                <parameter name="maxrss" type="string"/>
+                <parameter name="shared_mem" type="string"/>
+                <parameter name="unshared_stack" type="string"/>
+                <parameter name="unshared_data" type="string"/>
+            </parameter>
+        </output>
+    </method>
+
+
+    <method name="StartServerNode">
+        <input>
+            <parameter name="auth" type="AuthType"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+
+    <method name="RestartServerNode">
+        <input>
+            <parameter name="auth" type="AuthType"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+    <method name="StopServerNode">
+        <input>
+            <parameter name="auth" type="AuthType"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    </methods>
+</interface>

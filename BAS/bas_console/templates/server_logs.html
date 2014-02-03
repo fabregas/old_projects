@@ -1,0 +1,113 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+Server logs
+{% endblock %}
+
+{% block history %}
+ <a href="/clusters">clusters list</a> > <a href="/server_logs">cluster logs</a>
+{% endblock %}
+
+{% block right_content %}
+
+		<form action="." method="POST" id="find_stat_form">
+        <table id="stat_filter" style="border: 1px solid #C9C779">
+            <tr>
+                <th align="left" width="35%">From date</th>
+                <th align="left" width="35%">To date</th>
+            </tr>
+            <tr>
+                <td>
+                    <select name="fromDay" style="width: 45px;" >
+			            {% for day in calendar_from.days %}
+                            <option value="{{day}}">{{day}}</option>
+			            {% endfor %}
+                    </select>
+                    <select name="fromMonth" style="width: 100px;">
+			            {% for month in calendar_from.months %}
+                            <option value="{{month.num}}">{{month.descr}}</option>
+			            {% endfor %}
+                    </select>
+                    <select name="fromYear" style="width: 60px;">
+                        {% for year in calendar_from.years %}
+                            <option value="{{year}}">{{year}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="toDay" style="width: 45px;" >
+			            {% for day in calendar_to.days %}
+                            <option value="{{day}}">{{day}}</option>
+			            {% endfor %}
+                    </select>
+                    <select name="toMonth" style="width: 100px;">
+			            {% for month in calendar_to.months %}
+                            <option value="{{month.num}}">{{month.descr}}</option>
+			            {% endfor %}
+                    </select>
+                    <select name="toYear" style="width: 60px;">
+                        {% for year in calendar_to.years %}
+                            <option value="{{year}}">{{year}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <th align="left"><div style="margin-top: 20px;"></div>Node</th>
+                <th align="left"><div style="margin-top: 20px;"></div>Log level</th>
+                <td>
+                    <input  type="submit" value="Find">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <select name="nodes_list">
+                        {% for node in nodes %}
+                            <option value="{{node.id}}">{{node.logic_name}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="levels_list">
+                        {% for level in levels %}
+                            <option value="{{level.id}}">{{level.name}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                
+            </tr>
+        </table>
+        </form>
+
+        
+        {% if logs %}
+		<table cellspacing="0" id="logs_table">
+            <tr>
+                <td colspan="4">
+                    <input  type="button" value="<< previous" onclick="({{islastpage}}==1)|| (location.href='/server_logs/'+String({{page_num}}+1));">
+                    <input  type="button" value="next >>" onclick="({{page_num}}-1>=0) && (location.href='/server_logs/'+String({{page_num}}-1));">
+                </td>
+            </tr>
+			<tr id="table_head_line">
+				<th width=5% >Level</th>
+				<th width=15% >Node</th>
+				<th width=25% >Datetime</th>
+				<th >Message</th>
+			</tr>
+			{% for log in logs %}
+			    <tr id="{% cycle 'table_line1' 'table_line2' %}">
+				    <td  align="center"><img {{log.msg_level|msg_level_image}}></td>
+				    <td  align="center">{{log.node.logic_name}}</a></td>
+				    <td  align="center">{{log.msg_datetime|shortdatetime}}</td>
+				    <td >{{log.log_message}}</td>
+			    </tr>
+			{% endfor %}
+
+		</table>
+        {% else %}
+            <p id="page_header">No log messages found!</p>
+        {% endif %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base_menu.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Інформація" %}
+{% endblock %}
+
+{% block menu %}
+{% endblock %}
+
+{% block base_content %}
+	<div id="inform_area">
+		<table>
+		   <tr>
+		   	<td>{{message|escape|linebreaks}}</td>
+		   </tr>
+		   <tr>
+           {% if yes and no %}
+		        <td align="center"><input type="button" value="{% trans "Так" %}" onclick="location.href='{{yes}}';"><input type="button" value="{% trans "Ні" %}" onclick="location.href='{{no}}';"></td>
+           {% else %}
+		        <td align="center"><input type="button" value="{% trans "OK" %}" onclick="location.href='{{redirect_link}}';"></td>
+           {% endif %}
+		   </tr>
+		</table>
+	</div>
+{% endblock %}

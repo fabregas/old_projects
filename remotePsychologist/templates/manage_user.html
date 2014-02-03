@@ -1,0 +1,93 @@
+{% extends "base_admin.html" %}
+
+{% block title %}
+Користувач: {{m_user.login}}
+{% endblock %}
+
+{% block history %}
+<a href="/" >Головна сторінка</a> > <a href="/manage_users">Користувачі</a>
+{% endblock %}
+
+{% block base_content %}
+<script type="text/javascript">
+    function new_message() {
+        $('#message_td').children().remove();
+        $('#message_td').append($('<form action="/manage_user/{{m_user.id}}" method="POST" id="new_message"><textarea name="message"></textarea><p><input id="send_btn" type="submit" value="Відправити"></input></p></form>'));
+    }
+
+</script>
+
+	<table cellspacing="1" id="manage_user_table">
+        <tr>
+            <td>Логін</td>
+            <td>{{m_user.login}}</a></td>
+        </tr>
+        <tr>
+            <td>ПІБ</td>
+            <td>{{m_user.name}}</td>
+        </tr>
+        <tr>
+            <td>E-mail</td>
+            <td>{{m_user.email}}</td>
+        </tr>
+        <tr>
+            <td>Рахунок</td>
+            <td>{{m_user.balance}} грн.</td>
+        </tr>
+        <tr>
+            <td>Місто</td>
+            <td>{{m_user.region}}, {{m_user.city}}</td>
+        </tr>
+        <tr>
+            <td colspan="2" id="message_td"><input type="button" value="Написати повідомлення" onClick="new_message();"></input></td>
+        </tr>
+    </table>
+
+    {% if not records %}
+        <p class="centered_element">Даний клієнт ще не був на прийомі</p>
+    {% else %}
+
+
+	<table cellspacing="0" class="headered_table">
+        <tr><th colspan="2"> Історія прийомів</th></tr>
+
+	{% for record in records %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <td> {{record.start_datetime|date:"d.m.Y  H:i"}}-{{record.stop_datetime|date:"H:i"}}</td>
+            <td>{{record.service.name}}</td>
+        <tr>
+    {% endfor %}
+    </table>
+	{% endif %}
+    <br/>
+    {% if payments %}
+    <p class="centered_element"> Історія поповнень рахунку</p>
+	<table cellspacing="0" id="admin_user_payments" class="headered_table">
+        <tr>
+            <th>Сума (грн.)</th>
+            <th>Дата завершення транзакції</th>
+            <th>Статус</th>
+        </tr>
+        {% for payment in payments %} 
+        <tr>
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <td width="40%">{{payment.money}}</td>
+            <td>
+                {% if payment.transaction_end %}
+                    {{payment.transaction_end|date:"d.m.Y H:i"}}
+                {% else %}
+                    Очікує підтвердження
+                {% endif %}
+            </td>
+            <td>
+                {% if  payment.transaction_end %}
+                    {{payment.status}}
+                {% else %}
+                    <input type="button" value="Оновити статус" onClick="document.location.href='/check_payment_state/{{payment.id}}'">
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+{% endblock %}

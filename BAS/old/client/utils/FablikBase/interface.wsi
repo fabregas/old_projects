@@ -1,0 +1,164 @@
+<interface>
+
+    <types>
+        <type name="role">
+            <parameter name="sid" type="string"/>
+        </type>
+        <type name="departament">
+            <parameter name="id" type="integer"/>
+            <parameter name="parent_id" type="integer"/>
+            <parameter name="name" type="string"/>
+        </type>
+        <type name="position">
+            <parameter name="id" type="integer"/>
+            <parameter name="parent_id" type="integer"/>
+            <parameter name="name" type="string"/>
+        </type>
+        <type name="menu_item">
+            <parameter name="id" type="integer"/>
+            <parameter name="parent_id" type="integer"/>
+            <parameter name="form_id" type="integer"/>
+            <parameter name="name" type="string"/>
+            <parameter name="help" type="string"/>
+            <parameter name="shortcut" type="string"/>
+        </type>
+        <type name="interface">
+            <parameter name="sid" type="string"/>
+            <parameter name="url" type="string"/>
+        </type>
+    </types>
+
+
+    <methods>
+    <method name="authenticate">
+        <input>
+            <parameter name="login" type="string"/>
+            <parameter name="password" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="session_id" type="string"/>
+            <parameter name="roles_list" type="role" max_count="unbounded"/>
+        </output>
+    </method>
+    <method name="getMainMenu">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="checksum" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="menu_list" type="menu_item" max_count="unbounded"/>
+        </output>
+    </method>
+    <method name="getInterfaces">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="checksum" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="interface_list" type="interface" max_count="unbounded"/>
+        </output>
+    </method>
+    <method name="getDepartaments">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="root_departament_id" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="departament_list" type="departament" max_count="unbounded"/>
+        </output>
+    </method>
+    <method name="getPositions">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="root_position_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="position_list" type="position" max_count="unbounded"/>
+        </output>
+    </method>
+
+    <method name="appendPosition">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="parent_position_id" type="integer"/>
+            <parameter name="name" type="string"/>
+            <parameter name="description" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="position_id" type="integer"/>
+        </output>
+    </method>
+    <method name="updatePosition">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="position_id" type="integer"/>
+            <parameter name="parent_position_id" type="integer"/>
+            <parameter name="name" type="string"/>
+            <parameter name="description" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    <method name="deletePosition">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="position_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+
+    <method name="appendDepartament">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="parent_departament_id" type="integer"/>
+            <parameter name="name" type="string"/>
+            <parameter name="description" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+            <parameter name="departament_id" type="integer"/>
+        </output>
+    </method>
+    <method name="updateDepartament">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="departament_id" type="integer"/>
+            <parameter name="parent_departament_id" type="integer"/>
+            <parameter name="name" type="string"/>
+            <parameter name="description" type="string"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    <method name="deleteDepartament">
+        <input>
+            <parameter name="session_id" type="string"/>
+            <parameter name="departament_id" type="integer"/>
+        </input>
+        <output>
+            <parameter name="ret_code" type="integer"/>
+            <parameter name="ret_message" type="string"/>
+        </output>
+    </method>
+    </methods>
+</interface>

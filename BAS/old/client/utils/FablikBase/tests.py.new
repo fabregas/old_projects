@@ -1,0 +1,61 @@
+import unittest
+import IOTypesStructure as types
+from ApplicationImplementation import *
+
+
+class TestFablikBase(unittest.TestCase):
+    def test_authenticate(self):
+        #write code for testing authenticate routine
+
+        pass
+
+    def test_getMainMenu(self):
+        #write code for testing getMainMenu routine
+
+        pass
+
+    def test_getInterfaces(self):
+        #write code for testing getInterfaces routine
+
+        pass
+
+    def test_getDepartaments(self):
+        #write code for testing getDepartaments routine
+
+        pass
+
+    def test_getPositions(self):
+        #write code for testing getPositions routine
+
+        pass
+
+    def test_appendPosition(self):
+        #write code for testing appendPosition routine
+
+        pass
+
+    def test_updatePosition(self):
+        #write code for testing updatePosition routine
+
+        pass
+
+    def test_deletePosition(self):
+        #write code for testing deletePosition routine
+
+        pass
+
+    def test_appendDepartament(self):
+        #write code for testing appendDepartament routine
+
+        pass
+
+    def test_updateDepartament(self):
+        #write code for testing updateDepartament routine
+
+        pass
+
+    def test_deleteDepartament(self):
+        #write code for testing deleteDepartament routine
+
+        pass
+

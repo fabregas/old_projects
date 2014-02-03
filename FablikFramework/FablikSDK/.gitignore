@@ -1,0 +1,10 @@
+# Lines starting with '#' are considered comments.
+# Ignore objects and archives.
+
+*.py.new
+*.pyc
+*.pyo
+*.swp
+*.ldb
+*~
+output

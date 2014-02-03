@@ -1,0 +1,8 @@
+
+DEPENDENCY
+
+Must be installed:
+- dev-lang/python-2.6*
+- dev-python/lxml
+- dev-python/pyopenssl
+- >=dev-python/psycopg-2.0

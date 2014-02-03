@@ -1,0 +1,29 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+New user creating...
+{% endblock %}
+
+{% block right_content %}
+		<form action="." method="POST" id="create_user_form">
+		<table cellspacing="0" id="create_user_table">
+                <tr>
+				    <td width="20%">User name</td>
+                    <td><input style="width: 50%;" type="input" name="userName" maxlength="255" value="{{user.name}}"/></td>
+                <tr>
+				    <td>User password</td> 
+                    <td><input style="width: 50%;" type="password" name="userPassword" maxlength="255" value=""/></td>
+			    </tr>
+                <tr>
+				    <td>Retype password</td> 
+                    <td><input style="width: 50%;" type="password" name="userPassword2" maxlength="255" value=""/></td>
+			    </tr>
+            <tr >
+                <td style="padding-top: 30px;" colspan="2"><input type="button" onclick="preSubmitNewUser();" value="save">
+                <input type="button" onclick="location.href='/users/'" value="cancel"></td>
+            </tr>
+		</table>
+        </form>
+        
+{% endblock %}

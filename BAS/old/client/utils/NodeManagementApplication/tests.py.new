@@ -1,0 +1,56 @@
+import unittest
+import IOTypesStructure as types
+from ApplicationImplementation import *
+
+
+class TestNodeManagementApplication(unittest.TestCase):
+    def test_StartApplication(self):
+        #write code for testing StartApplication routine
+
+        pass
+
+    def test_RestartApplication(self):
+        #write code for testing RestartApplication routine
+
+        pass
+
+    def test_StopApplication(self):
+        #write code for testing StopApplication routine
+
+        pass
+
+    def test_LoadLibrary(self):
+        #write code for testing LoadLibrary routine
+
+        pass
+
+    def test_UnloadLibrary(self):
+        #write code for testing UnloadLibrary routine
+
+        pass
+
+    def test_RenewApplicationCache(self):
+        #write code for testing RenewApplicationCache routine
+
+        pass
+
+    def test_GetNodeStatistic(self):
+        #write code for testing GetNodeStatistic routine
+
+        pass
+
+    def test_StartServerNode(self):
+        #write code for testing StartServerNode routine
+
+        pass
+
+    def test_RestartServerNode(self):
+        #write code for testing RestartServerNode routine
+
+        pass
+
+    def test_StopServerNode(self):
+        #write code for testing StopServerNode routine
+
+        pass
+

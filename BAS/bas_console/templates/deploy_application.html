@@ -1,0 +1,39 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+ Deploy application form
+{% endblock %}
+
+{% block right_content %}
+		<form action="." method="POST" id="deploy_form" enctype="multipart/form-data">
+		<table cellspacing="0" id="deploy_table">
+			    <tr>
+				    <td colspan="2">Select application archive:
+                        <input style="width: 60%;" type="file" name="appArchive" onchange="selectedAppFile();"/>
+                    </td>
+                </tr>
+                <tr>
+				    <td width="20%">Application name</td>
+                    <td><input style="width: 50%;" type="input" id="appName" maxlength="50" name="appName" value=""/></td>
+                <tr>
+				    <td>Application version</td> 
+                    <td><input style="width: 50%;" type="input" id="appVersion" maxlength="20" name="appVersion" value=""/></td>
+			    </tr>
+                <tr>
+				    <td>Application type</td> 
+                    <td> 
+                        <select style="width: 50%; margin:0px 3px;" name="appType">
+                            <option value="native_app">Native WSGI application</option>
+                            <option value="shared_lib">Shared library (native)</option>
+                        </select>
+                    </td>
+			    </tr>
+            <tr >
+                <td style="padding-top: 30px;" colspan="2"><input type="button" onclick="preSubmitDeploy();" value="deploy">
+                <input type="button" onclick="location.href='/applications'" value="cancel"></td>
+            </tr>
+		</table>
+        </form>
+        
+{% endblock %}

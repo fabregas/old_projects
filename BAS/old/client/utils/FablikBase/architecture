@@ -1,0 +1,3 @@
+
+Shared library provide Fablik Auditor class that represent operations with audit logs
+Base Fablik Database connection string must be in global cluster config

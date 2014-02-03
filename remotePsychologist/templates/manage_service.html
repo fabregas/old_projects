@@ -1,0 +1,78 @@
+{% extends "base_admin.html" %}
+
+{% block title %}
+ Параметри послуги
+{% endblock %}
+
+{% block history %}
+<a href="/" >Головна сторінка</a> > <a href="/admin_services" >Послуги</a> 
+{% endblock %}
+
+{% block base_content %}
+<script type="text/javascript">
+    function removeServiceAsk(service_id) {
+        var yes = confirm("Ви дійсно впевнені, що хочете видалити послугу?!");
+
+        if (yes == true) {
+            document.location.href="/delete_service/"+service_id;
+        }
+    }
+</script>
+
+    <div id="change_service">
+	<form class="std_form" action="/manage_service/{{service.id}}" id="change_service_form" method="POST">
+    <table cellspacing="0">
+        <tr>
+            <td width="40%">Назва послуги</td>
+            <td><input class="t_inp" id="name" type="edit" name="name" value="{{service.name}}"></input></td>
+        </tr>
+        <tr>
+            <td width="40%">Назва послуги (рос.)</td>
+            <td><input class="t_inp" id="name_ru" type="edit" name="name_ru" value="{{service.name_ru}}"></input></td>
+        </tr>
+        <tr>
+            <td>Вартість (грн за 15 хв)</td>
+            <td><input class="t_inp" id="atom_money" type="edit" name="atom_money" value="{{service.atom_money}}"></input></td>
+        </tr>
+        <tr>
+            <td>Мінімальний час</td>
+            <td>
+            <select name="time_min">
+                {% for time_item in service.time_min %}
+                    <option value="{{time_item.num}}">{{time_item.descr}}</option>
+                {% endfor %}
+            </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Максимальний час</td>
+            <td>
+            <select name="time_max">
+                {% for time_item in service.time_max %}
+                    <option value="{{time_item.num}}">{{time_item.descr}}</option>
+                {% endfor %}
+
+            </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Опис послуги</td>
+            <td><textarea class="" id="description"  name="description">{{service.description}}</textarea></td>
+        </tr>
+        <tr>
+            <td>Опис послуги (рос.)</td>
+            <td><textarea class="" id="description_ru"  name="description_ru">{{service.description_ru}}</textarea></td>
+        </tr>
+        <tr>
+            <td class="submit_btn">
+                {% if service.id %}
+                    <input type="button" onClick="removeServiceAsk({{service.id}});" value="Видалити послугу"></input>
+                {% else %} 
+                    <input type="button" onClick="document.location.href='/admin_services'" value="Відмінити"></input>
+                {%endif%}</td>
+            <td class="submit_btn"><input type="submit" value="Зберегти"></input></td>
+        </tr>
+    </table>
+    </form>
+    </div>
+{% endblock %}

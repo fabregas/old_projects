@@ -1,0 +1,27 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+Test {{method.method_name}} method
+{% endblock %}
+
+{% block right_content %}
+		<p id="page_header" >Edit raw input message and push invoke button for test method</p>
+		<form action="/test_method/{{method.method_id}}" method="POST" id="test_method_form">
+		<table cellspacing="0" id="deploy_table" width="100%">
+			    <tr>
+				    <td >
+                        <textarea style="width: 100%; height: 400px;" name="inputMessage" >{{envelop|escape}}
+                        </textarea>
+                    </td>
+                </tr>
+                <tr >
+                    <td>
+                        <input type="submit" onclick="preSubmitDeploy();" value="invoke">
+                        <input type="button" onclick="location.href='/application/{{method.application.id}}'" value="cancel">
+                    </td>
+                </tr>
+		</table>
+        </form>
+        
+{% endblock %}

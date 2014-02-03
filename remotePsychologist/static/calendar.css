@@ -1,0 +1,103 @@
+    
+#month_calendar p {
+   text-align: center; 
+}
+
+#month_calendar table {
+    margin-left: 5px;
+}
+
+#month_calendar table th {
+    padding-bottom: 10px;
+    text-align: center;
+    font-size: 14px;
+}
+#month_calendar table td {
+    width: 80px;
+    height: 50px;
+    text-align: center;
+    font-size: 24px;
+}
+
+#month_calendar .pre_day {
+    color: #8B9482;
+    background-color: #CCD4C5;    
+}
+#month_calendar .pre_day a {
+    color: #8B9482;
+}
+#month_calendar .future_day a {
+    color: #325E08;
+}
+#month_calendar .future_day {
+    background-color: #C5F2B6;
+}
+#month_calendar .free_day {
+    background-color: #E5E8C1;
+}
+#month_calendar .free_day a {
+    color: #C0C771;
+}
+#month_calendar .recorded_day {
+    background-color: #C5F2B6;
+}
+#month_calendar .recorded_day a {
+    color: #F7885F;
+}
+#month_calendar table a {
+    display: block;
+    text-decoration: none;
+}
+#month_calendar #pn_link {
+    color: #2A4A34;
+    font-weight: normal;
+}
+#month_calendar p {
+    color: #2A4A34;
+    font-weight: bold;
+}
+#month_calendar #current_day {
+    color: #E39649;
+    border: 1px solid #28691F;
+}
+
+#day_table {
+    margin-left: 50px;
+}
+
+#day_table td {
+    padding: 0px;
+    padding-top: 10px;
+    border-spacing:0px;
+}
+
+#day_table .hour_td {
+    padding-right: 10px;
+}
+
+#day_table td a {
+   display:block; 
+   width:100px; 
+   height:20px; 
+}
+
+#free_hour {
+   background-color: #FAD99B; 
+}
+
+#not_free_hour {
+   background-color: #CCC8C2; 
+}
+
+#month_table {
+    margin-top: 20px;
+    margin-left: 20px;
+}
+table#month_table td {
+    padding-top: 5px;
+}
+table td#past_record {
+    color: #457855;
+    padding-bottom: 10px;
+}
+

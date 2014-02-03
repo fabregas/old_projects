@@ -1,0 +1,21 @@
+{% extends "base_menu.html" %}
+
+{% block title %}
+	Test result
+{% endblock %}
+
+{% block right_content %}
+	<div id="inform_area" style="margin:5%;width:90%;">
+		<table>
+		   <tr>
+            <td align="center"><p id="page_header">Returned results</p></td>
+           </tr>
+           <tr>
+		   	<td><textarea readonly style="width:100%; height: 400px;">{{message|escape}}</textarea></td>
+		   </tr>
+		   <tr>
+		        <td align="center"><input type="button" value="OK" onclick="location.href='{{redirect_link}}';"></td>
+		   </tr>
+		</table>
+	</div>
+{% endblock %}

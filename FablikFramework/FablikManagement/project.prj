@@ -1,0 +1,9 @@
+<project>
+	<name>FablikManagement</name>
+	<author>anonymous</author>
+	<python_version>2.7.1</python_version>
+	<client_version>1.0</client_version>
+	<files>
+		<file module="sql_management">sql_management.py</file>
+	</files>
+</project>

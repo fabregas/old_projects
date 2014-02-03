@@ -1,0 +1,58 @@
+{% extends "base_menu.html" %}
+{% load i18n %}
+
+{% block custom_head %}
+<link rel="stylesheet" type="text/css" href="/static/calendar.css">
+{% endblock %}
+
+{% block title %}
+{% trans "Вибір дати" %}
+{% endblock %}
+
+{% block history %}
+<a href="/" >{% trans "Головна сторінка" %}</a> 
+{% endblock %}
+
+{% block base_content %}
+    <div id="month_calendar">
+    <p><a id="pn_link" href="/prev_month">{% trans "Попередній місяць" %}</a>&nbsp;&nbsp;&nbsp; {{month.name}} {{month.year}} &nbsp;&nbsp;&nbsp; <a id="pn_link" href="/next_month">{% trans "Наступний місяць" %}</a></p> 
+	<table cellspacing="1px" id="month_table">
+        <tr>
+            <th>{% trans "Понеділок" %}</th>
+            <th>{% trans "Вівторок" %}</th>
+            <th>{% trans "Середа" %}</th>
+            <th>{% trans "Четвер" %}</th>
+            <th>{% trans "П'ятниця" %}</th>
+            <th>{% trans "Субота" %}</th>
+            <th>{% trans "Неділя" %}</th>
+        </tr>
+	{% for week in month.weeks %}
+        <tr>
+            {% for day in week %}
+                {% if day.is_current %}
+                    <td id="current_day"
+                {% else %}
+                    <td 
+                {% endif %}
+
+                {% if day.is_active %}
+                      {% if day.is_recorded %}
+                            class="recorded_day"><a href="/day_calendar/{{day.num}}/{{month.num}}/{{month.year}}">{{day.num}}</a>
+                      {% else %}
+                            class="future_day"><a href="/day_calendar/{{day.num}}/{{month.num}}/{{month.year}}">{{day.num}}</a>
+                      {% endif %}
+                {% else %}
+                    {% if day.num %}
+                     class="pre_day">{{day.num}}
+                    {% else %}
+                    >
+                    {% endif %}
+                {% endif %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </table>
+    </div>
+		
+{% endblock %}

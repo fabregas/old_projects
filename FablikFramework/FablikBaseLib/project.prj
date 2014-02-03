@@ -1,0 +1,66 @@
+<project>
+	<name>FablikBaseLib</name>
+	<author>anonymous</author>
+	<python_version>2.7.1</python_version>
+	<client_version>1.0</client_version>
+	<files>
+		<file module="FablikBaseLib">FablikBaseLib.py</file>
+		<file module="sql_fablik_lib">sql_fablik_lib.py</file>
+		<file module="FablikInterfaces">FablikInterfaces.py</file>
+		<file module="FablikErrorCodes">FablikErrorCodes.py</file>
+		<file module="CursoredDatabase">CursoredDatabase.py</file>
+		<file module="SharedDBConnection">SharedDBConnection.py</file>
+		<file module="suds.sax.__init__">/usr/lib/python2.6/site-packages/suds/sax/__init__.py</file>
+		<file module="suds.sax.element">/usr/lib/python2.6/site-packages/suds/sax/element.py</file>
+		<file module="suds.sax.document">/usr/lib/python2.6/site-packages/suds/sax/document.py</file>
+		<file module="suds.sax.parser">/usr/lib/python2.6/site-packages/suds/sax/parser.py</file>
+		<file module="suds.sax.text">/usr/lib/python2.6/site-packages/suds/sax/text.py</file>
+		<file module="suds.sax.enc">/usr/lib/python2.6/site-packages/suds/sax/enc.py</file>
+		<file module="suds.options">/usr/lib/python2.6/site-packages/suds/options.py</file>
+		<file module="suds.umx.__init__">/usr/lib/python2.6/site-packages/suds/umx/__init__.py</file>
+		<file module="suds.umx.typed">/usr/lib/python2.6/site-packages/suds/umx/typed.py</file>
+		<file module="suds.umx.core">/usr/lib/python2.6/site-packages/suds/umx/core.py</file>
+		<file module="suds.umx.attrlist">/usr/lib/python2.6/site-packages/suds/umx/attrlist.py</file>
+		<file module="suds.umx.basic">/usr/lib/python2.6/site-packages/suds/umx/basic.py</file>
+		<file module="suds.umx.encoded">/usr/lib/python2.6/site-packages/suds/umx/encoded.py</file>
+		<file module="suds.bindings.__init__">/usr/lib/python2.6/site-packages/suds/bindings/__init__.py</file>
+		<file module="suds.bindings.document">/usr/lib/python2.6/site-packages/suds/bindings/document.py</file>
+		<file module="suds.bindings.multiref">/usr/lib/python2.6/site-packages/suds/bindings/multiref.py</file>
+		<file module="suds.bindings.rpc">/usr/lib/python2.6/site-packages/suds/bindings/rpc.py</file>
+		<file module="suds.bindings.binding">/usr/lib/python2.6/site-packages/suds/bindings/binding.py</file>
+		<file module="suds.cache">/usr/lib/python2.6/site-packages/suds/cache.py</file>
+		<file module="suds.wsse">/usr/lib/python2.6/site-packages/suds/wsse.py</file>
+		<file module="suds.__init__">/usr/lib/python2.6/site-packages/suds/__init__.py</file>
+		<file module="suds.client">/usr/lib/python2.6/site-packages/suds/client.py</file>
+		<file module="suds.mx.__init__">/usr/lib/python2.6/site-packages/suds/mx/__init__.py</file>
+		<file module="suds.mx.core">/usr/lib/python2.6/site-packages/suds/mx/core.py</file>
+		<file module="suds.mx.typer">/usr/lib/python2.6/site-packages/suds/mx/typer.py</file>
+		<file module="suds.mx.appender">/usr/lib/python2.6/site-packages/suds/mx/appender.py</file>
+		<file module="suds.mx.basic">/usr/lib/python2.6/site-packages/suds/mx/basic.py</file>
+		<file module="suds.mx.literal">/usr/lib/python2.6/site-packages/suds/mx/literal.py</file>
+		<file module="suds.mx.encoded">/usr/lib/python2.6/site-packages/suds/mx/encoded.py</file>
+		<file module="suds.resolver">/usr/lib/python2.6/site-packages/suds/resolver.py</file>
+		<file module="suds.serviceproxy">/usr/lib/python2.6/site-packages/suds/serviceproxy.py</file>
+		<file module="suds.store">/usr/lib/python2.6/site-packages/suds/store.py</file>
+		<file module="suds.sudsobject">/usr/lib/python2.6/site-packages/suds/sudsobject.py</file>
+		<file module="suds.properties">/usr/lib/python2.6/site-packages/suds/properties.py</file>
+		<file module="suds.reader">/usr/lib/python2.6/site-packages/suds/reader.py</file>
+		<file module="suds.metrics">/usr/lib/python2.6/site-packages/suds/metrics.py</file>
+		<file module="suds.builder">/usr/lib/python2.6/site-packages/suds/builder.py</file>
+		<file module="suds.servicedefinition">/usr/lib/python2.6/site-packages/suds/servicedefinition.py</file>
+		<file module="suds.xsd.schema">/usr/lib/python2.6/site-packages/suds/xsd/schema.py</file>
+		<file module="suds.xsd.sxbase">/usr/lib/python2.6/site-packages/suds/xsd/sxbase.py</file>
+		<file module="suds.xsd.sxbasic">/usr/lib/python2.6/site-packages/suds/xsd/sxbasic.py</file>
+		<file module="suds.xsd.__init__">/usr/lib/python2.6/site-packages/suds/xsd/__init__.py</file>
+		<file module="suds.xsd.query">/usr/lib/python2.6/site-packages/suds/xsd/query.py</file>
+		<file module="suds.xsd.deplist">/usr/lib/python2.6/site-packages/suds/xsd/deplist.py</file>
+		<file module="suds.xsd.sxbuiltin">/usr/lib/python2.6/site-packages/suds/xsd/sxbuiltin.py</file>
+		<file module="suds.xsd.doctor">/usr/lib/python2.6/site-packages/suds/xsd/doctor.py</file>
+		<file module="suds.wsdl">/usr/lib/python2.6/site-packages/suds/wsdl.py</file>
+		<file module="suds.transport.options">/usr/lib/python2.6/site-packages/suds/transport/options.py</file>
+		<file module="suds.transport.__init__">/usr/lib/python2.6/site-packages/suds/transport/__init__.py</file>
+		<file module="suds.transport.http">/usr/lib/python2.6/site-packages/suds/transport/http.py</file>
+		<file module="suds.transport.https">/usr/lib/python2.6/site-packages/suds/transport/https.py</file>
+		<file module="suds.soaparray">/usr/lib/python2.6/site-packages/suds/soaparray.py</file>
+	</files>
+</project>

@@ -1,0 +1,479 @@
+#!/usr/bin/python
+
+import os, sys, traceback,getopt, tempfile, shutil
+import zipfile, py_compile
+from datetime import datetime
+
+import fablik_sdk
+from fablik_sdk.sdk_globals import *
+from fablik_sdk.formContent import FormContent
+from fablik_sdk.sdkConfig import Config
+import fablik_sdk.sdkDeploy as sdkDeploy
+
+
+ui_file = '''<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>%s</class>
+ <widget class="QWidget" name="%s">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+'''
+
+py_file = '''
+from Form import Ui_%s as UI
+from formWraper import FormWraper
+
+class %s (FormWraper):
+    def onInit(self, **kparams):
+        self.setupForm(UI)
+
+        #write init code at this point...
+
+'''
+
+#------------------------------------------------------------------
+
+def debug_exception():
+    sys.stderr.write('-'*80 + '\n')
+    sys.stderr.write(''.join(apply(traceback.format_exception, sys.exc_info())))
+    sys.stderr.write('-'*80 + '\n')
+
+
+def new_project(project_name, path=".", debug=False):
+    try:
+        project_path = os.path.join(path, project_name)
+
+        if os.path.exists(project_path):
+            raise Exception ('Directory %s already exists!'%project_path)
+
+        os.mkdir(project_path)
+        os.mkdir(os.path.join(project_path,'lang'))
+
+        open(os.path.join(project_path,'__init__.py'),'w').close()
+
+        f = open(os.path.join(project_path, UIFORM_FILE),'w')
+        f.write(ui_file % (project_name,project_name))
+        f.close()
+
+        sdk_proj = FormContent(os.path.join(project_path, CONT_FILE))
+
+        project_files = []
+        project_files.append((WIDGET_FILE[:-3], WIDGET_FILE))
+        project_files.append((PYFORM_FILE[:-3], PYFORM_FILE))
+        project_files.append(('__init__','__init__.py'))
+
+        sdk_proj.appendFiles(project_files)
+
+        sdk_proj.setName(project_name)
+        sdk_proj.save()
+
+        f = open(os.path.join(project_path, WIDGET_FILE),'w')
+        f.write(py_file % (project_name,project_name))
+        f.close()
+
+        return generate_application(project_path, debug)
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -2
+
+    return 0
+
+
+#--------------------------------------------------------------------------
+
+def create_lang(project_path, lang_sid, debug=False):
+    try:
+        sdk_proj = FormContent(os.path.join(project_path, CONT_FILE))
+        project_files = sdk_proj.getFiles()
+
+        curdir = os.path.abspath(os.curdir)
+        os.chdir(project_path)
+
+        all_files_dir = tempfile.mkdtemp()
+
+        for (file_module, file_path) in project_files:
+            realpath = os.path.realpath(file_path)
+
+            if not realpath.endswith('.py'):
+                continue
+
+            print shutil.copyfile(realpath, os.path.join(all_files_dir, os.path.basename(realpath)))
+
+        ret = os.system('pylupdate4 %s/*.py -ts ./lang/translate_%s.ts'%(all_files_dir, lang_sid)) #FIXME write multiplatform support
+
+        if ret:
+            raise Exception ('creating lang file error!')
+
+        ret = os.system('linguist ./lang/translate_%s.ts' % lang_sid)
+
+        if ret:
+            raise Exception ('linquist exception!')
+
+        ret = os.system('lrelease ./lang/translate_%s.ts' % lang_sid)
+
+        if ret:
+            raise Exception ('lrelease exception!')
+
+        os.chdir(curdir)
+        sdk_proj.appendFiles([ ('lang.','./lang/translate_%s.qm'%lang_sid) ])
+        sdk_proj.save()
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -2
+
+    return 0
+
+
+#--------------------------------------------------------------------------
+
+def append_files(project_path, files, debug=False):
+    try:
+        sdk_proj = FormContent(os.path.join(project_path, PROJ_FILE))
+
+        sdk_proj.appendFiles(files)
+
+        sdk_proj.save()
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -2
+
+    return 0
+
+
+def _get_pakage_content(package_path, file_end, module_name):
+    f_list = os.listdir(package_path)
+    ret_list = []
+
+    for item in f_list:
+        path = os.path.join(package_path, item)
+        if os.path.isfile(path) and path.endswith(file_end):
+            ret_list.append((module_name+'.%s' % item.split('.')[0] , path))
+        elif item in ['.','..']:
+            continue
+        elif os.path.isdir(path):
+            lst =  _get_pakage_content(path, file_end, module_name+'.%s'%item)
+            ret_list += lst
+
+    return ret_list
+
+def append_package(project_path, package_path, package_name, file_end, debug=False):
+    pakage_content = _get_pakage_content(package_path, file_end, package_name)
+
+    return append_files(project_path, pakage_content, debug)
+
+
+#--------------------------------------------------------------------------
+
+def generate_application(project_path, debug=False):
+    try:
+        ret = os.system('%s %s > %s'%(PYUI_BIN, os.path.join(project_path,UIFORM_FILE), os.path.join(project_path,PYFORM_FILE)))
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -3
+    return ret
+
+
+#--------------------------------------------------------------------------
+
+#  build flags
+
+BF_OPENSOURCE   = 0
+BF_PROPRIETARY  = 1
+
+
+def build_form(project_path, version=None, build_flag=BF_OPENSOURCE,  debug=False):
+    try:
+        sdk_proj = FormContent(os.path.join(project_path, CONT_FILE))
+
+        project_files = sdk_proj.getFiles()
+
+        outdir = os.path.join(project_path, 'output')
+        if not os.path.exists(outdir):
+            os.mkdir(outdir)
+
+        if not version:
+            n = datetime.now()
+            version = "%s.%s.%s-%s:%s"%(n.day, n.month, n.year, n.hour, n.minute)
+
+        build_file = zipfile.ZipFile(os.path.join(outdir, '%s_%s.zip' % (sdk_proj.name,version)), 'w')
+
+        curdir = os.path.abspath(os.curdir)
+        os.chdir(project_path)
+
+
+        for (file_module, file_path) in project_files:
+            realpath = os.path.realpath(file_path)
+
+            dest = file_module.replace('.','/')
+            if realpath.endswith('.py'):
+                dest += '.py'
+            else:
+                dest = os.path.join(os.path.dirname(dest), os.path.basename(realpath))
+
+            if build_flag == BF_PROPRIETARY:
+                if realpath.endswith('.py'):
+                    py_compile.compile(realpath)
+                    realpath += 'c'
+                    dest += 'c'
+
+            build_file.write(realpath, dest)
+
+        build_file.close()
+        os.chdir(curdir)
+
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -4
+
+
+#------------------------------------------------------------------------------
+
+def test_application(project_path, debug = False):
+    config = Config(os.path.join(HOME, SDK_CONF))
+    lib_path = config.get_lib_path()
+
+    sys.path.append(lib_path)
+    sys.path.append(project_path)
+    if project_path.endswith('/'):
+        project_path = project_path[:-1]
+    form_name = os.path.basename(project_path)
+
+    from PyQt4 import Qt, QtGui
+    from configManager import Config as CONF
+    from fablikLibrary import Query
+    from soapClient import Client
+
+    CONF.read_config()
+    Client.authenticate(config.get_username(), config.get_password())
+    Query.init_query(Client.get_interface('FABLIK_QUERY'))
+
+    exec('from FormWidget import %s as FORM' % form_name)
+    app = Qt.QApplication(sys.argv)
+    form = FORM()
+    form.onInit()
+    form.show()
+    app.exec_()
+
+
+
+#------------------------------------------------------------------------------
+
+def append_db_connection(name, db_conn_string, debug=False):
+    try:
+        config = Config(os.path.join(HOME, SDK_CONF))
+
+        config.append_db_connection(name, db_conn_string)
+
+        config.save()
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -3
+
+def print_db_connections(debug=False):
+    try:
+        config = Config(os.path.join(HOME, SDK_CONF))
+
+        conns = config.get_db_connections()
+
+        print 'Connections:'
+        for conn in conns:
+            print '--> %s' % conn
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -3
+
+def test_db_connection(name, debug=False):
+    try:
+        config = Config(os.path.join(HOME, SDK_CONF))
+
+        conn_string = config.get_connect_string(name)
+
+        if conn_string is None:
+            raise Exception('Database name %s is not found in SDK cache!'% name)
+
+
+        (r_code, r_message) = sdkDeploy.test_db_connection(conn_string)
+
+        print r_message
+
+        return r_code
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -3
+
+
+def deploy_form(form_path, db_name, debug=False):
+    try:
+        config = Config(os.path.join(HOME, SDK_CONF))
+
+        conn_string = config.get_connect_string(db_name)
+
+        if conn_string is None:
+            raise Exception('Database name %s is not found in SDK cache!'% db_name)
+
+
+        (r_code, r_message) = sdkDeploy.deploy_to_db(conn_string, form_path)
+
+        print r_message
+
+        return r_code
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -3
+
+
+def usage():
+    print '''
+usage: fablik_sdk_admin [option list]
+option list:
+    --debug (-d)        - write debug information to stdout
+    --help  (-h)        - print usage
+
+    --new-form (-n) <form_name>     - create new form with name form_name in directory, passed by --path (-p) option.
+                                        If path is not passed - creating project in current directory.
+    --generate (-g) <form_path>     - generate form from form.ui file (designed by Qt Designer).
+    --test     (-t) <form_path>     - test form (load form window in current environment).
+    --build    (-b) <project_path>  - build form.
+                                        Option --version (-v) must be passed with new form version.
+                                        Option --proprietary build form to bytecode (sourceless).
+    --translate     <project_path>  - translate form message constants to language with sid, passed by --sid option
+
+
+    --add-db-conn <db_conn_string>  - append DB connection string to SDK cache with name passed by --db-conn-name option
+    --db-connects                   - print cached DB connection names
+    --test-db    <db_name>          - testing DB connection with name db_name
+
+    --deploy  <form_archive>        - deploy form (zipped archive as form_archive path) to Fablik database
+                                      Option --db-name pass Fablik database name
+    --deploy-last <form_path>       - deploy last form version
+                                      Option --db-name pass Fablik database name
+    '''
+
+
+    return 0
+
+def main():
+    ret = 0
+
+    try:
+        opts,args = getopt.getopt(sys.argv[1:], "dhn:v:g:t:b:p:", ["help", "debug","version=","new-form=","generate=",'test=','build=','path=','deploy=','deploy-last=', 'db-name=', 'translate=','sid=', 'add-db-conn=','db-name=','db-connects','test-db='])
+    except getopt.GetoptError, err:
+        print str(err)
+        usage()
+        sys.exit(2)
+
+
+    if len(opts) == 0:
+        sys.exit( usage())
+
+    debug = False
+    version = sid = None
+    db_name = path=  None
+    for opt, arg in opts:
+        if opt in ['-d', '--debug']:
+            debug = True
+        if opt in ['-v', '--version']:
+            version = arg
+        if opt in ['-p', '--path']:
+            path = arg
+        if opt == '--db-name':
+            db_name = arg
+        if opt == '--sid':
+            sid = arg
+
+    for opt, arg in opts:
+        if opt in ['-h','--help']:
+            usage()
+        elif opt in ['-n','--new-form']:
+            if path is None:
+                path = '.'
+            ret = new_project(arg, path, debug)
+        elif opt in ['-g', '--generate']:
+            ret = generate_application(arg, debug)
+        elif opt in ['-t', '--test']:
+            ret = test_application(arg, debug)
+        elif opt in ['-b', '--build']:
+            if version is None:
+                print 'Warning: Form version is not found. Use --version (-v) option. Setting current date as form version'
+            ret = build_form(arg, version, debug=debug)
+        elif opt == '--translate':
+            if sid is None:
+                print 'language sid is not found! Use --sid option'
+                sys.exit(6)
+            create_lang(arg, sid, debug)
+
+        elif opt == '--add-db-conn':
+            if db_name is None:
+                print 'Database name is not found. User --db-name option'
+                sys.exit(2)
+            append_db_connection(db_name, arg, debug)
+        elif opt == '--db-connects':
+            print_db_connections(debug)
+        elif opt == '--test-db':
+            test_db_connection(arg, debug)
+        elif opt == '--deploy':
+            if db_name is None:
+                print 'Datbase name is not found. Use --db-name option'
+                sys.exit(5)
+
+            deploy_form(arg, db_name, debug)
+        elif opt == '--deploy-last':
+            raise Exception ('IMPLEMENT ME!!!')
+        else:
+            continue
+
+        break
+
+    return ret
+
+if __name__ == '__main__':
+    sys.exit( main() )

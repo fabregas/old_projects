@@ -1,0 +1,31 @@
+{% extends "base_menu.html" %}
+
+{% block title %}
+	Modifing data
+{% endblock %}
+
+{% block right_content %}
+	<div id="modify_form">
+		 <form  method="POST">
+		         <table id="form_table">
+		            {{ form.as_table }}
+
+                    <tr>
+			 	    <td colspan=2>
+                        <input id="tiny_button" type="submit" value="OK">
+			 	        <input id="tiny_button" type="button" value="Cancel" onclick="location.href='{{cancel_href}}'">
+                        {% if delete_href %}
+			 	            <input style="margin:0 0 0 170;" id="tiny_button" type="button" value="Delete" onclick="askWindow('Do you realy want delete parameter?','{{delete_href}}');">
+                        {% endif %}
+                    <td>
+                    </tr>
+		         </table>
+			 {% if error %}
+				<p class="error">{{error}}</p>
+			 {% endif %}
+		         <p>	
+
+			</p>
+		</form>
+	</div>
+{% endblock %}

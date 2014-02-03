@@ -1,0 +1,83 @@
+{% extends "base_menu.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Мої повідомлення" %}
+{% endblock %}
+
+{% block history %}
+<a href="/" class="link">{% trans "Головна сторінка" %}</a> 
+{% endblock %}
+
+{% block base_content %}
+<script type="text/javascript">
+    function onSendMessage() {
+        var message_text = $('#new_message_div textarea').val();
+
+        if (message_text == '') {
+            alert({% trans "'Введіть текст повідомлення'" %});
+            return;
+        }
+
+        $.post('/send_message/', {message: message_text},
+                function(data) { 
+                    alert('Ваше повідомлення успішно відправлене!');
+                    $('#new_message_div textarea').val('');
+                }
+            ).error(function() {alert('Помилка! Повідомлення не відправлене');});
+    }
+</script>
+
+    <div id="new_message_div">
+        <div class="std_form">
+        <table  cellspacing="0" cellpadding="0">
+            <tr><th>{% trans "Нове повідомлення психологу" %}</th></tr>
+            <tr><td><textarea id="new_message_text"></textarea></td></tr>
+            <tr><td class="submit_btn"><input type="button" onclick="onSendMessage();" value="{% trans "Відправити" %}"/></td></tr>
+        </table>
+        </div>
+    </div>
+        <br/>
+        {% if not is_outbox %}
+            <p class="centered_element"><span id="active_message_topic">{% trans "Отримані" %}</span>&nbsp;&nbsp;&nbsp;&nbsp;<a class="link" href="/my_messages?is_outbox=1">{% trans "Відправлені" %}</a></p>
+        {% else %}
+            <p class="centered_element"><a class="link" href="/my_messages">{% trans "Отримані" %}</a>&nbsp;&nbsp;&nbsp;&nbsp;<span id="active_message_topic">{% trans "Відправлені" %}</span></p>
+        {% endif %}
+
+        {% if messages and not is_outbox %}
+         <table class="headered_table" cellspacing="0" cellpadding="0">
+            <tr>
+                <th>{% trans "Дата" %}</th>
+                <th>{% trans "Текст повідомлення" %}</th>
+            </tr>
+            {% for message in messages %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td width="30%"><div>{{message.send_datetime|date:"d.m.Y H:i"}}</div></td>
+                <td><a href="/my_messages?msg_id={{message.id}}" {% if message.is_readed %}>{% else %}class="unread_message">{% endif %} 
+                    {{message.message|linebreaksbr}}</a>
+                    <div id="{{message.id}}"/>    
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+
+        {% if messages and is_outbox %}
+        <table class="headered_table" cellspacing="0" cellpadding="0">
+            <tr>
+                <th>{% trans "Дата" %}</th>
+                <th>{% trans "Текст повідомлення" %}</th>
+            </tr>
+            {% for message in messages %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td width="30%">{{message.send_datetime|date:"d.m.Y H:i"}}</td>
+                <td><a href="/my_messages?msg_id={{message.id}};is_outbox=1">
+                    {{message.message|linebreaksbr}}</a>
+                    <div id="{{message.id}}"/>    
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+
+{% endblock %}

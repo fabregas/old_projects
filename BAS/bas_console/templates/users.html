@@ -1,0 +1,32 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+Users
+{% endblock %}
+
+{% cycle 'table_line1' 'table_line2' as rowcolors %}
+
+{% block right_content %}
+		<p id="page_header">Users list</p>
+		
+		<table cellspacing="0" id="users_table">
+			<tr id="table_head_line">
+				<th width=30% >User name</th>
+				<th >User roles</th>
+			</tr>
+			{% for user in users %}
+			    <tr id="{% cycle rowcolors %}">
+				    <td ><a href="/user_info/{{user.id}}">{{user.name}}</a></td>
+				    <td  align="center">{{user.roles|linebreaks}}</td>
+			    </tr>
+			{% endfor %}
+
+			<tr >
+				<td colspan="2">
+					<input type="button" value="new user" onclick="location.href='/new_user/'">
+				</td>
+			</tr>
+		</table>
+
+{% endblock %}

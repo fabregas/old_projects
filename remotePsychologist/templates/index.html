@@ -1,0 +1,14 @@
+{% extends "base_menu.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Віддалена психологічна допомога" %}
+{% endblock %}
+
+{% block base_content %}
+    <div id="content">
+        {% autoescape off %}
+        {{content}}
+        {% endautoescape %}
+    </div>
+{% endblock %}

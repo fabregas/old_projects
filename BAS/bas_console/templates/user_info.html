@@ -1,0 +1,61 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+ Users | {{user.name}} info
+{% endblock %}
+
+{% block history %}
+ <a href="/users">users list</a> 
+{% endblock %}
+
+{% block right_content %}
+        <table>
+            <tr>
+            <td width="90%"><p id="page_header" >Information about '{{user.name}}' user<td>
+            <td align="right"><input type="button" value="change user password" onclick="location.href='/change_user_pwd/{{user.id}}'"></td>
+            <td align="right"><input type="button" value="delete user" onclick="askWindow('Do you realy want delete user with name \'{{user.name}}\'?','/delete_user/{{user.id}}')"></td>
+            </p>
+            <tr>
+        </table>
+		<form action="/user_info/{{user.id}}" method="POST" id="roles_mod_form">
+		<table cellspacing="0" id="roles_mod_table">
+                <tr>
+				    <td width="45%" align="center"><b>User roles</b></td>
+                    <td width="10%"></td>
+                    <td width="45%" align="center"><b>All roles</b></td>
+                <tr>
+				    <td>
+                        <div id="hidden_inputs">
+                        {% for role in user.roles %}
+                            <input type="hidden" name="role_{{role.id}}" value="{{role.id}}">
+                        {% endfor %}
+                        </div>
+                        <select id="user_roles" size="10" style="margin-top:5px;">
+                        {% for role in user.roles %}
+                            <option value="{{role.id}}">{{role.role_name}}</option>
+                        {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="button" id="tiny_button" onclick="moveRoleToUser();" value=" <<< ">
+                        <div style="margin:20px;"></div>
+                        <input type="button" id="tiny_button" onclick="moveRoleFromUser();" value=" >>> ">
+                    </td>
+				    <td>
+                        <select id="all_roles" size="10" style="margin-top:5px;">
+                        {% for role in roles %}
+                            <option value="{{role.id}}">{{role.role_name}}</option>
+                        {% endfor %}
+                        </select>
+                    </td>
+            <tr >
+                <td colspan="3">
+                    <input type="submit" value="save roles">
+                </td>
+            </tr>
+		</table>
+
+        </form>
+        
+{% endblock %}

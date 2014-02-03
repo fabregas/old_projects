@@ -1,0 +1,26 @@
+{% extends "base_menu.html" %}
+{% load extras %}
+
+{% block title %}
+Users | Pasword change
+{% endblock %}
+
+{% block right_content %}
+		<form action="/change_user_pwd/{{user_id}}" method="POST" id="modify_password_form">
+		<table cellspacing="0" id="modify_password_table">
+                <tr>
+				    <td width="20%">New password</td> 
+                    <td><input style="width: 50%;" type="password" maxlength="255" name="newPassword" value=""/></td>
+			    </tr>
+                <tr>
+				    <td>Retype new password</td> 
+                    <td><input style="width: 50%;" type="password" maxlength="255" name="newPassword2" value=""/></td>
+			    </tr>
+            <tr >
+                <td style="padding-top: 30px;" colspan="2"><input type="button" onclick="preSubmitModUser();" value="change">
+                <input type="button" onclick="location.href='/user_info/{{user_id}}'" value="cancel"></td>
+            </tr>
+		</table>
+        </form>
+        
+{% endblock %}

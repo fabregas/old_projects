@@ -1,0 +1,47 @@
+{% extends "base_menu.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Мої записи" %}
+{% endblock %}
+
+{% block history %}
+<a href="/" >{% trans "Головна сторінка" %}</a> 
+{% endblock %}
+
+{% block base_content %}
+    <script type="text/javascript">
+        function onCancelClick(record_id) {
+            var really = confirm({% trans "'Ви дійсно хочете відмінити прийом?'" %});
+
+            if (really) {
+                location.href='/cancel_record/' + record_id;
+            }
+
+        }
+    </script>
+
+    {% if not records %}
+        <p class="warning_message">{% trans "У вас поки що немає прийомів у психолога" %}</p>
+    {% else %}
+
+    <p class="centered_element">{% trans "Ваші візити до психолога" %}</p>
+    <table class="headered_table" cellspacing="0" cellpadding="0">
+
+	{% for record in records %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+            {% if record.is_past %}
+			    <td width="500px" id="past_record">
+            {% else %}
+                <td width="500px" style="color: #DFAF96;">
+            {% endif %}
+
+            {{record.start_datetime|date:"d.m.Y  H:i"}}-{{record.stop_datetime|date:"H:i"}}  ( {{record.service.name}} )
+            </td>
+            <td>{% if not record.is_past %}<input type="button" value="{% trans "Відмінити" %}" onClick="onCancelClick({{record.id}});"/>{% else %}<div style=" text-align: center; height:25px;"></div>{% endif %}
+            </td>
+        <tr>
+    {% endfor %}
+    </table>
+	{% endif %}
+{% endblock %}

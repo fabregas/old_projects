@@ -1,0 +1,48 @@
+from IOTypesStructure import *
+
+class SystemApplicationImplementation:
+    def start_routine(self, config):
+        pass
+
+    def syncronize_application(self, config):
+        pass
+
+    def stop_routine(self):
+        pass
+
+    def DeployApplication(self, request):
+        #request - object of RequestDeployApplication
+        #response - object of ResponseDeployApplication
+
+        pass
+
+    def UndeployApplication(self, request):
+        #request - object of RequestUndeployApplication
+        #response - object of ResponseUndeployApplication
+
+        pass
+
+    def StartApplication(self, request):
+        #request - object of RequestStartApplication
+        #response - object of ResponseStartApplication
+
+        pass
+
+    def RestartApplication(self, request):
+        #request - object of RequestRestartApplication
+        #response - object of ResponseRestartApplication
+
+        pass
+
+    def StopApplication(self, request):
+        #request - object of RequestStopApplication
+        #response - object of ResponseStopApplication
+
+        pass
+
+    def RenewApplicationCache(self, request):
+        #request - object of RequestRenewApplicationCache
+        #response - object of ResponseRenewApplicationCache
+
+        pass
+

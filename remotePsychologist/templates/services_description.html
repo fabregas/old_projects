@@ -1,0 +1,25 @@
+{% extends "base_menu.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Опис послуг" %}
+{% endblock %}
+
+{% block history %}
+<a href="/" >{% trans "Головна сторінка" %}</a> 
+{% endblock %}
+
+{% block base_content %}
+    <p class="centered_element">{% trans "Опис послуг" %}</p>
+
+    <div id="content">
+    {% for service in services %}
+    <p><b>{{service.name}}</b></p>
+    <p>{{service.description|linebreaks}}</p>
+    <p>{% trans "Тривалість" %}: {{service.time_min}} - {{ service.time_max }} {% trans "хвилин" %}</p>
+    <p>{% trans "Вартість послуги" %}: {{ service.hour_money }} {% trans "гривень за годину" %}</p>
+    <br/>
+    {% endfor %}
+    </div>
+
+{% endblock %}

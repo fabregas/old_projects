@@ -1,0 +1,531 @@
+#!/usr/bin/python
+
+import os, sys, traceback,getopt
+import zipfile, py_compile
+from datetime import datetime
+
+import bas_sdk
+from bas_sdk.bas_sdk_globals import *
+from bas_sdk.applicationInterface import ApplicationInterface
+from bas_sdk.sdkProject import SDKProject
+from bas_sdk.sdkConfig import Config, ApplicationServer
+from bas_sdk.sdkDeploy import deploy_to_bas, test_connection
+
+
+#------------------------------------------------------------------
+
+def debug_exception():
+    sys.stderr.write('-'*80 + '\n')
+    sys.stderr.write(''.join(apply(traceback.format_exception, sys.exc_info())))
+    sys.stderr.write('-'*80 + '\n')
+
+
+def new_project(project_name, path=".", debug=False):
+    try:
+        project_path = os.path.join(path, project_name)
+
+        os.mkdir(project_path)
+
+
+        open(os.path.join(project_path,'__init__.py'),'w').close()
+
+        f = open(os.path.join(project_path,IFACE_FILE), 'w')
+        f.write('<interface name="">\n</interface>')
+        f.close()
+
+        sdk_proj = SDKProject(os.path.join(project_path, PROJ_FILE))
+
+        sdk_proj.setName(project_name)
+        sdk_proj.setAuthor('anonymous')
+        sdk_proj.setPythonVersion()
+        sdk_proj.setClientVersion(SDK_VERSION)
+
+        sdk_proj.save()
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -2
+
+    return 0
+
+
+#--------------------------------------------------------------------------
+
+def append_files(project_path, files, debug=False):
+    try:
+        sdk_proj = SDKProject(os.path.join(project_path, PROJ_FILE))
+
+        sdk_proj.appendFiles(files)
+
+        sdk_proj.save()
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -2
+
+    return 0
+
+#-------------------------------------------------------------------------
+
+def _get_pakage_content(package_path, file_end, module_name):
+    f_list = os.listdir(package_path)
+    ret_list = []
+
+    for item in f_list:
+        path = os.path.join(package_path, item)
+        if os.path.isfile(path) and path.endswith(file_end):
+            ret_list.append((module_name+'.%s' % item.split('.')[0] , path))
+        elif item in ['.','..']:
+            continue
+        elif os.path.isdir(path):
+            lst =  _get_pakage_content(path, file_end, module_name+'.%s'%item)
+            ret_list += lst
+
+    return ret_list
+
+def append_package(project_path, package_path, package_name, file_end, debug=False):
+    pakage_content = _get_pakage_content(package_path, file_end, package_name)
+
+    return append_files(project_path, pakage_content, debug)
+
+
+#--------------------------------------------------------------------------
+
+def generate_application(project_path, debug=False):
+    try:
+        aiface = ApplicationInterface(project_path)
+
+        aiface.generate_application()
+        aiface.generate_routines()
+        aiface.generate_types()
+        aiface.generate_tests()
+        aiface.generate_init()
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -3
+    return 0
+
+
+#--------------------------------------------------------------------------
+
+#  build flags
+
+BF_OPENSOURCE   = 0
+BF_PROPRIETARY  = 1
+
+
+def build_application(project_path, version=None, build_flag=BF_OPENSOURCE,  debug=False):
+    try:
+        sdk_proj = SDKProject(os.path.join(project_path, PROJ_FILE))
+
+        sdk_proj.setPythonVersion()
+        sdk_proj.save()
+        
+        project_files = sdk_proj.getFiles()
+
+        outdir = os.path.join(project_path, 'output')
+        if not os.path.exists(outdir):
+            os.mkdir(outdir)
+        
+        if not version:
+            n = datetime.now()
+            version = "%s.%s.%s-%s:%s"%(n.day, n.month, n.year, n.hour, n.minute)
+
+        build_file = zipfile.ZipFile(os.path.join(outdir, '%s_%s.zip' % (sdk_proj.name,version)), 'w')
+        
+        if os.path.exists(os.path.join(project_path,APP_FILE)):
+            project_files.append((APP_FILE[:-3],APP_FILE))
+            project_files.append((TYPES_FILE[:-3],TYPES_FILE))
+            project_files.append((ROUTINES_FILE[:-3],ROUTINES_FILE))
+        project_files.append((PROJ_FILE[:-4],PROJ_FILE))
+        project_files.append(('__init__','__init__.py'))
+
+        curdir = os.path.abspath(os.curdir)
+        os.chdir(project_path)
+        for (file_module, file_path) in project_files:
+            realpath = os.path.realpath(file_path)
+
+            if realpath.endswith('.py'):
+                dest = file_module.replace('.','/') + '.py'
+            else:
+                dest = os.path.basename(realpath)
+
+            if build_flag == BF_PROPRIETARY:
+                if realpath.endswith('.py'):
+                    py_compile.compile(realpath)
+                    realpath += 'c'
+                    dest += 'c'
+
+            build_file.write(realpath, dest)
+
+        build_file.close()
+        os.chdir(curdir)
+
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -4
+
+
+#------------------------------------------------------------------------------
+
+def test_application(project_path, debug = False):
+    curdir = os.path.abspath(os.curdir)
+
+    try:
+        fname = os.path.join(project_path, TEST_FILE)
+        if not os.path.exists(fname):
+            raise Exception('File %s is not found for testing application' % fname)
+
+        sdk_home = os.path.dirname(bas_sdk.__file__)
+        sys.path.insert(0, '')
+        sys.path.append(os.path.join(sdk_home, SYS_LIB))
+        sys.path.append(os.path.join(sdk_home, USER_LIB))
+        os.chdir(project_path)
+
+        exec("import %s as testCases" % TEST_FILE[:-3])
+
+        import unittest
+        test = unittest.findTestCases(testCases)
+
+        if test is None or test.countTestCases() == 0:
+            raise Exception ('No tests found in file %s' % fname)
+
+        results = test.run(unittest.TestResult())
+        
+        sys.stdout.write('-'*80 + '\n')
+        sys.stdout.write('TESTS RESULTS\n')
+        sys.stdout.write('-'*80 + '\n')
+        sys.stdout.write('Tests run: %i\n' % results.testsRun)
+        sys.stdout.write('Tests errors: %i\n' % len(results.errors))
+        sys.stdout.write('Tests failures: %i\n' % len(results.failures))
+        sys.stdout.write('-'*80 + '\n')
+
+        for fail in results.failures:
+            sys.stderr.write('FAILURE in method <%s>:\n%s\n' % (fail[0], fail[1]))
+
+        for error in results.errors:
+            sys.stderr.write('ERROR in method <%s>:\n%s\n' % (error[0], error[1]))
+
+
+        if results.errors or results.failures:
+            return 5
+    except Exception, msg:
+        sys.stderr.write("\nSDK ERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -5
+    finally:
+        os.chdir(curdir)
+
+
+         
+
+
+#------------------------------------------------------------------------------
+ 
+def append_app_server(name, url, login, passwd, debug=False):
+    try:
+        config = Config(os.path.join(HOME, SDK_CONF))
+
+        is_updated = False
+
+        for serv in config.app_servers:
+            if serv.name == name:
+                serv.url = url
+                serv.login = login
+                serv.password = passwd
+
+                is_updated = True
+
+        if not is_updated:
+            app = ApplicationServer(name, url, login, passwd)
+            config.app_servers.append(app)
+
+        config.save()
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -3
+
+
+def remove_app_server(name, debug=False):
+    try:
+        config = Config(os.path.join(HOME, SDK_CONF))
+
+        appServerI = None
+        for (i,serv) in enumerate(config.app_servers):
+            if serv.name == name:
+                appServerI = i
+
+        if appServerI is not None:
+            del config.app_servers[appServerI]
+
+        config.save()
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -3
+
+
+def get_app_servers(debug=False):
+    servers = []
+    try:
+        config = Config(os.path.join(HOME, SDK_CONF))
+
+        for serv in config.app_servers:
+            servers.append( serv.name )
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -3
+
+    return servers
+
+
+def test_app_server(name, debug=False):
+    try:
+        config = Config(os.path.join(HOME, SDK_CONF))
+
+        appServer = None
+        for serv in config.app_servers:
+            if serv.name == name:
+                appServer = serv
+
+        if appServer is None:
+            raise Exception('Applicaiton server is not found!')
+
+
+        err_code,err_message = test_connection(appServer.url, appServer.login, appServer.password)
+        if err_code != 0:
+            raise Exception(err_message)
+
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            debug_exception()
+
+        return -3
+    return 0
+
+
+
+def deploy_application(application_path, app_server_name, debug=False, is_library=False):
+    try:
+        if not os.path.exists(application_path):
+            raise Exception('Application archive is not found at path %s'%application_path)
+
+        config = Config(os.path.join(HOME, SDK_CONF))
+
+        appServer = None
+        for serv in config.app_servers:
+            if serv.name == app_server_name:
+                appServer = serv
+                break
+
+        if not appServer:
+            raise Exception('Application server with name %s is not found in SDK configuration' % app_server_name)
+
+        f = open(application_path,'rb')
+        app_source = f.read()
+        f.close()
+
+        bname = os.path.basename(application_path)
+        bname = bname[:-4]
+        appName = bname[:bname.find('_')]
+        appVer = bname[bname.find('_')+1:]
+
+        (err_code, err_message) = deploy_to_bas(appName, appVer, app_source, appServer.url, appServer.login, appServer.password, is_library)
+
+        if err_code != 0:
+            raise Exception(err_message)
+
+        print 'Deploy message: %s'%err_message
+
+    except Exception, msg:
+        sys.stderr.write("\nERROR: %s\n" % msg)
+
+        if debug:
+            print 'DEBUG'
+            debug_exception()
+
+        return -3
+    return 0
+
+
+#print new_project('SystemApplication', debug=True)
+#print generate_application('SystemApplication', debug=True)
+#test_application('./SystemApplication', debug=True)
+#
+#build_application('./SystemApplication',version='v1.0')
+
+#append_app_server('local','http://192.168.80.83:33333/System/','fabregas','blik')
+#remove_app_server('local')
+#print get_app_servers()
+#deploy_application('./testApp/output/TestInterface_v1.3.zip', 'local')
+
+def usage():
+    print '''
+usage: bas_sdk_admin [option list]
+option list:
+    --debug (-d)        - write debug information to stdout
+    --help  (-h)        - print usage
+
+    --new-project (-n) <project_name> - create new project with name project_name in directory, passed by --path (-p) option. 
+                                        If path is not passed - creating project in current directory.
+    --add-package  <project_name>     - append package content to project.
+                                        Option --path (-p) must be passed as package path
+                                        Option --package-name must be passed as package name (for import)
+                                        Option --file-end must be passed as end file mask
+    --generate (-g) <project_path>    - generate application from interface.wsi file (it must be in project_path).
+    --test     (-t) <project_path>    - test application (tests.py file with testcases must be in project_path).
+    --build    (-b) <project_path>    - build application.
+                                        Option --version (-v) must be passed with new application version.
+                                        Option --proprietary build application to bytecode (sourceless).
+
+    --add-server                  - append server interface to local cache.
+                                    Option --server-name pass server name. This name is local server name.
+                                    Option --url pass server System application wsdl url
+                                    Option --login pass BAS user login (with administrative roles)
+                                    Option --password pass BAS user password
+    --remove-server <server_name> - remove server interface with name server_name from local cache.
+    --servers                     - print all local server's interfaces
+    --deploy  <app_archive>       - deploy application (zipped archive as app_archive path) to Blik Application Server
+                                    Option --server-name pass local server name of BAS
+    --deploy-lib  <app_archive>   - deploy application as shared library (zipped archive as app_archive path) to Blik Application Server
+                                    Option --server-name pass local server name of BAS
+    '''
+
+
+    return 0
+
+def main():
+    ret = 0
+
+    try:
+        opts,args = getopt.getopt(sys.argv[1:], "dhn:v:g:t:b:p:", ["help", "debug","version=","new-project=","generate=",'test=','build=','path=','add-server','remove-server=','servers','deploy=','deploy-lib=', 'server-name=','url=','login=','password=','file-end=','package-name=','add-package='])
+    except getopt.GetoptError, err:
+        print str(err)
+        usage()
+        sys.exit(2)
+
+
+    if len(opts) == 0:
+        sys.exit( usage())
+
+    debug = False
+    version = None
+    server_name = url = login = password = package_name = file_end = path=  None
+    for opt, arg in opts:
+        if opt in ['-d', '--debug']:
+            debug = True
+        if opt in ['-v', '--version']:
+            version = arg
+        if opt in ['-p', '--path']:
+            path = arg
+        if opt == '--server-name':
+            server_name = arg
+        if opt == '--url':
+            url = arg
+        if opt == '--login':
+            login = arg
+        if opt == '--password':
+            password = arg
+        if opt == '--package-name':
+            package_name = arg
+        if opt == '--file-end':
+            file_end = arg
+
+    for opt, arg in opts:
+        if opt in ['-h','--help']:
+            usage()
+        elif opt in ['-n','--new-project']:
+            if path is None:
+                path = '.'
+            ret = new_project(arg, path, debug)
+        elif opt in ['-g', '--generate']:
+            ret = generate_application(arg, debug)
+        elif opt in ['-t', '--test']:
+            ret = test_application(arg, debug)
+        elif opt in ['-b', '--build']:
+            if version is None:
+                print 'Application version is not found. Use --version (-v) option'
+                sys.exit(3)
+            ret = build_application(arg, version, debug=debug)
+        elif opt == '--add-server':
+            if server_name is None:
+                print 'Server name is not found. Use --server-name option'
+                sys.exit(4)
+            if url is None:
+                print 'URL is not found. Use --url option'
+                sys.exit(4)
+            if login is None:
+                print 'Login is not found. Use --login option'
+                sys.exit(4)
+            if password is None:
+                print 'Password is not found. Use --password option'
+                sys.exit(4)
+
+            ret = append_app_server(server_name, url, login, password)
+        elif opt == '--remove-server':
+            ret = remove_app_server(arg)
+        elif opt == '--servers':
+            servers = get_app_servers()
+            for server in servers:
+                print server
+            ret = 0
+        elif opt in ['--deploy','--deploy-lib']:
+            if server_name is None:
+                print 'Server name is not found. Use --server-name option'
+                sys.exit(5)
+
+            if opt == '--deploy':
+                deploy_application(arg, server_name,debug)
+            elif opt == '--deploy-lib':
+                deploy_application(arg, server_name,debug, is_library=True)
+        elif opt == '--add-package':
+            if path is None:
+                print 'Package path is not found. Use --path (-p) option'
+                sys.exit(6)
+            if package_name is None:
+                print 'Package name is not found. Use --package-name option'
+                sys.exit(6)
+            if file_end is None:
+                print 'File end mask is not found. Use --file-end option'
+                sys.exit(6)
+
+            append_package(arg, path, package_name, file_end, debug)
+        else:
+            continue
+
+        break 
+
+    return ret
+
+if __name__ == '__main__':
+    sys.exit( main() )

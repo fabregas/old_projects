@@ -1,0 +1,22 @@
+{% extends "base_menu.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Форма реєстрації" %}
+{% endblock %}
+
+{% block history %}
+<a href="/" >{% trans "Головна сторінка" %}</a> 
+{% endblock %}
+
+{% block base_content %}
+	<div id="reg_form">
+		 <form class="std_form django_form" action="." method="POST">
+		         <table cellspacing="0">
+		            {{ reg_form.as_table }}
+		            <tr><td colspan="2" class="submit_btn"><input id="reg_btn" type="submit" value="{% trans "Далі" %} >>"></td></tr>
+		         </table>
+		</form>
+	</div>
+		
+{% endblock %}

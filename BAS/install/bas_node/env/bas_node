@@ -1,0 +1,38 @@
+#!/sbin/runscript
+
+
+export BAS_HOME=${BAS_HOME}
+export BAS_NODE_NAME=${BAS_NODE_NAME}
+
+depend() {
+    need netmount
+}
+
+start() {
+	[ -d /var/run/bas_node ] || mkdir -m 777 /var/run/bas_node
+	ebegin "Starting Blik Application Server node"
+	start-stop-daemon --start --quiet --background \
+		--chdir "${BAS_HOME}/bin" \
+		--chuid ${BAS_USER}:${BAS_GROUP} \
+		--exec ${BAS_HOME}/bin/BAS_node.py \
+		--make-pidfile --pidfile /var/run/bas_node/bas_node.pid
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping Blik Application Server node"
+	start-stop-daemon --stop --signal INT  \
+		--pidfile /var/run/bas_node/bas_node.pid
+	eend $?
+}
+
+reload() {
+	if [ ! -f /var/run/bas_node/bas_node.pid ] ; then
+		eerror "Blik Application Server is not running."
+		return 1
+	fi
+
+	ebegin "Reloading Blik Application Server"
+	kill -HUP `cat /var/run/bas_node/bas_node.pid` &>/dev/null
+	eend $?
+}

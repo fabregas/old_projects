@@ -1,0 +1,758 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-07-01 00:16+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: remotepsy/auth_views.py:91
+msgid "Ви ввели невірний логін або пароль!"
+msgstr "Вы ввели неверный логин или пароль!"
+
+#: remotepsy/forms.py:9 remotepsy/forms.py:13
+#: templates/change_password_form.html:43
+msgid "Логін"
+msgstr "Логин"
+
+#: remotepsy/forms.py:10 remotepsy/forms.py:14
+msgid "Пароль"
+msgstr "Пароль"
+
+#: remotepsy/forms.py:15
+msgid "Повтор паролю"
+msgstr "Повтор пароля"
+
+#: remotepsy/forms.py:16
+msgid "П.І.Б."
+msgstr "Ф.И.О."
+
+#: remotepsy/forms.py:18
+msgid "E-mail"
+msgstr "E-mail"
+
+#: remotepsy/forms.py:19
+msgid "Область"
+msgstr "Область"
+
+#: remotepsy/forms.py:20
+msgid "Населений пункт"
+msgstr "Населенный пункт"
+
+#: remotepsy/forms.py:28
+#, python-format
+msgid ""
+"Користувач з логіном %(login)s вже існує в системі! Будь ласка, введіть "
+"інший логін"
+msgstr ""
+"Пользователь с логином %(login)s уже существует в системе! Пожалуйста, "
+"введите другой логин"
+
+#: remotepsy/forms.py:37
+msgid "Введені паролі не співпадають!"
+msgstr "Введенные пароли не совпадают!"
+
+#: remotepsy/forms.py:47
+msgid ""
+"Введений e-mail не коректний! Будь ласка, введіть e-mail адресу в "
+"правильному форматі"
+msgstr ""
+"Введенный e-mail не корректный! Пожалуйста, введите e-mail адрес в "
+"правильном формате"
+
+#: remotepsy/forms.py:52
+msgid "З даної e-mail адреси вже зареєстрований користувач!"
+msgstr "С данного e-mail адреса уже зарегистрирован пользователь!"
+
+#: remotepsy/forms.py:58
+msgid "Service"
+msgstr "Service"
+
+#: remotepsy/forms.py:59
+msgid "Start time"
+msgstr "Start time"
+
+#: remotepsy/forms.py:60
+msgid "End time"
+msgstr "End time"
+
+#: remotepsy/forms.py:61
+msgid "Comment"
+msgstr "Comment"
+
+#: remotepsy/views.py:19
+msgid "Січень"
+msgstr "Январь"
+
+#: remotepsy/views.py:19
+msgid "Лютий"
+msgstr "Февраль"
+
+#: remotepsy/views.py:19
+msgid "Березень"
+msgstr "Март"
+
+#: remotepsy/views.py:19
+msgid "Квітень"
+msgstr "Апрель"
+
+#: remotepsy/views.py:19
+msgid "Травень"
+msgstr "Май"
+
+#: remotepsy/views.py:19
+msgid "Червень"
+msgstr "Июнь"
+
+#: remotepsy/views.py:19
+msgid "Липень"
+msgstr "Июль"
+
+#: remotepsy/views.py:19
+msgid "Серпень"
+msgstr "Август"
+
+#: remotepsy/views.py:19
+msgid "Вересень"
+msgstr "Сентябрь"
+
+#: remotepsy/views.py:19
+msgid "Жовтень"
+msgstr "Октябрь"
+
+#: remotepsy/views.py:19
+msgid "Листопад"
+msgstr "Ноябрь"
+
+#: remotepsy/views.py:19
+msgid "Грудень"
+msgstr "Декабрь"
+
+#: remotepsy/views.py:119
+#, python-format
+msgid ""
+"Доброго дня!\n"
+"Це активаційний лист з сайту %(hostname)s.\n"
+"Якщо ви бажаєте зареєструватись, перейдіть за посиланням http://%(hostname)s/"
+"activate_user/%(accept_code)s\n"
+"\n"
+"Якщо ви не реєструвались на сайті %(hostname)s, проігноруйте даний лист."
+msgstr ""
+"Доброго дня!\n"
+"Это активационное письмо с сайта %(hostname)s.\n"
+"Если вы желаете зарегистрироваться, перейдите по ссылке http://%(hostname)s/"
+"activate_user/%(accept_code)s\n"
+"\n"
+"Если вы не регистрировались на сайте %(hostname)s, проигнорируйте данное "
+"письмо."
+
+#: remotepsy/views.py:121
+msgid "Лист активації"
+msgstr "Письмо активации"
+
+#: remotepsy/views.py:149
+#, python-format
+msgid ""
+"Ваш аккаунт успішно створено! Інструкцію з активації відправлено Вам на e-"
+"mail адресу %(email)s"
+msgstr ""
+"Ваш аккаунт успешно создан! Инструкция по его активации отправлена Вам на e-"
+"mail адрес %(email)s"
+
+#: remotepsy/views.py:161
+msgid ""
+"Інформація про реєстрацію не знайдена! Будь ласка, зареєструйтесь знову..."
+msgstr ""
+"Информация про регистрацию не найдена! Пожалуйста, зарегистрируйтесь еще "
+"раз..."
+
+#: remotepsy/views.py:172
+msgid ""
+"Вітаємо Вас на сайті психологічної допомоги!\n"
+"Якщо у Вас є питання до психолога, залиште повідомлення на сайті або "
+"відправте листа на адресу AnnaSa@i.ua\n"
+"Сподіємось, що Ви знайдете тут допомогу, яку шукаєте."
+msgstr ""
+"Приветствуем Вас на сайте психологической помощи!\n"
+"Если у вас есть вопросы к психологу, оставьте сообщение на сайте или "
+"отправьте письмо на адрес AnnaSa@i.ua\n"
+"Надеемся, что Вы найдете тут помощь, которую ищите."
+
+#: remotepsy/views.py:179
+msgid ""
+"Вітаємо! Ви успішно зареєстровані. Ви можете увійти у ваш персональний "
+"кабінет, використовуючи ваш логін/пароль"
+msgstr ""
+"Поздравляем! Вы успешно зарегистрированы. Вы можете войти в Ваш персональный "
+"кабинет, используя свой логин/пароль"
+
+#: remotepsy/views.py:187
+msgid "Пароль має бути не порожнім!"
+msgstr "Пароль должен быть не пустым!"
+
+#: remotepsy/views.py:192
+#, python-format
+msgid "Користувача з логіном %(passwd)s не знайдено на сервері!"
+msgstr "Пользователь с логином %(passwd)s не найден на сервере!"
+
+#: remotepsy/views.py:206
+#, python-format
+msgid ""
+"Ви забули пароль входу на сайт %(hostname)s.\n"
+"Для того, щоб змінити пароль на новий, перейдіть за посиланням http://"
+"%(hostname)s/accept_change_password/%(accept_code)s\n"
+"\n"
+"Якщо ви не бажаєте змінювати пароль або не зареєстровані на сайті "
+"%(hostname)s, будь ласка, проігноруйте даний лист."
+msgstr ""
+"Вы забыли пароль входа на сайт %(hostname)s.\n"
+"Для того, чтобы изменить пароль на новый, перейдите по ссылке http://"
+"%(hostname)s/accept_change_password/%(accept_code)s\n"
+"\n"
+"Если Вы не желаете менять пароль или не зарегистрированы на сайте "
+"%(hostname)s, пожалуйста, проигнорируйте данное письмо."
+
+#: remotepsy/views.py:208
+msgid "Зміна паролю!"
+msgstr "Смена пароля!"
+
+#: remotepsy/views.py:210
+msgid ""
+"Інструкція по зміні паролю вислана Вам на e-mail адресу, вказану при "
+"реєстрації"
+msgstr ""
+"Инструкция по смене пароля выслана Вам на e-mail адрес, указанный при "
+"регистрации"
+
+#: remotepsy/views.py:220
+msgid ""
+"Інформація про новий пароль не знайдена!\n"
+"Будь ласка, спробуйте змінити пароль ще раз"
+msgstr ""
+"Информация о новом пароле не найдена!\n"
+"Пожалуйста, попробуйте изменить пароль еще раз"
+
+#: remotepsy/views.py:231
+msgid ""
+"Вітаємо! Ви успішно змінили пароль.\n"
+"Ви можете увійти у ваш персональний кабінет, використовуючи ваш новий пароль"
+msgstr ""
+"Поздравляем! Вы успешно сменили пароль.\n"
+"Вы можете войти в Ваш персональный кабинет, используя свой новый пароль"
+
+#: remotepsy/views.py:543
+#, python-format
+msgid ""
+"Ви вже записані на цей день з %(start_time)s до %(stop_time)s. Якщо бажаєте "
+"змінити час запису, то відмініть ваш прийом, а потім запишіться на інший час"
+msgstr ""
+"Вы уже записаны на этот день с %(start_time)s до %(stop_time)s. Если желаете "
+"изменить время записи, то отмените Ваш прием, а потом запишитесь на другое "
+"время"
+
+#: remotepsy/views.py:551
+msgid ""
+"У вас недостатньо коштів для запису. Поповніть, будь ласка, свій рахунок "
+msgstr ""
+"У Вас недостаточно средств на счету для записи. Пополните, пожалуйста, свой "
+"счет "
+
+#: remotepsy/views.py:564
+#, python-format
+msgid ""
+"Ви успішно записались на прийом з %(start_time)s до %(stop_time)s. Вартість "
+"послуги - %(cost)i гривень"
+msgstr ""
+"Вы успешно записались на прием с %(start_time)s до %(stop_time)s. Стоимость "
+"услуги - %(cost)i гривен"
+
+#: remotepsy/views.py:693
+msgid "Не можна відмінити прийом, який вже пройшов (або під час його)!"
+msgstr "Нельзя отменить прием, который уже прошел (или во время его)!"
+
+#: remotepsy/views.py:698
+#, python-format
+msgid "Відмінити прийом можна не менше ніж за %(min_time)i хвилин!"
+msgstr "Отменить прием можно не менее чем за %(min_time)i минут!"
+
+#: remotepsy/views.py:715 remotepsy/views.py:1191
+msgid "Ви успішно відмінили прийом"
+msgstr "Вы успешно отменили прием"
+
+#: remotepsy/views.py:800
+msgid ""
+"Ваш платіж успішно відправлений. Щойно банк підтвердить переказ коштів, вони "
+"будуть нараховані на ваш рахунок"
+msgstr ""
+"Ваш платеж успешно отправлен. Как только банк подтвердит перевод денег, они "
+"будут начислены на Ваш счет"
+
+#: remotepsy/views.py:1136
+msgid ""
+"Діапазони часу не мають перетинатись! Будь ласка, оберіть діапазони часу "
+"коректно"
+msgstr ""
+
+#: remotepsy/views.py:1140
+msgid ""
+"У вас запланований пройом в той час, який Ви відзначили як не робочий! Будь "
+"ласка, змініть діапазон робочoго часу або відмініть прийом"
+msgstr ""
+
+#: remotepsy/views.py:1154
+msgid "Ви успішно змінили діапазони робочих годин"
+msgstr ""
+
+#: remotepsy/views.py:1180
+msgid "Ви не ввели причину відміни прийому"
+msgstr ""
+
+#: remotepsy/views.py:1182
+#, python-format
+msgid ""
+"Шановний %(name)s, Ваш прийом %(day).02i.%(month).02i.%(year)i було "
+"відмінено.\n"
+"Причина: %(message)s.\n"
+"Будь ласка, виберіть інший час прийому.\n"
+"Сподіваємося на розуміння."
+msgstr ""
+"Уважаемый %(name)s, Ваш прием %(day).02i.%(month).02i.%(year)i был отменен\n"
+"Причина: %(message)s.\n"
+"Пожалуйста, выберите другое время приeма.\n"
+"Надеемся на понимание."
+
+#: remotepsy/views.py:1199
+#, python-format
+msgid ""
+"Шановний %(name)s, На Ваш віртуальний рахунок була повернена оплата за "
+"прийом %(day).02i.%(month).02i%(year)i.\n"
+msgstr ""
+"Уважаемый %(name)s, на Ваш виртуальный счет была возвращена оплата за прием "
+"%(day).02i.%(month).02i%(year)i.\n"
+
+#: remotepsy/views.py:1211
+msgid ""
+"Ви успішно повернули кошти клієнту.\n"
+"Інформація про даний прийом видалена з системи"
+msgstr ""
+
+#: remotepsy/views.py:1229
+msgid "Ви не ввели текст повідомлення"
+msgstr ""
+
+#: remotepsy/views.py:1233
+msgid "Повідомлення відправлено успішно"
+msgstr ""
+
+#: remotepsy/views.py:1238
+msgid "Успішно"
+msgstr "Успешно"
+
+#: remotepsy/views.py:1240
+msgid "Помилка"
+msgstr "Ошибка"
+
+#: remotepsy/views.py:1253
+msgid "Успішно проведено"
+msgstr "Успешно проведено"
+
+#: remotepsy/views.py:1255
+msgid "Платіж не проведено"
+msgstr "Платеж не проведен"
+
+#: remotepsy/views.py:1257 templates/user_balance.html:77
+msgid "Очікує підтвердження"
+msgstr "Ожидает подтверждения"
+
+#: remotepsy/views.py:1260
+#, python-format
+msgid "Статус платежу: %(status)s"
+msgstr ""
+
+#: remotepsy/views.py:1262
+msgid ""
+"Помилка перевірки статусу! Спробуйте пізніше або зверніться до розробників "
+"сайту"
+msgstr ""
+
+#: remotepsy/views.py:1343
+msgid "Інформація про послугу успішно збережена!"
+msgstr ""
+
+#: remotepsy/views.py:1358 remotepsy/views.py:1367
+msgid "30 хвилин"
+msgstr ""
+
+#: remotepsy/views.py:1358 remotepsy/views.py:1367
+msgid "45 хвилин"
+msgstr ""
+
+#: remotepsy/views.py:1358 remotepsy/views.py:1367
+msgid "1 година"
+msgstr ""
+
+#: remotepsy/views.py:1367
+msgid "1 година 15 хвилин"
+msgstr ""
+
+#: remotepsy/views.py:1367
+msgid "1 година 30 хвилин"
+msgstr ""
+
+#: remotepsy/views.py:1367
+msgid "1 година 45 хвилин"
+msgstr ""
+
+#: remotepsy/views.py:1367
+msgid "2 години"
+msgstr ""
+
+#: remotepsy/views.py:1388
+msgid ""
+"Видалення послуги неможливе тому, що є заплановані записи на дану послугу!"
+msgstr ""
+
+#: remotepsy/views.py:1394
+msgid "Ви успішно видалили послугу!"
+msgstr ""
+
+#: templates/base_menu.html:7 templates/index.html:5
+msgid "Віддалена психологічна допомога"
+msgstr "Удаленная психологическая помощь"
+
+#: templates/base_menu.html:9
+msgid "Вихід"
+msgstr "Выход"
+
+#: templates/base_menu.html:36
+msgid "Вітаємо"
+msgstr "Приветствуем"
+
+#: templates/base_menu.html:38
+msgid "Сьогодні:"
+msgstr ""
+
+#: templates/base_menu.html:43
+msgid "Послуги"
+msgstr "Услуги"
+
+#: templates/base_menu.html:44
+msgid "Записатись на прийом"
+msgstr "Записаться на прием"
+
+#: templates/base_menu.html:45
+msgid "Мої прийоми"
+msgstr "Мои приемы"
+
+#: templates/base_menu.html:46 templates/user_balance.html:5
+msgid "Мій рахунок"
+msgstr "Мой счет"
+
+#: templates/base_menu.html:49 templates/user_messages.html:5
+msgid "Мої повідомлення"
+msgstr "Мои сообщения"
+
+#: templates/base_menu.html:66
+msgid "Логін:"
+msgstr "Логин:"
+
+#: templates/base_menu.html:69
+msgid "Пароль:"
+msgstr "Пароль:"
+
+#: templates/base_menu.html:74
+msgid "Увійти"
+msgstr "Войти"
+
+#: templates/base_menu.html:77
+msgid "Зареєструватись"
+msgstr "Зарегистрироваться"
+
+#: templates/base_menu.html:78
+msgid "Забули пароль?"
+msgstr "Забыли пароль?"
+
+#: templates/change_password_form.html:5
+msgid "Зміна паролю"
+msgstr "Смена пароля"
+
+#: templates/change_password_form.html:9 templates/day_calendar.html:13
+#: templates/month_calendar.html:13 templates/record_form.html:9
+#: templates/register.html:9 templates/services_description.html:9
+#: templates/user_balance.html:9 templates/user_messages.html:9
+#: templates/user_records_form.html:9
+msgid "Головна сторінка"
+msgstr "Главная страница"
+
+#: templates/change_password_form.html:21
+msgid "'Ви не ввели Ваш логін!'"
+msgstr "'Вы не ввели Ваш логин!'"
+
+#: templates/change_password_form.html:26
+msgid "'Ви не ввели новий пароль!'"
+msgstr "'Вы не ввели новый пароль!'"
+
+#: templates/change_password_form.html:31
+msgid "'Введені паролі не співпадають!'"
+msgstr "'Введенные пароли не совпадают!'"
+
+#: templates/change_password_form.html:47
+msgid "Новий пароль"
+msgstr "Новый пароль"
+
+#: templates/change_password_form.html:51
+msgid "Новий пароль (повторний ввід)"
+msgstr "Новый пароль (повторный ввод)"
+
+#: templates/change_password_form.html:55
+msgid "Змінити пароль"
+msgstr "Сменить пароль"
+
+#: templates/day_calendar.html:9
+msgid "Вибір часу для запису"
+msgstr "Выбор времени для записи"
+
+#: templates/day_calendar.html:13 templates/record_form.html:9
+msgid "Вибір дня"
+msgstr "Выбор дня"
+
+#: templates/day_calendar.html:20
+msgid "На цей день прийом не заплановано"
+msgstr "На этот день прием уже запланирован"
+
+#: templates/day_calendar.html:40
+msgid ""
+"Виберіть зручний для Вас час прийому та натисніть на відповідному рядку для "
+"переходу на форму реєстрації прийому"
+msgstr ""
+"Выберите удобное для Вас время приема и нажмите на соответствующей строчке "
+"для перехода на форму регистрации приема"
+
+#: templates/day_calendar.html:41
+msgid "Неклікабельні рядки означають, що на даний час неможливо записатись"
+msgstr ""
+"Некликабельные строчки означают, что на данное время нельзя записаться"
+
+#: templates/inform_message.html:5
+msgid "Інформація"
+msgstr "Информация"
+
+#: templates/inform_message.html:19
+msgid "Так"
+msgstr "Да"
+
+#: templates/inform_message.html:19
+msgid "Ні"
+msgstr "Нет"
+
+#: templates/inform_message.html:21
+msgid "OK"
+msgstr "ОК"
+
+#: templates/month_calendar.html:9
+msgid "Вибір дати"
+msgstr "Выбор даты"
+
+#: templates/month_calendar.html:18
+msgid "Попередній місяць"
+msgstr "Предыдущий месяц"
+
+#: templates/month_calendar.html:18
+msgid "Наступний місяць"
+msgstr "Следующий месяц"
+
+#: templates/month_calendar.html:21
+msgid "Понеділок"
+msgstr "Понедельник"
+
+#: templates/month_calendar.html:22
+msgid "Вівторок"
+msgstr "Вторник"
+
+#: templates/month_calendar.html:23
+msgid "Середа"
+msgstr "Среда"
+
+#: templates/month_calendar.html:24
+msgid "Четвер"
+msgstr "Черверг"
+
+#: templates/month_calendar.html:25
+msgid "П'ятниця"
+msgstr "Пятница"
+
+#: templates/month_calendar.html:26
+msgid "Субота"
+msgstr "Суббота"
+
+#: templates/month_calendar.html:27
+msgid "Неділя"
+msgstr "Воскресенье"
+
+#: templates/record_form.html:5 templates/record_form.html.py:41
+msgid "Запис на прийом"
+msgstr "Запись на прием"
+
+#: templates/record_form.html:9
+msgid "Вибір години"
+msgstr "Выбор времени"
+
+#: templates/record_form.html:44
+msgid "Послуга"
+msgstr "Услуга"
+
+#: templates/record_form.html:48
+msgid "грн/год"
+msgstr "грн/час"
+
+#: templates/record_form.html:54
+msgid "Час початку"
+msgstr "Время начала"
+
+#: templates/record_form.html:64
+msgid "Час закінчення"
+msgstr "Время окончания"
+
+#: templates/record_form.html:71
+msgid "Коментар"
+msgstr "Комментарий"
+
+#: templates/record_form.html:75
+msgid "Записатись"
+msgstr "Записаться"
+
+#: templates/register.html:5
+msgid "Форма реєстрації"
+msgstr "Форма регистрации"
+
+#: templates/register.html:17
+msgid "Далі"
+msgstr "Дальше"
+
+#: templates/services_description.html:5
+#: templates/services_description.html:13
+msgid "Опис послуг"
+msgstr "Описание услуг"
+
+#: templates/services_description.html:19
+msgid "Тривалість"
+msgstr "Длительность"
+
+#: templates/services_description.html:19
+msgid "хвилин"
+msgstr "минут"
+
+#: templates/services_description.html:20
+msgid "Вартість послуги"
+msgstr "Стоимость услуги"
+
+#: templates/services_description.html:20
+msgid "гривень за годину"
+msgstr "гривен за час"
+
+#: templates/user_balance.html:18
+msgid "'Введіть суму грошового переказу!'"
+msgstr "'Введите сумму денежного перевода!'"
+
+#: templates/user_balance.html:23
+msgid "'Сума переказу має бути числовим значенням!'"
+msgstr "'Сумма перевода должна быть числовым значением!'"
+
+#: templates/user_balance.html:40
+msgid "Поточний стан рахунку"
+msgstr "Текущее состояние счета"
+
+#: templates/user_balance.html:40
+msgid "грн"
+msgstr "грн"
+
+#: templates/user_balance.html:48
+msgid "Поповнення рахунку"
+msgstr "Пополнение счета"
+
+#: templates/user_balance.html:51 templates/user_balance.html.py:67
+msgid "Сума (грн.)"
+msgstr "Сумма (грн.)"
+
+#: templates/user_balance.html:55
+msgid "Поповнити"
+msgstr "Пополнить"
+
+#: templates/user_balance.html:59
+msgid "* поповнення вашого рахунку забезпечує сервіс ПриватБанку"
+msgstr "* пополнение Вашего счета обеспечивает сервис ПриватБанка"
+
+#: templates/user_balance.html:60
+msgid ""
+"** після поповнення вашого рахунку полатіжною карткою, повернення коштів "
+"назад неможливе"
+msgstr ""
+"** после пополнения Вашего счета платежной карточкой, возвращение денег "
+"обратно будет невозможно"
+
+#: templates/user_balance.html:64
+msgid "Історія поповнень рахунку"
+msgstr "История пополнений счета"
+
+#: templates/user_balance.html:68
+msgid "Дата завершення транзакції"
+msgstr "Дата завершения трансакции"
+
+#: templates/user_messages.html:18
+msgid "'Введіть текст повідомлення'"
+msgstr "'Введите текст сообщения'"
+
+#: templates/user_messages.html:34
+msgid "Нове повідомлення психологу"
+msgstr "Новое сообщение психологу"
+
+#: templates/user_messages.html:36
+msgid "Відправити"
+msgstr "Отправить"
+
+#: templates/user_messages.html:42 templates/user_messages.html.py:44
+msgid "Отримані"
+msgstr "Полученные"
+
+#: templates/user_messages.html:42 templates/user_messages.html.py:44
+msgid "Відправлені"
+msgstr "Отправленные"
+
+#: templates/user_messages.html:50 templates/user_messages.html.py:68
+msgid "Дата"
+msgstr "Дата"
+
+#: templates/user_messages.html:51 templates/user_messages.html.py:69
+msgid "Текст повідомлення"
+msgstr "Текст сообщения"
+
+#: templates/user_records_form.html:5
+msgid "Мої записи"
+msgstr "Мои записи"
+
+#: templates/user_records_form.html:15
+msgid "'Ви дійсно хочете відмінити прийом?'"
+msgstr "'Вы действительно хотите отменить прием?'"
+
+#: templates/user_records_form.html:25
+msgid "У вас поки що немає прийомів у психолога"
+msgstr "У Вас пока еще нет приемов у психолога"
+
+#: templates/user_records_form.html:28
+msgid "Ваші візити до психолога"
+msgstr "Ваши визиты к психологу"
+
+#: templates/user_records_form.html:41
+msgid "Відмінити"
+msgstr "Отменить"

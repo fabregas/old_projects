@@ -1,0 +1,18 @@
+{% extends "base_menu.html" %}
+
+{% block title %}
+	Information
+{% endblock %}
+
+{% block right_content %}
+	<div id="inform_area">
+		<table>
+		   <tr>
+		   	<td align="center">{{message|escape|linebreaks}}</td>
+		   </tr>
+		   <tr>
+		        <td align="center"><input type="button" value="OK" onclick="location.href='{{redirect_link}}';"></td>
+		   </tr>
+		</table>
+	</div>
+{% endblock %}
