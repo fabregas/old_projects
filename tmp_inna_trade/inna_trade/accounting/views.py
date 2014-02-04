@@ -282,7 +282,7 @@ def get_sellers(request, dict_type):
 
 
 def get_order_total(order):
-    order_items = OrderItem.objects.filter(order=order).order_by('name__key')
+    order_items = OrderItem.objects.filter(order=order)
     summ = 0
 
     for order_item in order_items:
@@ -299,7 +299,7 @@ def get_order_items(order):
     summ, delivery, order_items = get_order_total(order)
     items = []
     init_cost_sum = price_sum = 0
-    for order_item in order_items:
+    for order_item in order_items.order_by('name__key'):
         init_cost = ((order_item.cost * (1-order.discount_percent/100.) + ((order_item.cost+0.0)/summ)*delivery) * order.course)
         init_cost_sum += init_cost
         price_sum += order_item.price
@@ -312,9 +312,18 @@ def get_order_items(order):
 
     return summ, init_cost_sum, price_sum, items
 
-def calculate_order_item(order_item):
+def calculate_order_item(order_item, cache=None):
+    if cache is not None:
+        summ, delivery = cache.get(order_item.order_id, (None, None))
+    else:
+        summ = delivery = None
+
     order = order_item.order
-    summ, delivery, _ = get_order_total(order)
+    if summ is None:
+        summ, delivery, _ = get_order_total(order)
+        if cache is not None:
+            cache[order_item.order_id] = (summ, delivery) 
+
     init_cost = (order_item.cost * (1-order.discount_percent/100.) + ((order_item.cost+0.0)/summ)*delivery) * order.course
     marg = order_item.price - init_cost - order_item.discount
 
@@ -323,8 +332,9 @@ def calculate_order_item(order_item):
 def calculate_margin_sum(orders_items):
     marg_sum = 0
     price_sum = 0
+    cache = {}
     for item in orders_items:
-        init_cost, marg = calculate_order_item(item)
+        init_cost, marg = calculate_order_item(item, cache)
         marg_sum += float(marg)
         price_sum += item.price
     return price_sum, marg_sum
@@ -390,6 +400,8 @@ def get_orders_items(request):
     brand = request.GET.get('brand', '')
     item_name = request.GET.get('item_name', '')
     buyer = request.GET.get('buyer', '')
+    #from datetime import datetime
+    #t0 = datetime.now()
 
     CNT = 50
 
@@ -452,8 +464,11 @@ def get_orders_items(request):
         orders_items = orders_items.order_by('-sale_date')
     else:
         orders_items = orders_items.order_by('brand__key', 'name__key', 'order__receive_date')
-
+    
     orders_items = orders_items[(page_num-1)*CNT:page_num*CNT]
+
+    #print 'QUERY: ', orders_items.query
+    #print 'T1 = ', datetime.now()-t0 
 
     items = []
     for item_o in orders_items:
@@ -481,6 +496,8 @@ def get_orders_items(request):
     if summarize:
         five_perc = '%.2f'%(price_sum * 0.05)
         price_sum = '%.2f'% price_sum
+
+    #print 'T2 = ', datetime.now()-t0
 
     return HttpResponse(json.dumps({'ret_code': 0, 'items': items, \
             'pages_count': pages_count or 1, 'page_num': page_num, \
